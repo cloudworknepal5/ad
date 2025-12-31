@@ -8,13 +8,13 @@ async function showVideoGrid(channelId, apiKey, containerId) {
         const uploadsPlaylistId = channelData.items[0].contentDetails.relatedPlaylists.uploads;
 
         // Step 2: Get the latest 9 videos from that playlist
-        const playlistUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=9&key=${apiKey}`;
+        const playlistUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=4&key=${apiKey}`;
         const playlistRes = await fetch(playlistUrl);
         const playlistData = await playlistRes.json();
 
         // Step 3: Build the Grid HTML
         const container = document.getElementById(containerId);
-        let gridHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">';
+        let gridHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 15px;">';
 
         playlistData.items.forEach(item => {
             const vId = item.snippet.resourceId.videoId;
@@ -22,7 +22,7 @@ async function showVideoGrid(channelId, apiKey, containerId) {
             
             gridHtml += `
                 <div style="background: #f9f9f9; padding: 10px; border-radius: 8px;">
-                    <iframe width="100%" height="150" 
+                    <iframe width="100%" height="250" 
                         src="https://www.youtube.com/embed/${vId}" 
                         frameborder="0" allowfullscreen>
                     </iframe>
@@ -41,3 +41,4 @@ async function showVideoGrid(channelId, apiKey, containerId) {
         document.getElementById(containerId).innerHTML = "Failed to load videos.";
     }
 }
+
