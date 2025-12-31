@@ -7,14 +7,14 @@ async function showVideoGrid(channelId, apiKey, containerId) {
         
         const uploadsPlaylistId = channelData.items[0].contentDetails.relatedPlaylists.uploads;
 
-        // Step 2: Get the latest 9 videos from that playlist
+        // Step 2: Get the latest 4 videos from that playlist
         const playlistUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=4&key=${apiKey}`;
         const playlistRes = await fetch(playlistUrl);
         const playlistData = await playlistRes.json();
 
         // Step 3: Build the Grid HTML
         const container = document.getElementById(containerId);
-        let gridHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 25px;">';
+        let gridHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px;">';
 
         playlistData.items.forEach(item => {
             const vId = item.snippet.resourceId.videoId;
@@ -41,6 +41,7 @@ async function showVideoGrid(channelId, apiKey, containerId) {
         document.getElementById(containerId).innerHTML = "Failed to load videos.";
     }
 }
+
 
 
 
