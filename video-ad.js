@@ -8,7 +8,7 @@ async function showVideoGrid(channelId, apiKey, containerId) {
         const uploadsPlaylistId = channelData.items[0].contentDetails.relatedPlaylists.uploads;
 
         // Step 2: Get the latest 4 videos from that playlist
-        const playlistUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=4&key=${apiKey}`;
+        const playlistUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=3&key=${apiKey}`;
         const playlistRes = await fetch(playlistUrl);
         const playlistData = await playlistRes.json();
 
@@ -41,6 +41,7 @@ async function showVideoGrid(channelId, apiKey, containerId) {
         document.getElementById(containerId).innerHTML = "Failed to load videos.";
     }
 }
+
 
 
 
