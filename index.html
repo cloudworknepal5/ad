@@ -77,67 +77,11 @@
         <button class="copy-btn" onclick="copyContent()">Copy</button>
     </div>
     <pre class="embed-content" id="codeToCopy">
-<script src="https://ad.neelamb.com/popup.js"></script></pre>
-</div>
-
-
-<div class="embed-container">
-    <div class="embed-header">
-        <span>Embed Code</span>
-        <button class="copy-btn" onclick="copyContent()">Copy</button>
-    </div>
-    <pre class="embed-content" id="codeToCopy">
 &lt;div class="ad-slot"&gt;
-  &lt;script src="https://ads.provider.com/script.js"&gt;&lt;/script&gt;
+  &lt;script src="https://ad.neelamb.com/popup.js"&gt;&lt;/script&gt;
 &lt;/div&gt;</pre>
 </div>
 
-
-
-
-    <div class="embed-container">
-    <div class="embed-header">
-        <span>Embed Code</span>
-        <button class="copy-btn" onclick="copyContent()">Copy</button>
-    </div>
-    <pre class="embed-content" id="codeToCopy">
-&lt;div class="ad-slot"&gt;
-  &lt;script src="https://ads.provider.com/script.js"&gt;&lt;/script&gt;
-&lt;/div&gt;</pre>
-</div>
-
-
-
-
-    <div class="embed-container">
-    <div class="embed-header">
-        <span>Embed Code</span>
-        <button class="copy-btn" onclick="copyContent()">Copy</button>
-    </div>
-    <pre class="embed-content" id="codeToCopy">
-&lt;div class="ad-slot"&gt;
-  &lt;script src="https://ads.provider.com/script.js"&gt;&lt;/script&gt;
-&lt;/div&gt;</pre>
-</div>
-
-
-
-
-    <div class="embed-container">
-    <div class="embed-header">
-        <span>Embed Code</span>
-        <button class="copy-btn" onclick="copyContent()">Copy</button>
-    </div>
-    <pre class="embed-content" id="codeToCopy">
-&lt;div class="ad-slot"&gt;
-  &lt;script src="https://ads.provider.com/script.js"&gt;&lt;/script&gt;
-&lt;/div&gt;</pre>
-</div>
-
-
-    
-
-    
 <script>
     function copyContent() {
         const text = document.getElementById('codeToCopy').innerText;
@@ -153,6 +97,37 @@
     }
 </script>
 
+
+
+    
+
+<div class="embed-container">
+    <div class="embed-header">
+        <span>popup ad</span>
+        <button class="copy-btn" onclick="copyContent()">Copy</button>
+    </div>
+    <pre class="embed-content" id="codeToCopy">
+&lt;div class="custom-ad-provider"&gt;
+  &lt;script src="https://ad.neelamb.com/ad/ad-script.js"&gt;&lt;/script&gt;
+&lt;/div&gt;</pre>
+</div>
+
+<script>
+    function copyContent() {
+        const text = document.getElementById('codeToCopy').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            btn.innerText = 'Copied!';
+            btn.style.background = '#28a745';
+            setTimeout(() => {
+                btn.innerText = 'Copy';
+                btn.style.background = '#007bff';
+            }, 2000);
+        });
+    }
+</script>
+
+
+    
 </body>
 </html>
-
