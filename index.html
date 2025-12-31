@@ -1,11 +1,101 @@
-ads code for website
-click copy ads
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Container styling */
+        .embed-container {
+            max-width: 100%;
+            margin: 20px auto;
+            background: #1e1e1e; /* Dark background */
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        /* Header with Title and Button */
+        .embed-header {
+            background: #2d2d2d;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #3c3c3c;
+        }
 
-popup ad
-<script src="https://ad.neelamb.com/popup.js"></script>
+        .embed-header span {
+            color: #dcdcdc;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
 
+        .copy-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
 
-any size of ads
-<div class="custom-ad-provider"></div>
-<script src="https://ad.neelamb.com/ad/ad-script.js" async></script>
+        .copy-btn:hover {
+            background: #0056b3;
+        }
+
+        /* Code/Content Area */
+        .embed-content {
+            padding: 15px;
+            overflow-x: auto; /* Enables horizontal scroll on mobile */
+            white-space: pre; /* Keeps code formatting */
+            color: #9cdcfe;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Adjustments for small screens */
+        @media (max-width: 600px) {
+            .embed-content {
+                font-size: 13px;
+                padding: 12px;
+            }
+            .copy-btn {
+                padding: 4px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="embed-container">
+    <div class="embed-header">
+        <span>Embed Code</span>
+        <button class="copy-btn" onclick="copyContent()">Copy</button>
+    </div>
+    <pre class="embed-content" id="codeToCopy">
+&lt;div class="ad-slot"&gt;
+  &lt;script src="https://ads.provider.com/script.js"&gt;&lt;/script&gt;
+&lt;/div&gt;</pre>
+</div>
+
+<script>
+    function copyContent() {
+        const text = document.getElementById('codeToCopy').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            btn.innerText = 'Copied!';
+            btn.style.background = '#28a745';
+            setTimeout(() => {
+                btn.innerText = 'Copy';
+                btn.style.background = '#007bff';
+            }, 2000);
+        });
+    }
+</script>
+
+</body>
+</html>
