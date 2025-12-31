@@ -14,7 +14,7 @@ async function showVideoGrid(channelId, apiKey, containerId) {
 
         // Step 3: Build the Grid HTML
         const container = document.getElementById(containerId);
-        let gridHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 15px;">';
+        let gridHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 25px;">';
 
         playlistData.items.forEach(item => {
             const vId = item.snippet.resourceId.videoId;
@@ -41,5 +41,6 @@ async function showVideoGrid(channelId, apiKey, containerId) {
         document.getElementById(containerId).innerHTML = "Failed to load videos.";
     }
 }
+
 
 
