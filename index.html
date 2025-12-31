@@ -4,68 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Container styling */
         .embed-container {
             max-width: 100%;
             margin: 20px auto;
-            background: #1e1e1e; /* Dark background */
+            background: #1e1e1e;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: sans-serif;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
-        /* Header with Title and Button */
         .embed-header {
             background: #2d2d2d;
             padding: 10px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #3c3c3c;
         }
 
-        .embed-header span {
-            color: #dcdcdc;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
+        .embed-header span { color: #dcdcdc; font-size: 14px; }
 
         .copy-btn {
             background: #007bff;
             color: white;
             border: none;
-            padding: 5px 12px;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.8rem;
-            transition: background 0.2s;
+            font-size: 12px;
         }
 
-        .copy-btn:hover {
-            background: #0056b3;
-        }
-
-        /* Code/Content Area */
         .embed-content {
             padding: 15px;
-            overflow-x: auto; /* Enables horizontal scroll on mobile */
-            white-space: pre; /* Keeps code formatting */
+            overflow-x: auto;
+            white-space: pre;
             color: #9cdcfe;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: 'Consolas', monospace;
             font-size: 14px;
-            line-height: 1.6;
+            margin: 0;
         }
 
-        /* Adjustments for small screens */
+        /* Mobile Responsive adjustment */
         @media (max-width: 600px) {
-            .embed-content {
-                font-size: 13px;
-                padding: 12px;
-            }
-            .copy-btn {
-                padding: 4px 8px;
-            }
+            .embed-content { font-size: 13px; }
         }
     </style>
 </head>
@@ -73,61 +54,45 @@
 
 <div class="embed-container">
     <div class="embed-header">
-        <span>popup ad</span>
-        <button class="copy-btn" onclick="copyContent()">Copy</button>
+        <span>Advertisement Script 1</span>
+        <button class="copy-btn" onclick="copyThis(this)">Copy</button>
     </div>
-    <pre class="embed-content" id="codeToCopy">
-&lt;div class="ad-slot"&gt;
-  &lt;script src="https://ad.neelamb.com/popup.js"&gt;&lt;/script&gt;
-&lt;/div&gt;</pre>
+    <pre class="embed-content">
+&lt;!-- Ad 1 Code --&gt;
+&lt;div id="ad-slot-01"&gt;&lt;/div&gt;
+    </pre>
 </div>
-
-<script>
-    function copyContent() {
-        const text = document.getElementById('codeToCopy').innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            const btn = document.querySelector('.copy-btn');
-            btn.innerText = 'Copied!';
-            btn.style.background = '#28a745';
-            setTimeout(() => {
-                btn.innerText = 'Copy';
-                btn.style.background = '#007bff';
-            }, 2000);
-        });
-    }
-</script>
-
-
-
-    
 
 <div class="embed-container">
     <div class="embed-header">
-        <span>popup ad</span>
-        <button class="copy-btn" onclick="copyContent()">Copy</button>
+        <span>Analytics Script 2</span>
+        <button class="copy-btn" onclick="copyThis(this)">Copy</button>
     </div>
-    <pre class="embed-content" id="codeToCopy">
-&lt;div class="custom-ad-provider"&gt;
-  &lt;script src="https://ad.neelamb.com/ad/ad-script.js"&gt;&lt;/script&gt;
-&lt;/div&gt;</pre>
+    <pre class="embed-content">
+&lt;!-- Analytics Code --&gt;
+&lt;script&gt;console.log('Tracking...');&lt;/script&gt;
+    </pre>
 </div>
 
 <script>
-    function copyContent() {
-        const text = document.getElementById('codeToCopy').innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            const btn = document.querySelector('.copy-btn');
+    function copyThis(btn) {
+        // Finds the <pre> tag located in the same container as the button
+        const container = btn.closest('.embed-container');
+        const textToCopy = container.querySelector('.embed-content').innerText;
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            // Update button text temporarily
+            const originalText = btn.innerText;
             btn.innerText = 'Copied!';
             btn.style.background = '#28a745';
+
             setTimeout(() => {
-                btn.innerText = 'Copy';
+                btn.innerText = originalText;
                 btn.style.background = '#007bff';
             }, 2000);
         });
     }
 </script>
 
-
-    
 </body>
 </html>
