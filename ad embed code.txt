@@ -1,0 +1,12 @@
+<script src="https://educationnepal.eu.org/ad/ad-script.js" async></script>
+
+
+<script src="https://educationnepal.eu.org/popup.js"></script>
+
+https://educationnepal.eu.org/ad/image/new-year-2026.png
+
+
+
+
+<div class="custom-ad-provider"></div>
+<script src="https://educationnepal.eu.org/ad/ad-script.js" async></script>
