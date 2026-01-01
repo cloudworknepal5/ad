@@ -41,8 +41,8 @@
                 <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiRxClRO137Og9jVG6xYJo-Ne8i3VvyNVjjKffivRPTHl3HUtGzlOD7aC7zHFceKrWA5ps0broWx74W31ho6uh_JXaq3OengJCv_yf9JuVbQh17t4Br_0eO4slE6RB8ztQI5Rc1QU1sDpwflu7EiNmWIBIwBIxeZNPg2Lx8geonsn5PWEmA2M43G1IQU7iM=s600" alt="Special Offer" id="popup-img">
                 <div class="popup-body">
                     <h2>Special Offer!</h2>
-                    <p>Don't miss.</p>
-                    <a href="https://neelamb.com" class="popup-button">Click Here</a>
+                    <p>contact</p>
+                    <a href="https://wa.me/qr/6N6RAVYRN5I4E1" class="popup-button">Click Here</a>
                 </div>
             </div>
         </div>
@@ -63,4 +63,5 @@
     window.onclick = (e) => { if (e.target == overlay) overlay.classList.remove('popup-visible'); };
 
 })();
+
 
