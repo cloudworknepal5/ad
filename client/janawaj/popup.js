@@ -42,7 +42,7 @@
                 <div class="popup-body">
                     <h2>Special Offer!</h2>
                     <p>contact</p>
-                    <a href="https://wa.me/9779811196496" class="popup-button">Click Here</a>
+                    <a href="https://wa.me/9779744229292" class="popup-button">Click Here</a>
                 </div>
             </div>
         </div>
@@ -63,6 +63,7 @@
     window.onclick = (e) => { if (e.target == overlay) overlay.classList.remove('popup-visible'); };
 
 })();
+
 
 
 
