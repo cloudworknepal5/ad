@@ -51,3 +51,21 @@ body, html {
     50% {
         transform: translateY(0px) rotate(-1deg);
     }
+    75% {
+        transform: translateY(15px) rotate(0.5deg);
+    }
+}
+
+/* ३. माउस होभर गर्दाको प्रभाव */
+#animationCanvas:hover {
+    transition: filter 0.5s;
+    filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5)) contrast(1.1);
+}
+
+/* ४. मोबाइलको लागि रेस्पोन्सिभ डिजाइन */
+@media screen and (max-width: 600px) {
+    #animationCanvas {
+        width: 100%;
+        height: auto;
+    }
+}
