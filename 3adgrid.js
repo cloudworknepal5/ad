@@ -1,54 +1,50 @@
 (function() {
-    // १. मल्टि-फङ्सन कन्फिगरेसन (यहाँ लिङ्क र नाम परिवर्तन गर्नुहोस्)
+    // --- MULTI-FUNCTION CONFIGURATION ---
     const adConfig = {
-        labelLink: "https://your-ad-policy-link.com", // Adnp मा क्लिक गर्दा जाने लिङ्क
-        labelText: "Adnp",
+        adnpLink: "https://ad.neelamb.com/", // Adnp बटनको लिङ्क
         ads: [
             {
-                title: "Image Ad 1",
-                size: "200 x 200",
-                adLink: "https://link1.com" // पहिलो विज्ञापनको लिङ्क
+                imgUrl: "https://ad.neelamb.com/300x300%20copy.png", // १. पहिलो फोटोको URL
+                targetUrl: "https://link1.com"           // क्लिक गर्दा जाने लिङ्क
             },
             {
-                title: "Image Ad 2",
-                size: "200 x 200",
-                adLink: "https://link2.com" // दोस्रो विज्ञापनको लिङ्क
+                imgUrl: "दhttps://ad.neelamb.com/300x300%20copy.png", // २. दोस्रो फोटोको URL
+                targetUrl: "https://link2.com"           // क्लिक गर्दा जाने लिङ्क
             },
             {
-                title: "Image Ad 3",
-                size: "200 x 200",
-                adLink: "https://link3.com" // तेस्रो विज्ञापनको लिङ्क
+                imgUrl: "https://ad.neelamb.com/300x300%20copy.png",  // ३. तेस्रो फोटोको URL
+                targetUrl: "https://link3.com"           // क्लिक गर्दा जाने लिङ्क
             }
         ]
     };
 
-    // २. विज्ञापन ग्रिड बनाउने फङ्सन
     function init3AdGrid() {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'ad-grid-wrapper';
+        const container = document.createElement('div');
+        container.className = 'neelamb-ad-grid';
 
-        adConfig.ads.forEach(ad => {
+        adConfig.ads.forEach((ad, index) => {
             const adBox = document.createElement('div');
-            adBox.className = 'ad-grid-box';
-
-            // मुख्य विज्ञापनको लिङ्क (Heading र Size मा क्लिक गर्दा जाने)
-            adBox.innerHTML = `
-                <a href="${ad.adLink}" target="_blank" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%;">
-                    <h3>${ad.title}</h3>
-                    <p>${ad.size}</p>
-                </a>
-                <a href="${adConfig.labelLink}" target="_blank" class="adnp-label">${adConfig.labelText}</a>
-            `;
+            adBox.className = 'neelamb-ad-box';
             
-            wrapper.appendChild(adBox);
+            // इमेज ट्याग सहितको विज्ञापन
+            let content = `
+                <a href="${ad.targetUrl}" target="_blank" class="main-ad-link">
+                    <img src="${ad.imgUrl}" alt="Ad ${index + 1}" style="width:100%; height:100%; object-fit:cover; display:block;">
+                </a>
+            `;
+
+            // अन्तिम बक्समा मात्र Adnp लेबल थप्ने
+            if (index === adConfig.ads.length - 1) {
+                content += `<a href="${adConfig.adnpLink}" target="_blank" class="adnp-single-label">Adnp</a>`;
+            }
+
+            adBox.innerHTML = content;
+            container.appendChild(adBox);
         });
 
-        // यो कोड जहाँ राखिन्छ त्यही ठाउँमा विज्ञापन देखाउने
-        const thisScript = document.currentScript;
-        thisScript.parentNode.insertBefore(wrapper, thisScript);
+        const currentScript = document.currentScript;
+        currentScript.parentNode.insertBefore(container, currentScript);
     }
 
-    // ३. रन गर्ने फङ्सन
     init3AdGrid();
-
 })();
