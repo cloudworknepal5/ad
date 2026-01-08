@@ -1,7 +1,7 @@
 (function() {
     // १. कन्फिगरेसन (यहाँ इमेज र लिङ्क राख्नुहोस्)
     const slideAdConfig = {
-        imageUrl: "https://ad.neelamb.com/970x200-1.jpg", 
+        imageUrl: "https://ad.neelamb.com/1200x100.png", 
         targetUrl: "https://neelamb.com",
         adnpLink: "https://ad.neelamb.com/",
         displayDelay: 2000 // २ सेकेन्ड पछि विज्ञापन निस्किन्छ
