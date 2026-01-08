@@ -1,7 +1,7 @@
 (function() {
     // १. विज्ञापन सेटअप (यहाँ आफ्नो डाटा राख्नुहोस्)
     const adConfig = {
-        imageUrl: "https://ad.neelamb.com/970x200-1.jpg", // विज्ञापनको फोटो
+        imageUrl: "https://ad.neelamb.com/1200x100.png", // विज्ञापनको फोटो
         targetUrl: "https://neelamb.com", // क्लिक गर्दा जाने ठाउँ
         adnpLink: "https://ad.neelamb.com/",        // Adnp को छुट्टै लिङ्क
         altText: "Premium Billboard Ad"
