@@ -1,40 +1,44 @@
-/* मुख्य कन्टेनर */
+/* 3adgrid Multi-function CSS */
 .neelamb-ad-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
     justify-content: center;
     margin: 20px auto;
+    max-width: 1200px;
 }
 
-/* विज्ञापन बक्स */
 .neelamb-ad-box {
     width: 200px;
     height: 200px;
-    border: 1px solid #000;
-    position: relative; /* यसले Adnp लाई भित्रै राख्न मद्दत गर्छ */
+    border: 1px solid #ccc;
+    position: relative;
     background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden; /* इमेज बक्स बाहिर नजाओस् भनेर */
+    transition: 0.3s;
+}
+
+.neelamb-ad-box:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    border-color: #000;
 }
 
 .main-ad-link {
-    text-decoration: none;
-    color: #000;
-    text-align: center;
+    display: block;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-family: Arial, sans-serif;
+    text-decoration: none;
 }
 
-.ad-title { font-size: 20px; font-weight: bold; }
-.ad-size { font-size: 18px; margin-top: 5px; }
+/* इमेजलाई बक्सभित्र मिलाउने */
+.main-ad-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    display: block;
+}
 
-/* Adnp लेबल - जुन अन्तिम बक्समा मात्र देखिन्छ */
+/* Adnp लेबल - जुन अन्तिम विज्ञापनको दायाँ कुनामा मात्र हुन्छ */
 .adnp-single-label {
     position: absolute;
     bottom: 0;
@@ -51,7 +55,14 @@
 /* मोबाइल रेस्पोन्सबिलिटी */
 @media (max-width: 650px) {
     .neelamb-ad-box {
-        width: 100%;
-        max-width: 250px;
+        width: 45%; /* मोबाइलमा एउटा लाइनमा दुईवटा देखाउन */
+        height: 180px;
+    }
+}
+
+@media (max-width: 400px) {
+    .neelamb-ad-box {
+        width: 90%; /* धेरै सानो स्क्रिनमा एउटा मात्र देखाउन */
+        height: 200px;
     }
 }
