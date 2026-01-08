@@ -2,8 +2,8 @@
     // --- MULTI-FUNCTION CONFIGURATION ---
     // यहाँ तपाईंले आफ्नो इमेज र लिङ्कहरू राख्नुहोस्
     const adConfig = {
-        imageUrl: "https://your-image-link-here.jpg", // विज्ञापनको तस्बिरको लिङ्क
-        targetUrl: "https://advertiser-site.com",     // विज्ञापनमा क्लिक गर्दा खुल्ने लिङ्क
+        imageUrl: "https://ad.neelamb.com/970x200-2.jpg", // विज्ञापनको तस्बिरको लिङ्क
+        targetUrl: "https://neelamb.com",     // विज्ञापनमा क्लिक गर्दा खुल्ने लिङ्क
         adnpLink: "https://ad.neelamb.com/",          // Adnp लेबलमा क्लिक गर्दा खुल्ने लिङ्क
         altText: "Premium Billboard Advertisement"
     };
