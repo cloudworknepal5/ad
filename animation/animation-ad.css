@@ -1,31 +1,53 @@
-/* Multi-functional Styles for Animation Ad */
+/* Multi-functional Animation Ad Styling */
+
 body, html {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    background-color: transparent; /* ब्लगरको ब्याकग्राउन्डसँग मिल्नको लागि */
+    background-color: transparent; /* ब्लगरको ब्याकग्राउन्डमा ट्याक्क मिल्न */
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
+    perspective: 1000px; /* ३डी लुक दिनको लागि */
 }
 
+/* क्यानभास सेटिङ */
 #animationCanvas {
-    max-width: 100%;
-    max-height: 100%;
+    display: block;
+    max-width: 95vw;
+    max-height: 95vh;
     cursor: pointer;
-    transition: filter 0.3s ease;
+    /* सुरुमा आउँदा बिस्तारै देखिने प्रभाव */
+    animation: entranceEffect 2s ease-out forwards, floatingDance 6s infinite ease-in-out;
+    filter: drop-shadow(0 0 20px rgba(0,0,0,0.3));
+    image-rendering: auto;
 }
 
-#animationCanvas:hover {
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
-}
-
-/* मोबाइलको लागि उपयुक्त साइज */
-@media screen and (max-width: 480px) {
-    #animationCanvas {
-        width: 300px;
-        height: 300px;
+/* १. इन्ट्रान्स एनिमेशन: सुरुमा फोटो आउँदाको चमक */
+@keyframes entranceEffect {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+        filter: blur(10px) brightness(2);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+        filter: blur(0px) brightness(1);
     }
 }
+
+/* २. नाच्ने/उडिरहेको प्रभाव (Floating & Dancing) */
+/* यसले पूरै क्यानभासलाई बिस्तारै हावामा उडिरहेको जस्तो बनाउँछ */
+@keyframes floatingDance {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-15px) rotate(1deg);
+    }
+    50% {
+        transform: translateY(0px) rotate(-1deg);
+    }
