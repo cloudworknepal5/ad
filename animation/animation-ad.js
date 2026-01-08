@@ -1,112 +1,79 @@
 /**
- * Animation-Ad JS - Dancing & Floating Fragments
- * Multi-functionality: Larger dots, Sinewave motion, Mouse interaction
+ * Animation-Ad JS - Slice Slider & Flutter Effect
+ * Multi-functionality: Slice animation, Auto-slide, Wave motion
  */
 
 const canvas = document.getElementById('animationCanvas');
-const ctx = canvas.getContext('2d', { willReadFrequently: true });
+const ctx = canvas.getContext('2d');
 
 canvas.width = 600;
 canvas.height = 600;
 
-let particlesArray = [];
-let gap = 10; // डटहरू बीचको ग्याप (यसलाई बढाउँदा टुक्रा अझ ठूला र कम हुन्छन्)
-
-const mouse = {
-    x: null,
-    y: null,
-    radius: 120
-};
-
-window.addEventListener('mousemove', function(event) {
-    const rect = canvas.getBoundingClientRect();
-    mouse.x = event.clientX - rect.left;
-    mouse.y = event.clientY - rect.top;
-});
-
 const adImg = new Image();
-adImg.src = 'ad-image.png'; 
+adImg.src = 'ad-image.png'; // तपाईंको PNG फाइलको नाम
 adImg.crossOrigin = "Anonymous";
 
-class Particle {
-    constructor(x, y, color) {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.originX = x;
-        this.originY = y;
-        this.color = color;
-        this.size = 6; // डटको साइज ठूलो बनाइएको (ठूलठूला टुक्रा)
-        this.vx = 0;
-        this.vy = 0;
-        this.ease = 0.03;
-        this.friction = 0.9;
-        this.randomAngle = Math.random() * Math.PI * 2; // नाचिरहेको प्रभावको लागि
+let slices = [];
+const numberOfSlices = 15; // फोटोलाई कतिवटा टुक्रामा काट्ने (slices)
+
+class Slice {
+    constructor(y, sliceHeight) {
+        this.y = y;
+        this.sliceHeight = sliceHeight;
+        // सुरुमा टुक्राहरू स्क्रिन बाहिर (दायाँ तिर) हुनेछन्
+        this.x = canvas.width + Math.random() * 500; 
+        this.targetX = 0;
+        this.speed = 0.02 + Math.random() * 0.05;
+        this.flutterAmount = Math.random() * 10;
+        this.angle = 0;
     }
 
-    draw() {
-        ctx.fillStyle = this.color;
-        // गोलो टुक्रा बनाउन (Optional: square बनाउन fillRect प्रयोग गर्नुहोस्)
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
+    // फङ्सन १: स्लाइड गर्ने र फरफराउने लजिक
     update() {
-        // १. उडिरहेको वा नाचिरहेको प्रभाव (Floating/Dancing)
-        this.randomAngle += 0.05; 
-        let floatingX = Math.cos(this.randomAngle) * 3; 
-        let floatingY = Math.sin(this.randomAngle) * 3;
+        // स्लाइडिङ लजिक (Easing)
+        let dx = this.targetX - this.x;
+        this.x += dx * this.speed;
 
-        let dx = mouse.x - this.x;
-        let dy = mouse.y - this.y;
-        let distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance < mouse.radius) {
-            let angle = Math.atan2(dy, dx);
-            this.vx -= Math.cos(angle) * 8;
-            this.vy -= Math.sin(angle) * 8;
-        }
+        // फरफराउने लजिक (Fluttering Effect)
+        this.angle += 0.05;
+        this.offsetY = Math.sin(this.angle) * 2; 
+    }
 
-        // २. आफ्नो ठाउँमा फर्किने तर हल्लिँदै (Floating effect added to origin)
-        this.vx += (this.originX + floatingX - this.x) * this.ease;
-        this.vy += (this.originY + floatingY - this.y) * this.ease;
-        
-        this.vx *= this.friction;
-        this.vy *= this.friction;
-        this.x += this.vx;
-        this.y += this.vy;
+    // फङ्सन २: टुक्रा कोर्ने
+    draw() {
+        ctx.drawImage(
+            adImg, 
+            0, this.y, adImg.width, this.sliceHeight, // Source (Image)
+            this.x, this.y + this.offsetY, canvas.width, this.sliceHeight // Destination (Canvas)
+        );
     }
 }
 
-function init() {
-    particlesArray = []; // पुराना पार्टिकल्स हटाउने
-    ctx.drawImage(adImg, 0, 0, canvas.width, canvas.height);
-    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // gap = 10 ले टुक्राहरूलाई ठूलो र प्रस्ट बनाउँछ
-    for (let y = 0; y < canvas.height; y += gap) {
-        for (let x = 0; x < canvas.width; x += gap) {
-            const index = (y * pixels.width + x) * 4;
-            const alpha = pixels.data[index + 3];
-            if (alpha > 128) {
-                const color = `rgb(${pixels.data[index]},${pixels.data[index+1]},${pixels.data[index+2]})`;
-                particlesArray.push(new Particle(x, y, color));
-            }
-        }
+// फङ्सन ३: स्लाइसहरू बनाउने
+function initSlices() {
+    slices = [];
+    const sliceHeight = canvas.height / numberOfSlices;
+    for (let i = 0; i < numberOfSlices; i++) {
+        slices.push(new Slice(i * sliceHeight, sliceHeight));
     }
 }
 
+// फङ्सन ४: एनिमेसन लुप
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update();
-        particlesArray[i].draw();
-    }
+    slices.forEach(slice => {
+        slice.update();
+        slice.draw();
+    });
     requestAnimationFrame(animate);
 }
 
 adImg.onload = () => {
-    init();
+    initSlices();
     animate();
 };
+
+// क्लिक गर्दा फेरि रि-एनिमेट हुने (Multi-function)
+canvas.addEventListener('click', () => {
+    initSlices();
+});
