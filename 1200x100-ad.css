@@ -1,0 +1,54 @@
+/* 1200x100-ad Style */
+.ad-1200x100-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    height: 100px;
+    margin: 15px auto;
+    position: relative;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ad-1200x100-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.ad-1200x100-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* इमेजलाई नतन्काई फिट गर्छ */
+    display: block;
+}
+
+/* Adnp Label Position (Right Bottom Corner) */
+.ad-1200x100-label {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffffff !important;
+    font-size: 11px;
+    padding: 2px 8px;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    z-index: 10;
+    border-top-left-radius: 4px;
+}
+
+.ad-1200x100-label:hover {
+    background: #000;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .ad-1200x100-wrapper {
+        height: auto;
+        aspect-ratio: 1200 / 100;
+    }
+}
