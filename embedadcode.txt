@@ -1,3 +1,8 @@
+<link rel="stylesheet" href="https://ad.neelamb.com/footer-slide-ad.css" />
+<script src="https://ad.neelamb.com/footer-slide-ad.js"></script>
+
+---------------------------
+
 
 <link rel="stylesheet" href="https://ad.neelamb.com/3adgrid.css" />
 <script src="https://ad.neelamb.com/3adgrid.js"></script>
