@@ -63,3 +63,23 @@
     padding: 2px 6px;
     text-decoration: none;
 }
+
+
+/* मोबाइलमा फोटो काटिन नदिन यो थप्नुहोस् */
+@media (max-width: 768px) {
+    .slide-ad-container {
+        height: auto !important; 
+    }
+    
+    .slide-ad-img {
+        height: auto !important;
+        max-height: 80px; 
+        object-fit: contain !important; 
+    }
+
+    .slide-ad-close {
+        top: -25px;
+        padding: 3px 8px;
+        font-size: 10px;
+    }
+}
