@@ -1,83 +1,104 @@
-/* NeelamB Ultimate Ad-Engine v3 - Fixed & Final */
 (function() {
     const config = {
-        type: 'youtube', // 'youtube', 'image', 'video', 'html'
-        source: 'https://www.youtube.com/watch?v=ScMzIvxBSi4', // यहाँ आफ्नो लिङ्क राख्नुहोस्
+        // तपाईं यहाँ एउटा मात्र लिङ्क वा धेरै लिङ्कहरूको लिस्ट (Array) राख्न सक्नुहुन्छ
+        sources: [
+            'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueXNoeXp3eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpx9U5I3S904/giphy.gif', // GIF
+            'https://via.placeholder.com/720x400?text=NeelamB+Ad+2', // JPG
+            'https://www.w3schools.com/html/mov_bbb.mp4' // MP4 Video
+        ],
         target: 'https://ad.neelamb.com',
-        waitTime: 7, 
-        id: 'nl_final_v3'
+        waitTime: 8,
+        id: 'nl_multi_v4'
     };
 
-    // १. युट्युब API लोड गर्ने ग्यारेन्टी
-    if (!window.YT) {
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    }
-
-    const getID = (url) => {
-        const m = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-        return (m && m[2].length === 11) ? m[2] : null;
+    // १. फाइलको प्रकार चिन्ने फङ्सन (Multi-Function Logic)
+    const getFileType = (url) => {
+        if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+        const ext = url.split('.').pop().toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image';
+        if (['mp4', 'webm', 'ogg'].includes(ext)) return 'video';
+        return 'iframe';
     };
 
-    const runEngine = () => {
-        if (document.getElementById('nl-v3-overlay')) return;
+    // २. मिडिया रेन्डरर (विविध फाइलका लागि)
+    const renderMedia = (url) => {
+        const type = getFileType(url);
+        if (type === 'image') {
+            return `<a href="${config.target}" target="_blank"><img src="${url}" style="width:100%; display:block; max-height:80vh; object-fit:contain;"></a>`;
+        } else if (type === 'video') {
+            return `<video id="nl-v3-vid" style="width:100%; display:block;" autoplay muted playsinline controls><source src="${url}" type="video/mp4"></video>`;
+        } else if (type === 'youtube') {
+            return `<div style="position:relative;padding-bottom:56.25%;height:0;"><iframe src="https://www.youtube.com/embed/${url.match(/v=([^&]+)/)[1]}?autoplay=1&mute=1" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allowfullscreen></iframe></div>`;
+        }
+        return `<iframe src="${url}" style="width:100%; height:450px; border:none;"></iframe>`;
+    };
 
-        // २. CSS डिजाइन इन्जेक्सन
+    // ३. CSS डिजाइन
+    const injectStyles = () => {
         const style = document.createElement('style');
         style.innerHTML = `
-            #nl-v3-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 9999999; display: flex; justify-content: center; align-items: center; cursor: default; }
-            #nl-v3-box { width: 95%; max-width: 720px; background: #000; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; }
-            #nl-v3-tm { position: absolute; top: 15px; right: 15px; background: #fff; color: #000; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-family: sans-serif; z-index: 100; font-size: 13px; }
-            #nl-v3-cl { display: none; position: absolute; top: 15px; right: 15px; background: #ff4757; color: #fff; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; z-index: 101; font-weight: bold; }
+            #nl-v4-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999999; display: flex; justify-content: center; align-items: center; }
+            #nl-v4-box { width: 90%; max-width: 750px; background: #000; border: 2px solid #00d2ff; border-radius: 15px; overflow: hidden; position: relative; }
+            #nl-v4-tm { position: absolute; top: 15px; right: 15px; background: #00d2ff; color: #000; padding: 5px 15px; border-radius: 50px; font-weight: bold; font-family: sans-serif; z-index: 1000; }
+            #nl-v4-cl { display: none; position: absolute; top: 15px; right: 15px; background: #ff4757; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; z-index: 1001; font-weight: bold; }
+            .nl-slide { display: none; }
+            .nl-active { display: block; }
         `;
         document.head.appendChild(style);
+    };
+
+    // ४. मल्टी-फाइल ह्यान्डलर (Slider Logic)
+    let currentSlide = 0;
+    const startSlider = () => {
+        const slides = document.querySelectorAll('.nl-slide');
+        if (slides.length <= 1) return;
+        
+        setInterval(() => {
+            slides[currentSlide].classList.remove('nl-active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('nl-active');
+        }, 3000); // प्रत्येक ३ सेकेन्डमा विज्ञापन फेरिने
+    };
+
+    // ५. मुख्य विज्ञापन इन्जिन
+    const runEngine = () => {
+        if (document.getElementById('nl-v4-overlay')) return;
+        injectStyles();
 
         const overlay = document.createElement('div');
-        overlay.id = 'nl-v3-overlay';
-        
-        let mediaHtml = '';
-        if (config.type === 'youtube') {
-            mediaHtml = `<div style="position:relative;padding-bottom:56.25%;height:0;"><div id="nl-v3-player"></div></div>`;
-        } else if (config.type === 'image') {
-            mediaHtml = `<a href="${config.target}" target="_blank"><img src="${config.source}" style="width:100%; display:block;"></a>`;
-        } else if (config.type === 'video') {
-            mediaHtml = `<video id="nl-v3-vid" style="width:100%; display:block;" autoplay controls><source src="${config.source}" type="video/mp4"></video>`;
-        }
+        overlay.id = 'nl-v4-overlay';
 
-        overlay.innerHTML = `<div id="nl-v3-box"><div id="nl-v3-tm">Skip: <span id="nl-v3-s">${config.waitTime}</span>s</div><button id="nl-v3-cl" onclick="document.getElementById('nl-v3-overlay').remove()">CLOSE ✖</button>${mediaHtml}</div>`;
+        // सबै फाइलहरूलाई स्लाइडमा राख्ने
+        let contentHtml = '';
+        config.sources.forEach((src, index) => {
+            contentHtml += `<div class="nl-slide ${index === 0 ? 'nl-active' : ''}">${renderMedia(src)}</div>`;
+        });
+
+        overlay.innerHTML = `
+            <div id="nl-v4-box">
+                <div id="nl-v4-tm">Skip in: <span id="nl-v4-s">${config.waitTime}</span>s</div>
+                <button id="nl-v4-cl" onclick="this.closest('#nl-v4-overlay').remove()">CLOSE ✖</button>
+                ${contentHtml}
+            </div>`;
+
         document.body.appendChild(overlay);
-
-        // ३. प्लेयर लजिक (Auto-play & Auto-close)
-        if (config.type === 'youtube' && window.YT) {
-            new YT.Player('nl-v3-player', {
-                videoId: getID(config.source),
-                playerVars: { 'autoplay': 1, 'mute': 0, 'controls': 1 },
-                events: {
-                    'onReady': (e) => e.target.playVideo(),
-                    'onStateChange': (e) => { if(e.data === YT.PlayerState.ENDED) overlay.remove(); }
-                }
-            });
-        } else if (config.type === 'video') {
-            const v = document.getElementById('nl-v3-vid');
-            v.onended = () => overlay.remove();
-        }
-
-        // ४. टाइमर लजिक
+        
+        // टाइमर सुरु
         let sec = config.waitTime;
         const timer = setInterval(() => {
             sec--;
-            if(document.getElementById('nl-v3-s')) document.getElementById('nl-v3-s').innerText = sec;
+            if(document.getElementById('nl-v4-s')) document.getElementById('nl-v4-s').innerText = sec;
             if (sec <= 0) {
                 clearInterval(timer);
-                document.getElementById('nl-v3-tm').style.display = 'none';
-                document.getElementById('nl-v3-cl').style.display = 'block';
+                document.getElementById('nl-v4-tm').style.display = 'none';
+                document.getElementById('nl-v4-cl').style.display = 'block';
             }
         }, 1000);
+
+        startSlider();
     };
 
-    // ५. अटो-प्ले ग्यारेन्टी: पेजमा जहाँ क्लिक गरे पनि विज्ञापन खुल्छ
+    // ६. बुटस्ट्र्याप
     ['click', 'touchstart'].forEach(e => 
         document.addEventListener(e, runEngine, { once: true })
     );
