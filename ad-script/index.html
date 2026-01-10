@@ -1,0 +1,82 @@
+<div id="multi-ad-container" style="width: 100%; max-width: 650px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; font-family: sans-serif;">
+    <div id="ad-content"></div>
+    <div id="ad-stats" style="font-size: 13px; background: #f4f4f4; padding: 8px; display: flex; justify-content: space-around; border-top: 1px solid #ddd;">
+        <span><strong>Views:</strong> <span id="view-count">0</span></span>
+        <span><strong>Clicks:</strong> <span id="click-count">0</span></span>
+    </div>
+</div>
+
+<script>
+    // १. विज्ञापन सेटअप (यहाँ आफ्नो डाटा राख्नुहोस्)
+    const adConfig = {
+        type: 'youtube', // विकल्प: 'image', 'video', 'html', 'youtube'
+        source: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // यूट्यूब वा फाइल लिंक
+        link: 'https://your-target-website.com', // क्लिक गर्दा जाने वेबसाइट
+        id: "promo_002"
+    };
+
+    // २. यूट्यूब आईडी निकाल्ने फङ्सन
+    function getYoutubeID(url) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    const container = document.getElementById('ad-content');
+    const viewDisplay = document.getElementById('view-count');
+    const clickDisplay = document.getElementById('click-count');
+
+    // ३. एनालिटिक्स (LocalStorage)
+    let stats = JSON.parse(localStorage.getItem(adConfig.id)) || { views: 0, clicks: 0 };
+    
+    function updateStats() {
+        viewDisplay.innerText = stats.views;
+        clickDisplay.innerText = stats.clicks;
+        localStorage.setItem(adConfig.id, JSON.stringify(stats));
+    }
+
+    function trackClick() {
+        stats.clicks++;
+        updateStats();
+    }
+
+    // ४. मल्टी-फङ्सन लोड गर्ने मुख्य भाग
+    function renderAd() {
+        stats.views++;
+        updateStats();
+
+        let html = '';
+
+        switch(adConfig.type) {
+            case 'image': // JPG, PNG, GIF
+                html = `<a href="${adConfig.link}" target="_blank" onclick="trackClick()">
+                            <img src="${adConfig.source}" style="width: 100%; display: block;">
+                        </a>`;
+                break;
+
+            case 'video': // MP4, WebM
+                html = `<video width="100%" controls autoplay muted onplay="trackClick()">
+                            <source src="${adConfig.source}" type="video/mp4">
+                        </video>`;
+                break;
+
+            case 'youtube': // YouTube Link
+                const videoId = getYoutubeID(adConfig.source);
+                html = `<div style="position:relative; padding-bottom:56.25%; height:0;">
+                            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1" 
+                                    style="position:absolute; top:0; left:0; width:100%; height:100%;" 
+                                    frameborder="0" allowfullscreen></iframe>
+                        </div>`;
+                // यूट्यूबको लागि क्लिक ट्र्याकिङ लिंक छुट्टै राख्न सकिन्छ
+                break;
+
+            case 'html': // External HTML Page
+                html = `<iframe src="${adConfig.source}" style="width: 100%; height: 300px; border: none;"></iframe>`;
+                break;
+        }
+
+        container.innerHTML = html;
+    }
+
+    window.onload = renderAd;
+</script>
