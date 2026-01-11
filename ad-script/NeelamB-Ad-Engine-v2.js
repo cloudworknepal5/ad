@@ -1,85 +1,99 @@
-/* NeelamB Ultimate Ad-Engine v3 - Fixed & Final */
+/* * NeelamB HTML5 Multi-Ad Engine v3.0
+ * Supported Formats: HTML5, Image, Video, YouTube
+ */
+
 (function() {
-    const config = {
-        type: 'youtube', // 'youtube', 'image', 'video', 'html'
-        source: 'https://www.youtube.com/watch?v=ScMzIvxBSi4', // यहाँ आफ्नो लिङ्क राख्नुहोस्
-        target: 'https://ad.neelamb.com',
-        waitTime: 7, 
-        id: 'nl_final_v3'
+    const adConfig = {
+        type: 'youtube', // विकल्पहरू: 'image', 'video', 'youtube', 'html5'
+        source: 'https://www.youtube.com/watch?v=ScMzIvxBSi4', // विज्ञापनको लिंक
+        target: 'https://ad.neelamb.com', // क्लिक गर्दा जाने साइट
+        waitTime: 7, // स्किप टाइमर (सेकेन्ड)
+        id: 'nl_html5_v3'
     };
 
-    // १. युट्युब API लोड गर्ने ग्यारेन्टी
-    if (!window.YT) {
-        var tag = document.createElement('script');
+    // YouTube API Load
+    if (adConfig.type === 'youtube' && !window.YT) {
+        let tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        document.head.appendChild(tag);
     }
 
-    const getID = (url) => {
-        const m = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+    const getYTID = (url) => {
+        let m = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
         return (m && m[2].length === 11) ? m[2] : null;
     };
 
-    const runEngine = () => {
-        if (document.getElementById('nl-v3-overlay')) return;
+    const startAdEngine = () => {
+        if (document.getElementById('html5-ad-overlay')) return;
 
-        // २. CSS डिजाइन इन्जेक्सन
+        // CSS Design for Premium Look
         const style = document.createElement('style');
         style.innerHTML = `
-            #nl-v3-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 9999999; display: flex; justify-content: center; align-items: center; cursor: default; }
-            #nl-v3-box { width: 95%; max-width: 720px; background: #000; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; }
-            #nl-v3-tm { position: absolute; top: 15px; right: 15px; background: #fff; color: #000; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-family: sans-serif; z-index: 100; font-size: 13px; }
-            #nl-v3-cl { display: none; position: absolute; top: 15px; right: 15px; background: #ff4757; color: #fff; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; z-index: 101; font-weight: bold; }
+            #html5-ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999999; display: flex; justify-content: center; align-items: center; font-family: sans-serif; }
+            #ad-wrapper { width: 95%; max-width: 720px; background: #000; border-radius: 10px; overflow: hidden; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+            #ad-timer { position: absolute; top: 10px; right: 10px; background: #fff; color: #000; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; z-index: 10; }
+            #ad-close { display: none; position: absolute; top: 10px; right: 10px; background: #ff4757; color: #fff; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; z-index: 11; font-weight: bold; }
+            .ad-media { width: 100%; height: auto; display: block; }
         `;
         document.head.appendChild(style);
 
         const overlay = document.createElement('div');
-        overlay.id = 'nl-v3-overlay';
-        
-        let mediaHtml = '';
-        if (config.type === 'youtube') {
-            mediaHtml = `<div style="position:relative;padding-bottom:56.25%;height:0;"><div id="nl-v3-player"></div></div>`;
-        } else if (config.type === 'image') {
-            mediaHtml = `<a href="${config.target}" target="_blank"><img src="${config.source}" style="width:100%; display:block;"></a>`;
-        } else if (config.type === 'video') {
-            mediaHtml = `<video id="nl-v3-vid" style="width:100%; display:block;" autoplay controls><source src="${config.source}" type="video/mp4"></video>`;
+        overlay.id = 'html5-ad-overlay';
+
+        let adContent = '';
+
+        // Multi-function Logic
+        switch(adConfig.type) {
+            case 'image':
+                adContent = `<a href="${adConfig.target}" target="_blank"><img src="${adConfig.source}" class="ad-media"></a>`;
+                break;
+            case 'video':
+                adContent = `<video id="html5-video" class="ad-media" autoplay muted controls><source src="${adConfig.source}" type="video/mp4"></video>`;
+                break;
+            case 'youtube':
+                adContent = `<div style="position:relative;padding-bottom:56.25%;height:0;"><div id="yt-player-v3"></div></div>`;
+                break;
+            case 'html5':
+                adContent = `<iframe src="${adConfig.source}" style="width:100%; height:400px; border:none;"></iframe>`;
+                break;
         }
 
-        overlay.innerHTML = `<div id="nl-v3-box"><div id="nl-v3-tm">Skip: <span id="nl-v3-s">${config.waitTime}</span>s</div><button id="nl-v3-cl" onclick="document.getElementById('nl-v3-overlay').remove()">CLOSE ✖</button>${mediaHtml}</div>`;
+        overlay.innerHTML = `
+            <div id="ad-wrapper">
+                <div id="ad-timer">Skip in: <span id="sec-left">${adConfig.waitTime}</span>s</div>
+                <button id="ad-close" onclick="document.getElementById('html5-ad-overlay').remove()">CLOSE ✖</button>
+                ${adContent}
+            </div>`;
+        
         document.body.appendChild(overlay);
 
-        // ३. प्लेयर लजिक (Auto-play & Auto-close)
-        if (config.type === 'youtube' && window.YT) {
-            new YT.Player('nl-v3-player', {
-                videoId: getID(config.source),
+        // Auto-Play & Auto-Close Functions
+        if (adConfig.type === 'youtube') {
+            new YT.Player('yt-player-v3', {
+                videoId: getYTID(adConfig.source),
                 playerVars: { 'autoplay': 1, 'mute': 0, 'controls': 1 },
-                events: {
-                    'onReady': (e) => e.target.playVideo(),
-                    'onStateChange': (e) => { if(e.data === YT.PlayerState.ENDED) overlay.remove(); }
-                }
+                events: { 'onStateChange': (e) => { if(e.data === YT.PlayerState.ENDED) overlay.remove(); } }
             });
-        } else if (config.type === 'video') {
-            const v = document.getElementById('nl-v3-vid');
-            v.onended = () => overlay.remove();
+        } else if (adConfig.type === 'video') {
+            let v = document.getElementById('html5-video');
+            v.muted = false; // आवाज खोल्ने
+            v.onended = () => overlay.remove(); // भिडियो सकिएपछि आफै बन्द हुने
         }
 
-        // ४. टाइमर लजिक
-        let sec = config.waitTime;
-        const timer = setInterval(() => {
-            sec--;
-            if(document.getElementById('nl-v3-s')) document.getElementById('nl-v3-s').innerText = sec;
-            if (sec <= 0) {
-                clearInterval(timer);
-                document.getElementById('nl-v3-tm').style.display = 'none';
-                document.getElementById('nl-v3-cl').style.display = 'block';
+        // Timer Logic
+        let timeLeft = adConfig.waitTime;
+        const countdown = setInterval(() => {
+            timeLeft--;
+            if(document.getElementById('sec-left')) document.getElementById('sec-left').innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                document.getElementById('ad-timer').style.display = 'none';
+                document.getElementById('ad-close').style.display = 'block';
             }
         }, 1000);
     };
 
-    // ५. अटो-प्ले ग्यारेन्टी: पेजमा जहाँ क्लिक गरे पनि विज्ञापन खुल्छ
-    ['click', 'touchstart'].forEach(e => 
-        document.addEventListener(e, runEngine, { once: true })
-    );
+    // User Interaction Trigger (ब्राउजरको नियम अनुसार अटो-प्लेको लागि)
+    ['click', 'touchstart'].forEach(evt => document.addEventListener(evt, startAdEngine, { once: true }));
 
 })();
