@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>NeelamB Ad Admin</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 50px; }
+        .card { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .stat-box { display: flex; justify-content: space-around; margin: 20px 0; }
+        .stat { font-size: 24px; font-weight: bold; color: #2ecc71; }
+        .label { font-size: 12px; color: #888; text-transform: uppercase; }
+        button { background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Ad Analytics</h2>
+        <div id="stats-content">
+            <div class="stat-box">
+                <div><div class="stat" id="v-count">0</div><div class="label">Total Views</div></div>
+                <div><div class="stat" id="c-count" style="color: #3498db;">0</div><div class="label">Total Clicks</div></div>
+            </div>
+            <p style="font-size: 11px; color: #999;">Current Ad: <br><span id="ad-url">None</span></p>
+        </div>
+        <button onclick="clearStats()">Reset Data</button>
+    </div>
+
+    <script>
+        function loadStats() {
+            let data = JSON.parse(localStorage.getItem('nl_smart_stats')) || { views: 0, clicks: 0, lastAd: "None" };
+            document.getElementById('v-count').innerText = data.views;
+            document.getElementById('c-count').innerText = data.clicks;
+            document.getElementById('ad-url').innerText = data.lastAd;
+        }
+
+        function clearStats() {
+            if(confirm("तथ्याङ्क मेट्ने हो?")) {
+                localStorage.removeItem('nl_smart_stats');
+                location.reload();
+            }
+        }
+        setInterval(loadStats, 1000); // अटो रिफ्रेस
+        loadStats();
+    </script>
+</body>
+</html>
