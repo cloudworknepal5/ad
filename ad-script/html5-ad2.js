@@ -10,7 +10,7 @@
         target: 'https://ad.neelamb.com', // क्लिक गर्दा जाने साइट
         waitTime: 7, // स्किप टाइमर (सेकेन्ड)
         // तपाईँको Google Web App URL
-        cloudURL: 'https://script.google.com/macros/s/AKfycbxt4bPx1dXsOiTRzjdrTi_XmPbgD7WBLvnVYxhkj_nfl4QweU2VDY12obVidjB20ju4/exec'
+        cloudURL: 'https://script.google.com/macros/s/AKfycbxDEzum4rDqXKJYJ-J-Bh-Tg-d_ZChvWLEyhxgfuqp_9RRJsz0t4C4iwP61-D_soaIw/exec'
     };
 
     // १. युट्युब API लोड गर्ने
