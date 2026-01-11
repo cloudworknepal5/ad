@@ -10,7 +10,7 @@
         source: 'https://www.youtube.com/watch?v=ScMzIvxBSi4', 
         target: 'https://ad.neelamb.com', 
         waitTime: 7, 
-        cloudURL: 'https://script.google.com/macros/s/AKfycbyHu4aAJiXt-eDqZvoBWmR4AP2l5svmVtpj5hDmzwWVzaGKkpmOQgRs2rzclp89_h5M/exec'
+        cloudURL: 'https://script.google.com/macros/s/AKfycbydmi_04ne7Asw01Y2tj4CXeYsX8rYSkl0GpCOhQltGLonenROnp9v8yIcgQKMyYM53/exec'
     };
 
     // १. युट्युब API लोड
