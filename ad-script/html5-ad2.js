@@ -8,11 +8,10 @@ const adConfig = {
     type: 'image',
     source: 'https://ad.neelamb.com/300x300%20copy.png',
     target: 'https://ad.neelamb.com',
-    waitTime: 7,
-    // नयाँ थपिएको: इमेजको साइज (पिक्सेलमा)
     imgWidth: '300px', 
     imgHeight: '300px'
-        // तपाईँको Google Web App URL
+    waitTime: 7,
+    // तपाईँको Google Web App URL
         cloudURL: 'https://script.google.com/macros/s/AKfycbwB_iRaRUPTLAyW1rND4kyaVxmkfW1KIB2CucqMqzZ4PKmOscxFEby3OPHeCTuLiClx/exec'
     };
 
