@@ -6,7 +6,7 @@
         target: 'https://ad.neelamb.com',
         waitTime: 7,
         // यहाँ आफ्नो Google Web App URL पेस्ट गर्नुहोस्
-        cloudURL: 'https://script.google.com/macros/s/AKfycbxt4bPx1dXsOiTRzjdrTi_XmPbgD7WBLvnVYxhkj_nfl4QweU2VDY12obVidjB20ju4/exec'
+        cloudURL: 'https://script.google.com/macros/s/AKfycbxDEzum4rDqXKJYJ-J-Bh-Tg-d_ZChvWLEyhxgfuqp_9RRJsz0t4C4iwP61-D_soaIw/exec'
     };
 
     // डेटा क्लाउडमा पठाउने फङ्सन
