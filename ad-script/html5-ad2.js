@@ -3,12 +3,15 @@
  * Features: Multi-function, Auto-Close, Unmuted, Cloud Logs
  */
 
-(function() {
-    const adConfig = {
-        type: 'image', // विकल्प: 'youtube', 'image', 'video'
-        source: 'https://ad.neelamb.com/300x300%20copy.png', // विज्ञापनको लिङ्क
-        target: 'https://ad.neelamb.com', // क्लिक गर्दा जाने साइट
-        waitTime: 7, // स्किप टाइमर (सेकेन्ड)
+
+const adConfig = {
+    type: 'image',
+    source: 'https://ad.neelamb.com/300x300%20copy.png',
+    target: 'https://ad.neelamb.com',
+    waitTime: 7,
+    // नयाँ थपिएको: इमेजको साइज (पिक्सेलमा)
+    imgWidth: '300px', 
+    imgHeight: '300px'
         // तपाईँको Google Web App URL
         cloudURL: 'https://script.google.com/macros/s/AKfycbwB_iRaRUPTLAyW1rND4kyaVxmkfW1KIB2CucqMqzZ4PKmOscxFEby3OPHeCTuLiClx/exec'
     };
