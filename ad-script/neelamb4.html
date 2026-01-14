@@ -70,11 +70,26 @@
         th { background: #f1f3f4; padding: 12px; text-align: left; color: #5f6368; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
 
+        .btn-container { text-align: center; margin-top: 20px; }
+        .btn-load {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.3s;
+        }
+        .btn-load:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-load:hover { opacity: 0.9; }
+
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
         .bg-view { background: var(--primary); }
         .bg-click { background: var(--secondary); }
         .loader { text-align: center; padding: 50px; font-weight: bold; color: var(--primary); }
         
+        /* Style for date/time formatting */
         .date-cell { color: #5f6368; font-size: 11px; }
         .time-cell { font-weight: bold; display: block; }
     </style>
@@ -103,97 +118,105 @@
             </div>
 
             <div class="table-box">
-                <h3 style="margin-top:0">Recent Logs (Detailed IP & Geo)</h3>
+                <h3 style="margin-top:0">Recent Logs (IP & Geo)</h3>
                 <table>
                     <thead>
                         <tr>
-                            <th>Time & Date</th>
+                            <th>Date & Time</th>
                             <th>Action</th>
                             <th>IP Address</th>
-                            <th>Location (City/Country)</th>
-                            <th>Provider (ISP)</th>
+                            <th>Country</th>
+                            <th>City</th>
                         </tr>
                     </thead>
                     <tbody id="log-table"></tbody>
                 </table>
+                <div class="btn-container">
+                    <button id="loadMoreBtn" class="btn-load" onclick="paginationManager()">Load More Logs</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // YOUR UPDATED API URL
-    const API_URL = 'https://script.google.com/macros/s/AKfycbytAMkJWny7NMp-i7CsSIvW7e-L4edjOGXAPXjzv2U90H5jykCuQoCc1jqkkyUiwT16/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz2G-aAbP8X5oHtu1fFWqMCMPB6x6Rw5dSvXAn9aOje22FQJyST5wPwNK8D0za6xOE8/exec';
     let chartInstance = null;
-    let allData = [];
+    let allData = []; 
+    let visibleCount = 10; 
+    const PAGE_SIZE = 10; 
 
-    /** * MULTI-FUNCTION SYSTEM
-     * 1. captureVisit: Gets client-side IP/Geo and pushes to Sheets
-     * 2. loadDashboardData: Pulls all records for the UI
-     * 3. formatTimestamp: Prepares dates for the table
+    /**
+     * MULTI-FUNCTION SYSTEM
+     * 1. loadData: Fetch initial data
+     * 2. formatTimestamp: Utility to split date/time
+     * 3. paginationManager: Logic for "Load More"
+     * 4. renderTable: Updates the DOM table
+     * 5. updateUI: Updates stats
+     * 6. renderChart: Updates visualization
      */
 
-    async function captureVisit(type) {
-        try {
-            // Get detailed IP/Geo data first
-            const geoRes = await fetch('https://ipapi.co/json/');
-            const geo = await geoRes.json();
-
-            // Construct URL to send data to your Google Script
-            const logUrl = `${API_URL}?type=${type}&ip=${geo.ip}&city=${geo.city}&country=${geo.country_name}&isp=${geo.org}`;
-            
-            // Send silently (no-cors)
-            await fetch(logUrl, { mode: 'no-cors' });
-            console.log("Logged visit from:", geo.ip);
-        } catch (e) {
-            console.error("Geo-capture failed. Proceeding with dashboard load.");
-        }
-    }
-
-    async function loadDashboardData() {
+    async function loadData() {
         try {
             const response = await fetch(API_URL);
             allData = await response.json();
-            allData.reverse(); // Newest first
+            allData.reverse(); 
 
             const views = allData.filter(r => r.type === 'VIEW').length;
             const clicks = allData.filter(r => r.type === 'CLICK').length;
 
             updateUI(views, clicks);
             renderChart(views, clicks);
-            renderTable();
+            renderTable(); 
 
             document.getElementById('loading').style.display = 'none';
             document.getElementById('dashboard-ui').style.display = 'block';
         } catch (error) {
-            document.getElementById('loading').innerText = "Database connection error.";
+            document.getElementById('loading').innerText = "Error loading data.";
+            console.error(error);
         }
     }
 
+    // New Utility Function for Multi-Function Requirement
     function formatTimestamp(dateString) {
         const d = new Date(dateString);
-        if (isNaN(d.getTime())) return "Invalid Date";
         const datePart = d.toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' });
         const timePart = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         return `<span class="time-cell">${timePart}</span><span class="date-cell">${datePart}</span>`;
     }
 
+    function paginationManager() {
+        visibleCount += PAGE_SIZE;
+        renderTable();
+    }
+
     function renderTable() {
         const tableBody = document.getElementById('log-table');
-        let html = '';
+        const loadBtn = document.getElementById('loadMoreBtn');
         
-        allData.slice(0, 20).forEach(row => {
+        const currentSlice = allData.slice(0, visibleCount);
+        
+        let tableHtml = '';
+        currentSlice.forEach(row => {
+            const timestampHtml = formatTimestamp(row.date); // Using the formatter function
             const badgeClass = row.type === 'VIEW' ? 'bg-view' : 'bg-click';
-            html += `
+            
+            tableHtml += `
                 <tr>
-                    <td>${formatTimestamp(row.date)}</td>
+                    <td>${timestampHtml}</td>
                     <td><span class="badge ${badgeClass}">${row.type}</span></td>
-                    <td>${row.ip || '---'}</td>
-                    <td>${row.city || 'N/A'}, ${row.country || 'N/A'}</td>
-                    <td style="font-size:11px; color:#777;">${row.isp || 'N/A'}</td>
+                    <td>${row.ip || '0.0.0.0'}</td>
+                    <td>${row.country || 'N/A'}</td>
+                    <td>${row.city || 'N/A'}</td>
                 </tr>`;
         });
-        tableBody.innerHTML = html;
+
+        tableBody.innerHTML = tableHtml;
+
+        if (visibleCount >= allData.length) {
+            loadBtn.disabled = true;
+            loadBtn.innerText = "No More Data";
+        }
     }
 
     function updateUI(v, c) {
@@ -209,17 +232,21 @@
             type: 'doughnut',
             data: {
                 labels: ['Views', 'Clicks'],
-                datasets: [{ data: [v, c], backgroundColor: ['#1a73e8', '#e91e63'], borderWidth: 0 }]
+                datasets: [{
+                    data: [v, c],
+                    backgroundColor: ['#1a73e8', '#e91e63'],
+                    borderWidth: 0
+                }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
         });
     }
 
-    // Initialize Multi-Function Sequence
-    window.onload = async () => {
-        await captureVisit('VIEW'); // Log the current viewer
-        loadDashboardData();        // Refresh the UI with latest stats
-    };
+    window.onload = loadData;
 </script>
 </body>
 </html>
