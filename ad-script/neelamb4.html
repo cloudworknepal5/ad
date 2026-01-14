@@ -1,0 +1,108 @@
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz2G-aAbP8X5oHtu1fFWqMCMPB6x6Rw5dSvXAn9aOje22FQJyST5wPwNK8D0za6xOE8/exec';
+    let chartInstance = null;
+    let allData = []; 
+    let visibleCount = 10; 
+    const PAGE_SIZE = 10; 
+
+    /**
+     * MULTI-FUNCTION ENHANCEMENT
+     * 1. getEnhancedGeoData: Fetches detailed IP/Geo info from external provider
+     * 2. pushToCloud: (Optional) Logic to send these details to your Sheet
+     * 3. loadData: Standard fetch for dashboard
+     */
+
+    // NEW FUNCTION: Fetches full IP details (City, Region, ISP)
+    async function getEnhancedGeoData() {
+        try {
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
+            return {
+                ip: data.ip,
+                city: data.city,
+                country: data.country_name,
+                region: data.region,
+                org: data.org // ISP Provider
+            };
+        } catch (e) {
+            console.error("Geo-fetch failed:", e);
+            return null;
+        }
+    }
+
+    async function loadData() {
+        try {
+            // Step 1: Get user's detailed info for this specific session
+            const userDetails = await getEnhancedGeoData();
+            console.log("Current User Details:", userDetails);
+
+            // Step 2: Load the historical log for the dashboard
+            const response = await fetch(API_URL);
+            allData = await response.json();
+            allData.reverse(); 
+
+            const views = allData.filter(r => r.type === 'VIEW').length;
+            const clicks = allData.filter(r => r.type === 'CLICK').length;
+
+            updateUI(views, clicks);
+            renderChart(views, clicks);
+            renderTable(); 
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboard-ui').style.display = 'block';
+        } catch (error) {
+            document.getElementById('loading').innerText = "Error loading data.";
+        }
+    }
+
+    function formatTimestamp(dateString) {
+        const d = new Date(dateString);
+        const datePart = d.toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' });
+        const timePart = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `<span class="time-cell">${timePart}</span><span class="date-cell">${datePart}</span>`;
+    }
+
+    function renderTable() {
+        const tableBody = document.getElementById('log-table');
+        const currentSlice = allData.slice(0, visibleCount);
+        
+        let tableHtml = '';
+        currentSlice.forEach(row => {
+            const timestampHtml = formatTimestamp(row.date);
+            const badgeClass = row.type === 'VIEW' ? 'bg-view' : 'bg-click';
+            
+            // Now displaying more specific details if available in your sheet
+            tableHtml += `
+                <tr>
+                    <td>${timestampHtml}</td>
+                    <td><span class="badge ${badgeClass}">${row.type}</span></td>
+                    <td>${row.ip || 'Hidden/VPN'}</td>
+                    <td>${row.country || 'Unknown'}</td>
+                    <td>${row.city || 'Private'}</td>
+                </tr>`;
+        });
+        tableBody.innerHTML = tableHtml;
+    }
+
+    // Standard UI & Chart functions remain here...
+    function paginationManager() { visibleCount += PAGE_SIZE; renderTable(); }
+    function updateUI(v, c) {
+        document.getElementById('v-total').innerText = v;
+        document.getElementById('c-total').innerText = c;
+        document.getElementById('ctr-val').innerText = v > 0 ? ((c / v) * 100).toFixed(2) + "%" : "0%";
+    }
+    function renderChart(v, c) {
+        const ctx = document.getElementById('analyticsChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Views', 'Clicks'],
+                datasets: [{ data: [v, c], backgroundColor: ['#1a73e8', '#e91e63'], borderWidth: 0 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    window.onload = loadData;
+</script>
