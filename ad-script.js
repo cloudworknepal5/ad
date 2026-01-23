@@ -2,7 +2,7 @@
     function initResponsiveAd() {
         const adData = {
             type: "image", // Switch to "video" for video ads
-            mediaUrl: "https://ad.neelamb.com/new-year-2026.png?text=Responsive+Ad", // Use a high-res file
+            mediaUrl: "https://ad.neelamb.com/300x300%20copy.png?text=Responsive+Ad", // Use a high-res file
             link: "https://neelamb.com",
             aspectRatio: "16/9" // Optional: helps prevent layout shift
         };
@@ -51,3 +51,4 @@
     }
 
 })();
+
