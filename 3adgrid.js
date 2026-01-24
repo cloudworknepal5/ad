@@ -5,15 +5,15 @@
         ads: [
             {
                 imgUrl: "https://ad.neelamb.com/300x300%20copy.png", // १. पहिलो फोटोको URL
-                targetUrl: "https://link1.com"           // क्लिक गर्दा जाने लिङ्क
+                targetUrl: "https://neelamb.com"           // क्लिक गर्दा जाने लिङ्क
             },
             {
                 imgUrl: "https://ad.neelamb.com/300x300-facebook.jpg", // २. दोस्रो फोटोको URL
-                targetUrl: "https://link2.com"           // क्लिक गर्दा जाने लिङ्क
+                targetUrl: "https://neelamb.com"           // क्लिक गर्दा जाने लिङ्क
             },
             {
                 imgUrl: "https://ad.neelamb.com/newspaper.jpg",  // ३. तेस्रो फोटोको URL
-                targetUrl: "https://link3.com"           // क्लिक गर्दा जाने लिङ्क
+                targetUrl: "https://neelamb.com"           // क्लिक गर्दा जाने लिङ्क
             }
         ]
     };
