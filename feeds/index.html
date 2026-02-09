@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>Nepali News Dashboard - Pro Editor</title>
+    
+    <script src="./index_files/common.download"></script>
+    <script src="./index_files/convert.download"></script>
+    <script src="./index_files/kantipur.js.download"></script>
+
+    <style>
+        :root {
+            --nav-bg: #1a1c23; --bg-color: #f4f6f9; --primary: #e74c3c;
+            --today-color: #27ae60; --yesterday-color: #f39c12;
+        }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        .top-nav { background: var(--nav-bg); padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--primary); }
+        .nav-links { display: flex; gap: 10px; }
+        .top-nav a { color: #adb5bd; text-decoration: none; font-size: 11px; padding: 6px 12px; border-radius: 4px; background: rgba(255,255,255,0.1); }
+        .status-badge { font-size: 10px; color: #fff; background: #333; padding: 4px 12px; border-radius: 20px; border: 1px solid #444; }
+
+        .main-container { display: flex; flex-grow: 1; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 220px; background: #000; color: white; display: flex; flex-direction: column; border-right: 1px solid #333; }
+        .sidebar h2 { padding: 15px; font-size: 13px; margin: 0; color: var(--primary); text-align: center; border-bottom: 1px solid #333; cursor: pointer; background: #0a0a0a; }
+        #site-list { flex-grow: 1; overflow-y: auto; }
+        .site-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #1a1a1a; font-size: 11px; display: flex; justify-content: space-between; transition: 0.2s; }
+        .site-item:hover, .site-item.active { background: var(--primary); color: white; }
+
+        /* Headlines Column */
+        .headlines-col { width: 360px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; }
+        .headlines-header { padding: 12px; background: #f8f9fc; border-bottom: 1px solid #eee; }
+        #headline-list { overflow-y: auto; flex-grow: 1; background: #fff; }
+        
+        .news-card { padding: 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
+        .news-card:hover { background: #fcfcfc; }
+        .news-card.active { border-left: 5px solid var(--primary); background: #fff5f5; }
+        .news-title { font-size: 13px; font-weight: 600; color: #222; margin-bottom: 6px; line-height: 1.5; }
+        
+        .news-meta { font-size: 10px; color: #777; display: flex; align-items: center; gap: 8px; }
+        .date-tag { padding: 2px 8px; border-radius: 12px; color: white; font-weight: bold; font-size: 9px; }
+        .tag-today { background: var(--today-color); }
+        .tag-yesterday { background: var(--yesterday-color); }
+        .tag-older { background: #95a5a6; }
+        .source-name { color: var(--primary); font-weight: bold; }
+
+        /* Content Area */
+        .content-area { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .converter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .card { background: white; padding: 12px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        .card h3 { font-size: 12px; margin-top: 0; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        textarea { width: 100%; height: 150px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; font-size: 16px; resize: none; box-sizing: border-box; line-height: 1.6; }
+        
+        .btn-append { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 8px; font-size: 16px; margin-bottom: 10px; transition: 0.3s; }
+        .btn-append:hover { background: #219150; transform: translateY(-2px); }
+
+        .article-preview { background: white; padding: 25px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .f-img { width: 100%; max-height: 400px; object-fit: contain; background: #f9f9f9; border-radius: 6px; margin-bottom: 20px; display: none; border: 1px solid #eee; }
+        #f-title { font-size: 26px; margin: 0 0 15px 0; color: #111; line-height: 1.3; }
+        #f-content { font-size: 18px; line-height: 1.8; color: #333; }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-links">
+            <a href="https://designers2077.github.io/PreetiToUnicodeAuto/" target="_blank">Preeti Auto</a>
+            <a href="https://designers2077.github.io/newseditor/" target="_blank">News Editor</a>
+            <a href="#" onclick="location.reload()">🔄 Refresh</a>
+        </div>
+        <div class="status-badge" id="sync-status">फिड लोड हुँदैछ...</div>
+    </nav>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <h2 onclick="showHomeFeed()">🏠 सबै समाचार (Home)</h2>
+            <div id="site-list"></div>
+        </div>
+
+        <div class="headlines-col">
+            <div class="headlines-header">
+                <input type="text" id="search-box" placeholder="शीर्षक खोज्नुहोस्..." onkeyup="filterNews()" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; font-size:12px;">
+            </div>
+            <div id="headline-list"></div>
+        </div>
+
+        <div class="content-area">
+            <div class="converter-grid">
+                <div class="card">
+                    <h3>Unicode (Output)</h3>
+                    <textarea id="unicode_text" placeholder="यहाँ समाचार थपिनेछ..."></textarea>
+                    <button style="margin-top:5px; background:#666; color:white; border:none; padding:5px; width:100%; cursor:pointer; font-size:10px; border-radius:3px;" onclick="document.getElementById('unicode_text').value=''">Clear Box</button>
+                </div>
+                <div class="card">
+                    <h3>Preeti</h3>
+                    <textarea id="legacy_text" style="font-family:'preeti';"></textarea>
+                </div>
+                <div class="card">
+                    <h3>Himalb Result</h3>
+                    <textarea id="himalb_output" style="font-family:'himalb';"></textarea>
+                    <div style="display:flex; gap:5px; margin-top:8px;">
+                        <button onclick="copyToClipboard('himalb_output')" style="flex:1; padding:8px; background:#4e73df; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size:11px;">Copy Himalb</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="article-preview" id="article-view" style="display:none;">
+                <button class="btn-append" id="append-btn" onclick="copyAndTransfer()">📋 यो समाचार थप्नुहोस् र कन्भर्ट गर्नुहोस्</button>
+                <h1 id="f-title"></h1>
+                <img id="f-img" class="f-img">
+                <div id="f-content"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const feeds = [
+        { name: "Nepal Post Daily", url: "https://nepalpostdaily.com/feed/" },
+        { name: "Madhes Khabar", url: "https://www.madheskhabar.com/?feed=rss2" },
+        { name: "Race Khabar", url: "https://racekhabar.com/feed/" },
+        { name: "eShilalekh", url: "https://www.eshilalekh.com/feed" },
+        { name: "Madhesh Sanchar", url: "https://madheshsanchar.com/feed" },
+        { name: "Chandra Surya", url: "https://feeds.feedburner.com/chandrasuryawani/8iC1d0yoofl" },
+        { name: "Desh Madhesh", url: "https://deshmadhesh.com/feed/" },
+        { name: "Bara Update", url: "https://baraupdate.com.np/feed/" },
+        { name: "Ghantaghar TV", url: "https://ghantaghartv.com/feed/" },
+        { name: "Desh Sanchar", url: "https://deshsanchar.com/feed/" }
+    ];
+
+    let allItems = [];
+    let siteMeta = [];
+
+    async function fetchAllFeeds() {
+        allItems = [];
+        siteMeta = [];
+        const cacheBuster = new Date().getTime();
+
+        const promises = feeds.map(async (site) => {
+            try {
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(site.url)}&t=${cacheBuster}`);
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    const items = data.items.map(item => ({
+                        ...item,
+                        sourceName: site.name,
+                        pubTimestamp: new Date(item.pubDate).getTime()
+                    }));
+                    allItems = allItems.concat(items);
+                    siteMeta.push({ ...site, items: items });
+                }
+            } catch (e) { console.warn("Failed:", site.name); }
+        });
+
+        await Promise.all(promises);
+        
+        // Sorting and Status Update
+        allItems.sort((a, b) => b.pubTimestamp - a.pubTimestamp);
+        const now = new Date();
+        document.getElementById('sync-status').innerText = "Last Sync: " + now.getHours() + ":" + String(now.getMinutes()).padStart(2, '0');
+        
+        renderSidebar();
+        showHomeFeed();
+    }
+
+    function renderSidebar() {
+        const list = document.getElementById('site-list');
+        list.innerHTML = "";
+        siteMeta.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'site-item';
+            div.innerHTML = `<span>${s.name}</span> <b>${s.items.length}</b>`;
+            div.onclick = () => {
+                document.querySelectorAll('.site-item').forEach(i => i.classList.remove('active'));
+                div.classList.add('active');
+                renderHeadlines(s.items);
+            };
+            list.appendChild(div);
+        });
+    }
+
+    function showHomeFeed() {
+        renderHeadlines(allItems);
+    }
+
+    function renderHeadlines(items) {
+        const list = document.getElementById('headline-list');
+        list.innerHTML = "";
+        const today = new Date().toDateString();
+
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            const pubDate = new Date(item.pubDate);
+            const isToday = pubDate.toDateString() === today;
+
+            card.innerHTML = `
+                <div class="news-title">${item.title}</div>
+                <div class="news-meta">
+                    <span class="date-tag ${isToday ? 'tag-today' : 'tag-older'}">${isToday ? 'आज' : 'पुरानो'}</span>
+                    <span class="source-name">${item.sourceName}</span>
+                    <span>🕒 ${pubDate.getHours()}:${String(pubDate.getMinutes()).padStart(2, '0')}</span>
+                </div>
+            `;
+            card.onclick = () => showContent(item, card);
+            list.appendChild(card);
+        });
+    }
+
+    function showContent(item, card) {
+        document.querySelectorAll('.news-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        document.getElementById('article-view').style.display = 'block';
+        document.getElementById('f-title').innerText = item.title;
+        document.getElementById('f-content').innerHTML = item.content || item.description;
+        
+        const imgEl = document.getElementById('f-img');
+        const imgUrl = item.thumbnail || item.enclosure?.link;
+        if (imgUrl) { imgEl.src = imgUrl; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; }
+        document.querySelector('.content-area').scrollTop = 0;
+    }
+
+    // MULTI-FUNCTION LOGIC (Unicode -> Preeti -> Himalb)
+    function copyAndTransfer() {
+        const title = document.getElementById('f-title').innerText;
+        const content = document.getElementById('f-content').innerText;
+        const unicodeBox = document.getElementById('unicode_text');
+        
+        // 1. Append to Unicode Box
+        unicodeBox.value += `\n\n📌 ${title}\n${content}\n-----------------------`;
+        
+        // 2. Trigger Preeti Conversion (common.download / convert.download)
+        if (typeof convert_to_Preeti === "function") {
+            convert_to_Preeti(); 
+        }
+        
+        // 3. Trigger Himalb Conversion (kantipur.js.download) after sync delay
+        setTimeout(() => {
+            if (typeof kantipurConfigToUnicode === "function") {
+                const preetiVal = document.getElementById('legacy_text').value;
+                document.getElementById('himalb_output').value = kantipurConfigToUnicode(preetiVal);
+            }
+            // Feedback
+            const btn = document.getElementById('append-btn');
+            btn.style.background = "#1cc88a"; btn.innerText = "✅ सफालतापूर्वक थपियो!";
+            setTimeout(() => { btn.style.background = "#27ae60"; btn.innerText = "📋 यो समाचार थप्नुहोस् र कन्भर्ट गर्नुहोस्"; }, 1000);
+        }, 400);
+    }
+
+    function filterNews() {
+        const q = document.getElementById('search-box').value.toLowerCase();
+        document.querySelectorAll('.news-card').forEach(card => {
+            const text = card.querySelector('.news-title').innerText.toLowerCase();
+            card.style.display = text.includes(q) ? "block" : "none";
+        });
+    }
+
+    function copyToClipboard(id) {
+        const el = document.getElementById(id); el.select();
+        document.execCommand('copy');
+    }
+
+    // Auto-update every 10 minutes
+    setInterval(fetchAllFeeds, 600000);
+    
+    // Initial Run
+    fetchAllFeeds();
+</script>
+</body>
+</html>
