@@ -1,0 +1,236 @@
+<!doctype html>
+<style>
+  :root { 
+    --primary: #007bff; --success: #28a745; --danger: #dc3545; --bg: #f4f7f6; 
+    --card: #ffffff; --text: #1c1e21; --border: #ddd; --input-bg: #ffffff;
+  }
+  [data-theme="dark"] { 
+    --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --border: #444; --input-bg: #2a2a2a;
+  }
+
+  body { background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; font-family: 'Segoe UI', sans-serif; transition: 0.3s; }
+  .container { max-width: 1300px; margin: 0 auto; }
+
+  /* Inline Navigation Styling */
+  .control-panel {
+    background: var(--card); padding: 15px 20px; border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px;
+    position: sticky; top: 10px; z-index: 1000; border: 1px solid var(--border);
+  }
+  
+  .nav-row { 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    flex-wrap: wrap; 
+  }
+
+  .search-wrapper { flex-grow: 1; min-width: 250px; }
+
+  #search-input {
+    width: 100%; padding: 10px 18px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--input-bg); color: var(--text); outline: none; transition: 0.2s;
+  }
+  #search-input:focus { border-color: var(--primary); box-shadow: 0 0 5px rgba(0,123,255,0.3); }
+
+  /* Button & Category Styles */
+  .btn-opt { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; font-weight: 600; font-size: 13px; white-space: nowrap; transition: 0.2s; }
+  .btn-opt.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .btn-opt:hover { border-color: var(--primary); }
+
+  .upload-box { display: none; background: var(--bg); padding: 20px; border: 2px dashed var(--primary); border-radius: 15px; text-align: center; margin: 15px 0; }
+
+  /* Layouts */
+  .drive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+  .drive-list { display: flex; flex-direction: column; gap: 10px; }
+
+  /* File Cards */
+  .file-card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); transition: 0.3s; }
+  .thumb { width: 100%; height: 400px; background: #000; overflow: hidden; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  
+  .drive-list .file-card { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+  .drive-list .thumb { display: none; }
+
+  .info { padding: 15px; text-align: center; }
+  .drive-list .info { text-align: left; padding: 0; flex-grow: 1; }
+
+  .btn-group { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
+  .action-btn { padding: 8px 14px; border-radius: 6px; text-decoration: none; color: white !important; font-size: 11px; font-weight: bold; border: none; cursor: pointer; }
+  
+  #load-more-btn { padding: 12px 40px; background: var(--primary); color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; display: none; margin: 30px auto; }
+
+  @media (max-width: 768px) {
+    .nav-row { flex-direction: column; align-items: stretch; }
+    .search-wrapper { order: -1; }
+  }
+</style>
+
+
+
+<div class="container">
+  <div class="control-panel">
+    <div class="nav-row">
+      <div style="display:flex; gap:8px;">
+        <button class="btn-opt" style="background:var(--success); color:white; border:none;" onclick="toggleUpload()">+ Upload</button>
+        <button class="btn-opt" onclick="uiHandler('theme')">🌓 Mode</button>
+      </div>
+
+      <div class="search-wrapper">
+        <input type="text" id="search-input" placeholder="Search files..." oninput="resetAndFilter()" />
+      </div>
+
+      <div id="category-filters" style="display:flex; gap:5px;">
+        <button class="btn-opt active" onclick="uiHandler('category', 'All', this)">All</button>
+        <button class="btn-opt" onclick="uiHandler('category', 'Image', this)">Images</button>
+        <button class="btn-opt" onclick="uiHandler('category', 'PDF', this)">PDF</button>
+      </div>
+
+      <div class="view-group" style="display:flex; gap:5px;">
+        <button class="btn-opt active" onclick="uiHandler('view', 'grid', this)">Grid</button>
+        <button class="btn-opt" onclick="uiHandler('view', 'list', this)">List</button>
+      </div>
+    </div>
+
+    <div id="upload-box" class="upload-box">
+      <input type="file" id="file-input" /><br /><br />
+      <button class="btn-opt" style="background:var(--primary); color:white;" onclick="startUpload()">Start Upload</button>
+      <p id="up-status" style="margin-top:10px; font-weight:bold; font-size:14px;"></p>
+    </div>
+  </div>
+
+  <div id="display-container" class="drive-grid"></div>
+  
+  <div style="text-align:center;">
+    <button id="load-more-btn" onclick="renderBatch()">Show More</button>
+  </div>
+  
+  <div id="status-msg" style="text-align:center; padding:50px; font-weight:bold;">Loading files...</div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuEAiniQYGKfBxZDEVfTI9SMXH46gF7MN2d14-gyXK1GxBHczOQlrkfXoMLyMenZEf/exec";
+let allFiles = [], filteredFiles = [], currentIndex = 0;
+let currentView = 'grid', currentCategory = 'All';
+const BATCH_SIZE = 6;
+
+// Multi-Function UI Handler: Manages Theme, View, and Category states in one place
+function uiHandler(action, value, element) {
+  if (action === 'theme') {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    isDark ? document.body.removeAttribute('data-theme') : document.body.setAttribute('data-theme', 'dark');
+  } 
+  
+  if (action === 'view') {
+    currentView = value;
+    document.getElementById('display-container').className = value === 'grid' ? 'drive-grid' : 'drive-list';
+    updateActiveBtn('.view-group', element);
+    resetAndFilter();
+  }
+
+  if (action === 'category') {
+    currentCategory = value;
+    updateActiveBtn('#category-filters', element);
+    resetAndFilter();
+  }
+}
+
+function updateActiveBtn(containerSelector, activeBtn) {
+  document.querySelectorAll(`${containerSelector} .btn-opt`).forEach(b => b.classList.remove('active'));
+  activeBtn.classList.add('active');
+}
+
+async function init() {
+  try {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
+    allFiles = data.map(f => {
+      const ext = f.name.split('.').pop().toLowerCase();
+      let type = 'Other';
+      if(['jpg','jpeg','png','webp','gif'].includes(ext)) type = 'Image';
+      else if(ext === 'pdf') type = 'PDF';
+      else if(['doc','docx','txt','xlsx','pptx'].includes(ext)) type = 'Doc';
+      return { ...f, category: type };
+    });
+    resetAndFilter();
+  } catch (e) { 
+    document.getElementById('status-msg').innerHTML = "Error loading data."; 
+  }
+}
+
+function resetAndFilter() {
+  const query = document.getElementById('search-input').value.toLowerCase();
+  filteredFiles = allFiles.filter(f => {
+    const matchSearch = f.name.toLowerCase().includes(query);
+    const matchCat = (currentCategory === 'All' || f.category === currentCategory);
+    return matchSearch && matchCat;
+  });
+  document.getElementById('display-container').innerHTML = "";
+  currentIndex = 0;
+  renderBatch();
+}
+
+function renderBatch() {
+  const container = document.getElementById('display-container');
+  const btn = document.getElementById('load-more-btn');
+  document.getElementById('status-msg').style.display = 'none';
+
+  const items = filteredFiles.slice(currentIndex, currentIndex + BATCH_SIZE);
+  items.forEach(file => {
+    const div = document.createElement('div');
+    div.className = 'file-card';
+    div.innerHTML = `
+      <div class="thumb"><img src="https://drive.google.com/thumbnail?id=${file.id}&sz=w1000" loading="lazy"></div>
+      <div class="info">
+        <h3 style="font-size:14px; margin:0 0 10px 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${file.name}</h3>
+        <div class="btn-group">
+          <a href="${file.url}" target="_blank" class="action-btn" style="background:var(--primary)">View</a>
+          <a href="https://drive.google.com/uc?export=download&id=${file.id}" class="action-btn" style="background:var(--success)">Down</a>
+          <button onclick="deleteFile('${file.id}', this)" class="action-btn" style="background:var(--danger)">Del</button>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+
+  currentIndex += BATCH_SIZE;
+  btn.style.display = currentIndex < filteredFiles.length ? 'inline-block' : 'none';
+  if(filteredFiles.length === 0) {
+    document.getElementById('status-msg').style.display = 'block';
+    document.getElementById('status-msg').innerHTML = "No files found.";
+  }
+}
+
+async function startUpload() {
+  const input = document.getElementById('file-input');
+  const status = document.getElementById('up-status');
+  if (!input.files[0]) return alert("Select a file!");
+  const file = input.files[0];
+  const reader = new FileReader();
+  status.innerHTML = "⏳ Uploading...";
+  reader.onload = async function(e) {
+    const base64 = e.target.result.split(',')[1];
+    await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ base64: base64, type: file.type, name: file.name }) });
+    status.innerHTML = "✅ Success!";
+    input.value = "";
+    setTimeout(() => location.reload(), 1500);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function deleteFile(id, btn) {
+  const pass = prompt("Enter Master Password:");
+  if (!pass) return;
+  btn.innerText = "...";
+  await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "delete", id: id, password: pass }) });
+  location.reload();
+}
+
+function toggleUpload() {
+  const box = document.getElementById('upload-box');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+window.onload = init;
+</script>
+
+</!doctype>
