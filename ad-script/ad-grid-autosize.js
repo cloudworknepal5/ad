@@ -1,54 +1,46 @@
 (function() {
-    // 1. Get Configuration
+    // १. कन्फिगरेसन र साइज सेटिङ
     const config = window.AdGridConfig || {};
-    const imgW = config.width || 1111;
-    const imgH = config.height || 1360;
+    const imgW = config.width || 970;  // तपाईंको उदाहरण अनुसार ९७०
+    const imgH = config.height || 200; // तपाईंको उदाहरण अनुसार २००
     const globalLink = config.link || '';
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* Main wrapper setup */
         .ad-wrapper { 
             width: 100%; 
+            max-width: ${imgW}px; /* डेस्कटपमा तोकिएको साइज भन्दा ठूलो नहुने */
             margin: 20px auto; 
             font-family: sans-serif;
-            text-align: center;
-            /* This allows the large image to be scrollable on small mobile screens */
-            overflow-x: auto; 
-            display: block;
-            -webkit-overflow-scrolling: touch;
         }
-        
         .ad-grid-auto { 
-            display: inline-flex; /* Changed to inline-flex to respect child width */
+            display: flex; 
             flex-direction: column; 
             gap: 20px; 
-            padding: 10px;
-            min-width: ${imgW}px; /* Forces the grid to stay at your fixed width */
+            width: 100%;
         }
-
         .ad-item { 
-            width: ${imgW}px; 
-            height: ${imgH}px;
+            width: 100%; /* मोबाइलमा स्क्रिन अनुसार घट्ने */
+            aspect-ratio: ${imgW} / ${imgH}; /* तोकिएको अनुपात कायम राख्ने */
             border: 1px solid #ddd; 
-            border-radius: 8px; 
+            border-radius: 4px; 
             overflow: hidden; 
             background: #fff; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
         }
-
         .ad-item img { 
-            width: 100% !important; 
-            height: 100% !important; 
-            object-fit: cover; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: fill; /* पूरा इमेज देखाउन (Stretch/Shrink to fit) */
             display: block; 
-            cursor: pointer;
+            cursor: pointer; 
         }
-
-        /* Custom Scrollbar for better UX on mobile */
-        .ad-wrapper::-webkit-scrollbar { height: 6px; }
-        .ad-wrapper::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        
+        /* मोबाइलका लागि विशेष सुधार */
+        @media (max-width: 768px) {
+            .ad-wrapper { padding: 0 10px; box-sizing: border-box; }
+        }
     `;
     document.head.appendChild(style);
 
@@ -56,18 +48,19 @@
     if (!mainContainer) return;
 
     mainContainer.className = 'ad-wrapper';
-    mainContainer.innerHTML = `<div id="ad-portal" class="ad-grid-auto">Loading mobile optimized view...</div>`;
+    mainContainer.innerHTML = `<div id="ad-portal" class="ad-grid-auto">Loading responsive ad...</div>`;
 
     const getSizedUrl = (url) => {
         if(!url) return "";
         let cleanUrl = url.replace(/https?:\/\//, "");
-        return `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}&w=${imgW}&h=${imgH}&fit=cover`;
+        // प्रोक्सीमा हामी ओरिजिनल साइज नै पठाउँछौं, CSS ले यसलाई मोबाइलमा खुम्च्याउँछ
+        return `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}&w=${imgW}&h=${imgH}&fit=fill`;
     };
 
     window.sbProcessAds = function(json) {
         const portal = document.getElementById('ad-portal');
         if (!json.feed || !json.feed.entry) {
-            portal.innerHTML = "Feed Error.";
+            portal.innerHTML = "No images found.";
             return;
         }
 
@@ -80,7 +73,7 @@
         });
 
         if (!targetPost) {
-            portal.innerHTML = "Post Not Found.";
+            portal.innerHTML = "Post not found.";
             return;
         }
 
