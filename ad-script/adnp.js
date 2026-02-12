@@ -84,7 +84,7 @@
                         <a href="${customUrl}" target="_blank">
                             <img src="${proxyUrl}" loading="lazy">
                         </a>
-                        <a href="https://ad.nnelamb.com" target="_blank" class="ad-badge">adnp</a>
+                        <a href="https://neelamb.com" target="_blank" class="ad-badge">adnp</a>
                     </div>`;
             }
             portal.innerHTML = gridHtml;
