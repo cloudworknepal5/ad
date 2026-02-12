@@ -1,28 +1,42 @@
 (function() {
+    // १. कन्फिगरेसन र साइज सेटिङ
     const config = window.AdGridConfig || {};
-    const imgW = config.width || null;
-    const imgH = config.height || null;
-    const globalLink = config.link || ''; // HTML बाट आउने साझा लिङ्क
+    const imgW = config.width || 1111; // डिफल्ट ११११px
+    const imgH = config.height || 600;  // डिफल्ट ६००px
+    const globalLink = config.link || '';
 
     const style = document.createElement('style');
     style.innerHTML = `
-        .ad-wrapper { max-width: 100%; margin: 20px auto; font-family: sans-serif; }
-        .ad-grid-auto { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        /* कन्टेनरलाई बाहिर जान नदिन र स्क्रोल गर्न मिल्ने बनाउन */
+        .ad-wrapper { 
+            width: 100%; 
+            margin: 20px auto; 
+            font-family: sans-serif;
+            overflow-x: auto; /* मोबाइलमा साइज ठूलो भए स्क्रोल हुने */
+            -webkit-overflow-scrolling: touch;
+        }
+        .ad-grid-auto { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            align-items: center;
+            padding: 10px;
+        }
         .ad-item { 
-            width: ${imgW ? imgW + 'px' : '100%'}; 
-            max-width: 100%;
+            /* HTML मा तोकिएको फिक्स्ड साइज */
+            width: ${imgW}px; 
+            height: ${imgH}px;
+            flex-shrink: 0; /* मोबाइलमा नखुम्चिने (Fixed) */
             border: 1px solid #ddd; 
             border-radius: 8px; 
             overflow: hidden; 
             background: #fff; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: 0.3s ease;
         }
-        .ad-item:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
         .ad-item img { 
             width: 100%; 
-            height: ${imgH ? imgH + 'px' : 'auto'}; 
-            object-fit: ${imgH ? 'cover' : 'contain'}; 
+            height: 100%; 
+            object-fit: cover; /* तोकिएको बक्समा फोटो फिट गर्ने */
             display: block; 
             cursor: pointer; 
         }
@@ -33,15 +47,13 @@
     if (!mainContainer) return;
 
     mainContainer.className = 'ad-wrapper';
-    mainContainer.innerHTML = `<div id="ad-portal" class="ad-grid-auto">Loading dynamic content...</div>`;
+    mainContainer.innerHTML = `<div id="ad-portal" class="ad-grid-auto">Loading fixed size gallery...</div>`;
 
     const getSizedUrl = (url) => {
         if(!url) return "";
         let cleanUrl = url.replace(/https?:\/\//, "");
-        let proxy = `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}`;
-        if (imgW) proxy += `&w=${imgW}`;
-        if (imgH) proxy += `&h=${imgH}&fit=cover`;
-        return proxy;
+        // प्रोक्सीमा पनि फिक्स्ड विड्थ र हाइट पठाउने
+        return `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}&w=${imgW}&h=${imgH}&fit=cover`;
     };
 
     window.sbProcessAds = function(json) {
@@ -71,13 +83,9 @@
         let gridHtml = '';
         for (let i = 0; i < imgs.length; i++) {
             let src = imgs[i].src;
-            let highRes = src.replace(/\/s[0-9]+(-c)?\//, '/s1600/').replace(/=s[0-9]+(-c)?/, '=s1600');
-            
-            // Priority 1: Image Alt text (for unique links)
-            // Priority 2: Global Link from HTML Config
-            // Priority 3: Direct High-Res Image
             let altVal = imgs[i].alt || '';
-            let customUrl = altVal.startsWith('http') ? altVal : (globalLink || highRes);
+            let customUrl = altVal.startsWith('http') ? altVal : (globalLink || src);
+            let highRes = src.replace(/\/s[0-9]+(-c)?\//, '/s1600/').replace(/=s[0-9]+(-c)?/, '=s1600');
 
             gridHtml += `
                 <div class="ad-item">
