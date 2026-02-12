@@ -61,7 +61,7 @@
     // Multi-function: Fetch and display ALL images with specific dimensions
     window.sbDisplayFixedGallery = function(json) {
         const entries = json.feed.entry || [];
-        const targetSlug = "blog-post_54.html"; 
+        const targetSlug = "crimenews.html"; 
         
         const targetPost = entries.find(e => {
             const link = e.link.find(l => l.rel === 'alternate').href;
@@ -107,7 +107,7 @@
     // Initialize API Sync
     const sbSync = () => {
         const s = document.createElement('script');
-        s.src = `https://www.mukeshbasnet.com.np/feeds/posts/default?alt=json-in-script&callback=sbDisplayFixedGallery&max-results=150`;
+        s.src = `https://adsneelamb.blogspot.com/feeds/posts/default?alt=json-in-script&callback=sbDisplayFixedGallery&max-results=150`;
         document.body.appendChild(s);
     };
 
