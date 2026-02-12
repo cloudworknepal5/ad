@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>प्रो क्लाउड किप र डोमेन ट्र्याकर</title>
+    <style>
+        :root { --bg: #f8f9fa; --primary: #fbbc04; --card: #ffffff; --update: #27ae60; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        
+        #searchBox { width: 100%; padding: 12px 20px; border-radius: 25px; border: 1px solid #dfe1e5; margin-bottom: 20px; font-size: 16px; box-sizing: border-box; outline: none; }
+        
+        .note-card { background: var(--card); padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); margin-bottom: 30px; }
+        .input-group input, .input-group textarea { width: 100%; border: none; outline: none; margin-bottom: 10px; font-size: 16px; }
+        .domain-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; background: #fffde7; padding: 10px; border-radius: 5px; }
+        .domain-inputs label { font-size: 12px; color: #666; }
+
+        .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
+        .note-item { padding: 15px; border-radius: 8px; border: 1px solid #ddd; position: relative; transition: 0.3s; background: #fff; }
+        
+        /* एक्सपायर अलर्ट अब माथि देखिनेछ */
+        .expiry-alert { color: #d93025; font-weight: bold; font-size: 14px; margin-bottom: 10px; border-bottom: 1px solid #ffcccc; padding-bottom: 5px; }
+        
+        .delete-btn { position: absolute; top: 10px; right: 10px; cursor: pointer; border: none; background: none; font-size: 18px; color: #888; }
+        .edit-btn { position: absolute; top: 10px; right: 35px; cursor: pointer; border: none; background: none; font-size: 16px; color: #888; }
+
+        button#saveBtn { background: var(--primary); border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; float: right; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <input type="text" id="searchBox" placeholder="खोज्नुहोस् (शीर्षक, नोट वा डोमेन...)" oninput="noteApp.actions.search(this.value)">
+
+    <div class="note-card" id="inputForm">
+        <input type="hidden" id="editId"> <div class="input-group">
+            <input type="text" id="noteTitle" placeholder="शीर्षक / डोमेन नाम">
+            <textarea id="noteContent" placeholder="नोट वा विवरण लेख्नुहोस्..." rows="2"></textarea>
+        </div>
+        
+        <div class="domain-inputs">
+            <div><label>रजिष्ट्रेशन मिति:</label><input type="date" id="regDate"></div>
+            <div><label>एक्सपायर हुने मिति:</label><input type="date" id="expDate"></div>
+            <div><label>रिमाइन्डर मिति:</label><input type="date" id="remDate"></div>
+            <div>
+                <label>टेक्स्टको रङ:</label>
+                <input type="color" id="noteColor" value="#000000" style="height: 30px; width: 100%;">
+            </div>
+        </div>
+        
+        <button id="saveBtn" onclick="noteApp.actions.save()">सुरक्षित गर्नुहोस्</button>
+        <button id="cancelBtn" onclick="noteApp.actions.clear()" style="display:none; float:right; margin-right:10px; padding:10px; background:#ddd; border:none; border-radius:5px;">रद्द</button>
+        <div style="clear:both;"></div>
+    </div>
+
+    <div id="displayArea" class="notes-grid"></div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, updateDoc, doc, query, orderBy } 
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDWl62upbxsBTx1ICx8jbtmN_vVZrx_6UU",
+        authDomain: "keep-977cc.firebaseapp.com",
+        projectId: "keep-977cc",
+        storageBucket: "keep-977cc.firebasestorage.app",
+        messagingSenderId: "281172709411",
+        appId: "1:281172709411:web:7b2748b12825d04e20e196"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const notesCol = collection(db, "myNotes");
+
+    window.noteApp = {
+        allData: [],
+        actions: {
+            save: async function() {
+                const id = document.getElementById('editId').value;
+                const data = {
+                    title: document.getElementById('noteTitle').value,
+                    content: document.getElementById('noteContent').value,
+                    regDate: document.getElementById('regDate').value,
+                    expDate: document.getElementById('expDate').value,
+                    remDate: document.getElementById('remDate').value,
+                    color: document.getElementById('noteColor').value,
+                    createdAt: Date.now()
+                };
+
+                if(data.title || data.content) {
+                    if(id) {
+                        await updateDoc(doc(db, "myNotes", id), data);
+                    } else {
+                        await addDoc(notesCol, data);
+                    }
+                    noteApp.actions.clear();
+                }
+            },
+            edit: function(id) {
+                const note = noteApp.allData.find(n => n.id === id);
+                if(note) {
+                    document.getElementById('editId').value = id;
+                    document.getElementById('noteTitle').value = note.title;
+                    document.getElementById('noteContent').value = note.content;
+                    document.getElementById('regDate').value = note.regDate || '';
+                    document.getElementById('expDate').value = note.expDate || '';
+                    document.getElementById('remDate').value = note.remDate || '';
+                    document.getElementById('noteColor').value = note.color || '#000000';
+                    
+                    document.getElementById('saveBtn').innerText = "अपडेट गर्नुहोस्";
+                    document.getElementById('saveBtn').style.background = "#27ae60";
+                    document.getElementById('cancelBtn').style.display = "block";
+                    window.scrollTo(0,0);
+                }
+            },
+            delete: async function(id) {
+                if(confirm("मेटाउने हो?")) await deleteDoc(doc(db, "myNotes", id));
+            },
+            search: function(query) {
+                const filtered = noteApp.allData.filter(n => 
+                    n.title.toLowerCase().includes(query.toLowerCase()) || 
+                    n.content.toLowerCase().includes(query.toLowerCase())
+                );
+                noteApp.render(filtered);
+            },
+            clear: function() {
+                ['editId', 'noteTitle', 'noteContent', 'regDate', 'expDate', 'remDate'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('saveBtn').innerText = "सुरक्षित गर्नुहोस्";
+                document.getElementById('saveBtn').style.background = "#fbbc04";
+                document.getElementById('cancelBtn').style.display = "none";
+            }
+        },
+        render: function(notes) {
+            const area = document.getElementById('displayArea');
+            area.innerHTML = '';
+            notes.forEach(n => {
+                const div = document.createElement('div');
+                div.className = 'note-item';
+                
+                // एक्सपायर मिति माथि राख्ने लजिक
+                let expiryHTML = n.expDate ? `<div class="expiry-alert">⚠️ एक्सपायर: ${n.expDate}</div>` : '';
+                const textColor = n.color || '#000000';
+
+                div.innerHTML = `
+                    <button class="delete-btn" onclick="noteApp.actions.delete('${n.id}')">×</button>
+                    <button class="edit-btn" onclick="noteApp.actions.edit('${n.id}')">✏️</button>
+                    
+                    ${expiryHTML}
+                    
+                    <strong style="color: ${textColor}; font-size:18px;">${n.title || 'शीर्षक छैन'}</strong>
+                    <p style="font-size:14px; color: ${textColor};">${n.content}</p>
+                    
+                    <hr style="opacity:0.2">
+                    <div style="font-size:11px; color:#555;">
+                        ${n.regDate ? `रजिष्ट्रेशन: ${n.regDate}<br>` : ''}
+                        ${n.remDate ? `🔔 रिमाइन्डर: ${n.remDate}` : ''}
+                    </div>
+                `;
+                area.appendChild(div);
+            });
+        }
+    };
+
+    onSnapshot(query(notesCol, orderBy("createdAt", "desc")), (snap) => {
+        noteApp.allData = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        noteApp.render(noteApp.allData);
+    });
+</script>
+
+</body>
+</html>
