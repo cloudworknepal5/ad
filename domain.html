@@ -2,66 +2,124 @@
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <title>प्रो क्लाउड किप र डोमेन ट्र्याकर</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nilambi.com - डोमेन म्यानेजर</title>
     <style>
-        :root { --bg: #f8f9fa; --primary: #fbbc04; --card: #ffffff; --update: #27ae60; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; }
-        
-        #searchBox { width: 100%; padding: 12px 20px; border-radius: 25px; border: 1px solid #dfe1e5; margin-bottom: 20px; font-size: 16px; box-sizing: border-box; outline: none; }
-        
-        .note-card { background: var(--card); padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); margin-bottom: 30px; }
-        .input-group input, .input-group textarea { width: 100%; border: none; outline: none; margin-bottom: 10px; font-size: 16px; }
-        .domain-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; background: #fffde7; padding: 10px; border-radius: 5px; }
-        .domain-inputs label { font-size: 12px; color: #666; }
+        :root { 
+            --bg: #f4f7f6; --primary: #fbbc04; --card: #ffffff; 
+            --danger: #d93025; --warning: #f57c00; --active: #2e7d32; --info: #1a73e8;
+            --gmail: #ea4335; --whatsapp: #25d366; --messenger: #0084ff; --backup: #673ab7; 
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; overflow: hidden; }
 
-        .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
-        .note-item { padding: 15px; border-radius: 8px; border: 1px solid #ddd; position: relative; transition: 0.3s; background: #fff; }
-        
-        .status-tag { display: block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 10px; text-align: center; }
-        .tag-expired { background: #ffebee; color: #d93025; border: 1px solid #ffcdd2; }
-        .tag-near { background: #fff3e0; color: #f57c00; border: 1px solid #ffe0b2; }
-        .tag-active { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        
-        .delete-btn { position: absolute; top: 10px; right: 10px; cursor: pointer; border: none; background: none; font-size: 18px; color: #888; }
-        .edit-btn { position: absolute; top: 10px; right: 35px; cursor: pointer; border: none; background: none; font-size: 16px; color: #888; }
+        .dashboard-wrapper { 
+            display: grid; 
+            grid-template-columns: 20% 20% 20% 40%; 
+            height: 100vh; 
+            box-sizing: border-box;
+        }
 
-        button#saveBtn { background: var(--primary); border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; float: right; }
+        @media (max-width: 1200px) {
+            .dashboard-wrapper { grid-template-columns: 1fr; height: auto; overflow: auto; }
+            .col { height: auto !important; border-bottom: 2px solid #ddd; }
+        }
+
+        .col { padding: 15px; overflow-y: auto; height: 100vh; border-right: 1px solid #ddd; box-sizing: border-box; }
+
+        .col-title { 
+            font-size: 14px; font-weight: bold; padding: 10px; margin-bottom: 15px;
+            background: #fff; border-radius: 8px; border-bottom: 3px solid #eee;
+            position: sticky; top: 0; z-index: 10; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .card-style { background: #fff; padding: 12px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 12px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .expired-card { border-top: 4px solid var(--danger); }
+        .near-card { border-top: 4px solid var(--warning); }
+        .future-card { border-top: 4px solid var(--info); }
+
+        .form-section { background: #fff; padding: 20px; border-radius: 15px; border-top: 5px solid var(--primary); margin-bottom: 30px; }
+        #searchBox { width: 100%; padding: 12px 20px; border-radius: 25px; border: 1px solid #ddd; margin-bottom: 20px; outline: none; font-size: 15px; }
+        
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .input-group input, .input-group textarea { width: 100%; border: none; border-bottom: 1px solid #eee; padding: 8px 0; outline: none; font-size: 13px; }
+        .full-width { grid-column: span 2; }
+        
+        .domain-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: #fffde7; padding: 10px; border-radius: 8px; margin-top: 10px; }
+        
+        .main-notes-list { display: flex; flex-direction: column; gap: 12px; }
+        .note-item { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #e0e0e0; position: relative; }
+        .note-title { font-size: 17px; font-weight: 700; color: #1a73e8; margin-bottom: 5px; }
+
+        .social-btns { display: flex; gap: 4px; margin-top: 10px; }
+        .social-btn { flex: 1; text-align: center; color: white; padding: 6px 2px; border-radius: 4px; text-decoration: none; font-size: 9px; font-weight: bold; transition: 0.2s; }
+        .btn-gmail { background: var(--gmail); }
+        .btn-wa { background: var(--whatsapp); }
+        .btn-ms { background: var(--messenger); }
+
+        .delete-btn, .edit-btn { position: absolute; top: 10px; cursor: pointer; border: none; background: #f9f9f9; width: 26px; height: 26px; border-radius: 50%; color: #888; display: flex; align-items: center; justify-content: center; }
+        .delete-btn { right: 10px; }
+        .edit-btn { right: 40px; }
+
+        .backup-btn { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; color: #fff; font-size: 11px; margin: 0 3px; }
+        #loadMoreBtn { width: 100%; padding: 10px; margin-top: 15px; border: 1px dashed #bbb; background: #fff; cursor: pointer; border-radius: 8px; color: #555; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <input type="text" id="searchBox" placeholder="खोज्नुहोस् (शीर्षक, नोट वा डोमेन...)" oninput="noteApp.actions.search(this.value)">
+<div class="dashboard-wrapper">
+    <aside class="col" style="background: #fff5f5;">
+        <div class="col-title" style="color:var(--danger)">🚫 एक्सपायर भइसकेका</div>
+        <div id="expiredArea"></div>
+    </aside>
 
-    <div class="note-card" id="inputForm">
-        <input type="hidden" id="editId">
-        <div class="input-group">
-            <input type="text" id="noteTitle" placeholder="शीर्षक / डोमेन नाम">
-            <textarea id="noteContent" placeholder="नोट वा विवरण लेख्नुहोस्..." rows="2"></textarea>
-        </div>
-        
-        <div class="domain-inputs">
-            <div><label>रजिष्ट्रेशन मिति:</label><input type="date" id="regDate"></div>
-            <div><label>एक्सपायर हुने मिति:</label><input type="date" id="expDate"></div>
-            <div><label>रिमाइन्डर मिति:</label><input type="date" id="remDate"></div>
-            <div>
-                <label>टेक्स्टको रङ:</label>
-                <input type="color" id="noteColor" value="#000000" style="height: 30px; width: 100%;">
+    <aside class="col" style="background: #fffbef;">
+        <div class="col-title" style="color:var(--warning)">⚠️ ६० दिनभित्र सकिने</div>
+        <div id="nearExpireList"></div>
+    </aside>
+
+    <aside class="col" style="background: #f0f7ff;">
+        <div class="col-title" style="color:var(--info)">📅 आगामी नवीकरण (६०+)</div>
+        <div id="futureExpireList"></div>
+    </aside>
+
+    <main class="col" style="background:#fcfcfc; border-right:none;">
+        <div class="col-title">📝 Nilambi Domain Management</div>
+        <input type="text" id="searchBox" placeholder="खोज्नुहोस् (URL, नाम, फोन नम्बर)...">
+
+        <div class="form-section">
+            <input type="hidden" id="editId">
+            <div class="input-group">
+                <input type="text" id="noteTitle" placeholder="वेबसाइटको URL" class="full-width">
+                <input type="text" id="authName" placeholder="क्लाइन्टको नाम">
+                <input type="text" id="authMobile" placeholder="मोबाइल नं.">
+                <input type="text" id="authAddress" placeholder="क्लाइन्टको ठेगाना">
+                <input type="email" id="authGmail" placeholder="क्लाइन्टको इमेल">
+                <textarea id="noteContent" placeholder="थप विवरण..." rows="2" class="full-width"></textarea>
+            </div>
+            <div class="domain-inputs">
+                <div><label style="font-size:8px">रजिष्ट्रेशन</label><input type="date" id="regDate" style="width:100%"></div>
+                <div><label style="font-size:8px">एक्सपायर</label><input type="date" id="expDate" style="width:100%"></div>
+                <div><label style="font-size:8px">रिमाइन्डर</label><input type="date" id="remDate" style="width:100%"></div>
+                <div><label style="font-size:8px">रङ</label><input type="color" id="noteColor" value="#1a73e8" style="width:100%; height:20px; border:none;"></div>
+            </div>
+            <button id="saveBtn" style="width:100%; background:var(--active); color:white; border:none; padding:12px; border-radius:10px; cursor:pointer; font-weight:bold; margin-top:15px;" onclick="noteApp.actions.save()">डाटा सुरक्षित गर्नुहोस्</button>
+            
+            <div style="margin-top:15px; text-align: center;">
+                <button class="backup-btn" style="background:var(--backup)" onclick="noteApp.actions.exportData()">📤 Export</button>
+                <button class="backup-btn" style="background:#444" onclick="document.getElementById('importFile').click()">📥 Import</button>
+                <input type="file" id="importFile" style="display:none" onchange="noteApp.actions.importData(event)">
             </div>
         </div>
-        
-        <button id="saveBtn" onclick="noteApp.actions.save()">सुरक्षित गर्नुहोस्</button>
-        <button id="cancelBtn" onclick="noteApp.actions.clear()" style="display:none; float:right; margin-right:10px; padding:10px; background:#ddd; border:none; border-radius:5px;">रद्द</button>
-        <div style="clear:both;"></div>
-    </div>
 
-    <div id="displayArea" class="notes-grid"></div>
+        <h4 style="margin: 0 0 15px 5px; color:#555; border-left:4px solid var(--active); padding-left:10px;">वेबसाइट सूची</h4>
+        <div id="mainNotesList" class="main-notes-list"></div>
+        <button id="loadMoreBtn" onclick="noteApp.actions.loadMore()" style="display:none;">थप हेर्नुहोस्</button>
+    </main>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, updateDoc, doc, query, orderBy } 
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, updateDoc, doc, query } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -79,11 +137,17 @@
 
     window.noteApp = {
         allData: [],
+        displayLimit: 10,
+        isSearching: false,
         actions: {
             save: async function() {
                 const id = document.getElementById('editId').value;
                 const data = {
                     title: document.getElementById('noteTitle').value,
+                    authName: document.getElementById('authName').value,
+                    authAddress: document.getElementById('authAddress').value,
+                    authMobile: document.getElementById('authMobile').value,
+                    authGmail: document.getElementById('authGmail').value,
                     content: document.getElementById('noteContent').value,
                     regDate: document.getElementById('regDate').value,
                     expDate: document.getElementById('expDate').value,
@@ -91,103 +155,176 @@
                     color: document.getElementById('noteColor').value,
                     updatedAt: Date.now()
                 };
-
-                if(data.title || data.content) {
-                    if(id) {
-                        await updateDoc(doc(db, "myNotes", id), data);
-                    } else {
-                        data.createdAt = Date.now();
-                        await addDoc(notesCol, data);
-                    }
-                    noteApp.actions.clear();
-                }
+                if(!data.title) return alert("URL अनिवार्य छ!");
+                if(id) await updateDoc(doc(db, "myNotes", id), data);
+                else { data.createdAt = Date.now(); await addDoc(notesCol, data); }
+                this.clear();
             },
-            edit: function(id) {
-                const note = noteApp.allData.find(n => n.id === id);
-                if(note) {
+            clear: () => {
+                ['editId','noteTitle','authName','authAddress','authMobile','authGmail','noteContent','regDate','expDate','remDate'].forEach(i => document.getElementById(i).value = '');
+                document.getElementById('saveBtn').innerText = "डाटा सुरक्षित गर्नुहोस्";
+                document.getElementById('saveBtn').style.background = "var(--active)";
+            },
+            loadMore: () => { noteApp.displayLimit += 10; noteApp.render(noteApp.allData); },
+            edit: (id) => {
+                const n = noteApp.allData.find(x => x.id === id);
+                if(n) {
                     document.getElementById('editId').value = id;
-                    document.getElementById('noteTitle').value = note.title || '';
-                    document.getElementById('noteContent').value = note.content || '';
-                    document.getElementById('regDate').value = note.regDate || '';
-                    document.getElementById('expDate').value = note.expDate || '';
-                    document.getElementById('remDate').value = note.remDate || '';
-                    document.getElementById('noteColor').value = note.color || '#000000';
-                    
+                    document.getElementById('noteTitle').value = n.title;
+                    document.getElementById('authName').value = n.authName || '';
+                    document.getElementById('authAddress').value = n.authAddress || '';
+                    document.getElementById('authMobile').value = n.authMobile || '';
+                    document.getElementById('authGmail').value = n.authGmail || '';
+                    document.getElementById('noteContent').value = n.content || '';
+                    document.getElementById('expDate').value = n.expDate || '';
+                    document.getElementById('regDate').value = n.regDate || '';
+                    document.getElementById('remDate').value = n.remDate || '';
+                    document.getElementById('noteColor').value = n.color || '#1a73e8';
                     document.getElementById('saveBtn').innerText = "अपडेट गर्नुहोस्";
-                    document.getElementById('saveBtn').style.background = "#27ae60";
-                    document.getElementById('cancelBtn').style.display = "block";
-                    window.scrollTo({top: 0, behavior: 'smooth'});
+                    document.getElementById('saveBtn').style.background = "var(--info)";
+                    window.scrollTo(0,0);
                 }
             },
-            delete: async function(id) {
-                if(confirm("मेटाउने हो?")) await deleteDoc(doc(db, "myNotes", id));
+            delete: async (id) => { if(confirm("डिलेट गर्ने?")) await deleteDoc(doc(db, "myNotes", id)); },
+            exportData: () => {
+                const blob = new Blob([JSON.stringify(noteApp.allData)], {type:'application/json'});
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'nilambi_backup.json'; a.click();
             },
-            search: function(query) {
-                const filtered = noteApp.allData.filter(n => 
-                    (n.title||'').toLowerCase().includes(query.toLowerCase()) || 
-                    (n.content||'').toLowerCase().includes(query.toLowerCase())
-                );
-                noteApp.render(filtered);
-            },
-            clear: function() {
-                ['editId', 'noteTitle', 'noteContent', 'regDate', 'expDate', 'remDate'].forEach(id => document.getElementById(id).value = '');
-                document.getElementById('saveBtn').innerText = "सुरक्षित गर्नुहोस्";
-                document.getElementById('saveBtn').style.background = "#fbbc04";
-                document.getElementById('cancelBtn').style.display = "none";
+            importData: (e) => {
+                const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    const items = JSON.parse(ev.target.result);
+                    for(let i of items) { delete i.id; await addDoc(notesCol, i); }
+                };
+                reader.readAsText(e.target.files[0]);
             }
         },
-        render: function(notes) {
-            const area = document.getElementById('displayArea');
-            area.innerHTML = '';
+
+        // मल्टि-फंक्सन म्यासेजिङ लजिक (बाँकी दिनसहित)
+        getSocialButtonsHtml: function(n) {
+            const myBrand = "Neelamb Art & Design";
+            const myAddress = "Birgunj, Nepal";
+            const myPhone = "9779814272487"; // यहाँ आफ्नो फोन राख्नुहोला
             
-            const now = new Date();
-            now.setHours(0,0,0,0);
+            let dayStatus = "";
+            if (n.diff < 0) {
+                dayStatus = `एक्सपायर भएको ${Math.abs(n.diff)} दिन भइसक्यो`;
+            } else if (n.diff === 0) {
+                dayStatus = `आज नै एक्सपायर हुँदैछ`;
+            } else {
+                dayStatus = `एक्सपायर हुन ${n.diff} दिन बाँकी छ`;
+            }
 
-            notes.forEach(n => {
-                const div = document.createElement('div');
-                div.className = 'note-item';
-                
-                let statusHTML = '';
+            const subject = encodeURIComponent("जरुरी सूचना: वेबसाइट नवीकरण - " + n.title);
+            const message = `नमस्ते ${n.authName || 'क्लाइन्ट'},\n\n` +
+                `तपाईंको वेबसाइट [ ${n.title} ] को म्याद ${n.expDate} मा सकिँदैछ।\n\n` +
+                `हालको अवस्था: ${dayStatus}।\n\n` +
+                `वेबसाइटलाई निरन्तर सुचारु राख्नको लागि कृपया एक साता अगावै नवीकरण गरिदिनुहोला।\n\n` +
+                `--- सम्पर्क विवरण ---\n` +
+                `संस्था: ${myBrand}\n` +
+                `ठेगाना: ${myAddress}\n` +
+                `फोन: ${myPhone}\n` +
+                `वेब: https://neelamb.com`;
+
+            const encodedMsg = encodeURIComponent(message);
+            const waPhone = (n.authMobile||'').replace(/\D/g,'');
+            const waFinal = waPhone.length === 10 ? '977' + waPhone : waPhone;
+
+            return `
+                <div class="social-btns">
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${n.authGmail}&su=${subject}&body=${encodedMsg}" target="_blank" class="social-btn btn-gmail">Gmail</a>
+                    <a href="https://wa.me/${waFinal}?text=${encodedMsg}" target="_blank" class="social-btn btn-wa">WA</a>
+                    <a href="https://www.facebook.com/messages/t/" target="_blank" class="social-btn btn-ms">MS</a>
+                </div>`;
+        },
+
+        render: function(notes) {
+            const expA = document.getElementById('expiredArea');
+            const nearL = document.getElementById('nearExpireList');
+            const futureL = document.getElementById('futureExpireList');
+            const mainL = document.getElementById('mainNotesList');
+            
+            expA.innerHTML = ''; nearL.innerHTML = ''; futureL.innerHTML = ''; mainL.innerHTML = '';
+            const now = new Date(); now.setHours(0,0,0,0);
+
+            const processed = notes.map(n => {
+                let diff = 9999;
                 if(n.expDate) {
-                    const expDate = new Date(n.expDate);
-                    const diffTime = expDate - now;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                    if (diffDays < 0) {
-                        statusHTML = `<span class="status-tag tag-expired">🚫 एक्सपायर भयो (${n.expDate})</span>`;
-                    } else if (diffDays <= 30) {
-                        statusHTML = `<span class="status-tag tag-near">⚠️ म्याद सकिन लाग्यो (${diffDays} दिन बाँकी)</span>`;
-                    } else {
-                        statusHTML = `<span class="status-tag tag-active">✅ म्याद सुरक्षित छ (${n.expDate})</span>`;
-                    }
+                    const d = new Date(n.expDate);
+                    diff = Math.ceil((d - now) / (1000*60*60*24));
                 }
+                return { ...n, diff };
+            });
 
-                const textColor = n.color || '#000000';
-
-                div.innerHTML = `
-                    <button class="delete-btn" onclick="noteApp.actions.delete('${n.id}')">×</button>
-                    <button class="edit-btn" onclick="noteApp.actions.edit('${n.id}')">✏️</button>
-                    ${statusHTML}
-                    <strong style="color: ${textColor}; font-size:18px;">${n.title || 'शीर्षक छैन'}</strong>
-                    <p style="font-size:14px; color: ${textColor};">${n.content || ''}</p>
-                    <hr style="opacity:0.2">
-                    <div style="font-size:11px; color:#555;">
-                        ${n.regDate ? `रजिष्ट्रेशन: ${n.regDate}<br>` : ''}
-                        ${n.remDate ? `🔔 रिमाइन्डर: ${n.remDate}` : ''}
+            // १. सकिएको (Expired)
+            processed.filter(n => n.diff < 0).sort((a,b) => b.diff - a.diff).forEach(n => {
+                expA.innerHTML += `<div class="card-style expired-card">
+                    <button class="edit-btn" style="top:5px; right:5px; width:20px; height:20px; font-size:10px;" onclick="noteApp.actions.edit('${n.id}')">✏️</button>
+                    <div style="font-weight:bold; font-size:11.5px;">${n.title}</div>
+                    <div style="font-size:10px; color:red; margin-top:3px;">
+                        📅 मिति: ${n.expDate} <br>
+                        ⌛ सकिएको: ${Math.abs(n.diff)} दिन भयो
                     </div>
-                `;
-                area.appendChild(div);
+                    ${this.getSocialButtonsHtml(n)}
+                </div>`;
+            });
+
+            // २. ६० दिनभित्र (Near Expire)
+            processed.filter(n => n.diff >= 0 && n.diff <= 60).sort((a,b) => a.diff - b.diff).forEach(n => {
+                nearL.innerHTML += `<div class="card-style near-card">
+                    <button class="edit-btn" style="top:5px; right:5px; width:20px; height:20px; font-size:10px;" onclick="noteApp.actions.edit('${n.id}')">✏️</button>
+                    <div style="font-weight:bold; font-size:11.5px;">${n.title}</div>
+                    <div style="font-size:10px; color:#f57c00; margin-top:3px;">
+                        📅 मिति: ${n.expDate} <br>
+                        ⌛ बाँकी: ${n.diff} दिन
+                    </div>
+                    ${this.getSocialButtonsHtml(n)}
+                </div>`;
+            });
+
+            // ३. ६० दिनपछिका (Future)
+            processed.filter(n => n.diff > 60 && n.diff !== 9999).sort((a,b) => a.diff - b.diff).forEach(n => {
+                futureL.innerHTML += `<div class="card-style future-card">
+                    <button class="edit-btn" style="top:5px; right:5px; width:20px; height:20px; font-size:10px;" onclick="noteApp.actions.edit('${n.id}')">✏️</button>
+                    <div style="font-weight:bold; font-size:11.5px;">${n.title}</div>
+                    <div style="font-size:10px; color:#1a73e8; margin-top:3px;">
+                        📅 मिति: ${n.expDate} <br>
+                        ⌛ बाँकी: ${n.diff} दिन
+                    </div>
+                    ${this.getSocialButtonsHtml(n)}
+                </div>`;
+            });
+
+            // ४. मुख्य पूर्ण सूची
+            let items = this.isSearching ? processed : processed.slice(0, this.displayLimit);
+            document.getElementById('loadMoreBtn').style.display = (!this.isSearching && processed.length > this.displayLimit) ? 'block' : 'none';
+
+            items.forEach(n => {
+                mainL.innerHTML += `
+                    <div class="note-item">
+                        <button class="delete-btn" onclick="noteApp.actions.delete('${n.id}')">×</button>
+                        <button class="edit-btn" onclick="noteApp.actions.edit('${n.id}')">✏️</button>
+                        <div class="note-title" style="color:${n.color}">${n.title}</div>
+                        <div style="font-size:13px;">👤 ${n.authName || '-'} | 📞 ${n.authMobile || '-'}</div>
+                        <div style="font-size:12px; color:#666; margin-top:4px;">
+                            📅 एक्सपायर मिति: <b>${n.expDate}</b> | ⌛ अवस्था: <b>${n.diff < 0 ? Math.abs(n.diff)+' दिन पहिले सकिएको' : n.diff+' दिन बाँकी'}</b>
+                        </div>
+                        ${this.getSocialButtonsHtml(n)}
+                    </div>`;
             });
         }
     };
 
-    // नोटहरू हराउन नदिन orderBy हटाएर सामान्य query बाट सुरु गर्ने
     onSnapshot(query(notesCol), (snap) => {
-        let rawData = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
-        
-        // जाभास्क्रिप्टबाटै सर्टिङ गर्ने (ताकि पुरानो डेटा नहराओस्)
-        noteApp.allData = rawData.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+        noteApp.allData = snap.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => (b.updatedAt||0)-(a.updatedAt||0));
         noteApp.render(noteApp.allData);
+    });
+
+    document.getElementById('searchBox').addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
+        noteApp.isSearching = q.length > 0;
+        const f = noteApp.allData.filter(n => (n.title||'').toLowerCase().includes(q) || (n.authName||'').toLowerCase().includes(q) || (n.authMobile||'').includes(q));
+        noteApp.render(f);
     });
 </script>
 
