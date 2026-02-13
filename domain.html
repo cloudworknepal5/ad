@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neelamb.com - डोमेन म्यानेजर</title>
+    <title>Nilambi.com - डोमेन म्यानेजर</title>
     <style>
         :root { 
             --bg: #f4f7f6; --primary: #fbbc04; --card: #ffffff; 
             --danger: #d93025; --warning: #f57c00; --active: #2e7d32; --info: #1a73e8;
             --gmail: #ea4335; --whatsapp: #25d366; --messenger: #0084ff; --backup: #673ab7; 
         }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; overflow: hidden; }
+        
+        /* डेस्कटपमा मात्र overflow hidden राख्ने, मोबाइलमा स्क्रोल हुन दिने */
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; overflow-x: hidden; overflow-y: auto; }
 
         .dashboard-wrapper { 
             display: grid; 
@@ -19,12 +21,24 @@
             box-sizing: border-box;
         }
 
-        @media (max-width: 1200px) {
-            .dashboard-wrapper { grid-template-columns: 1fr; height: auto; overflow: auto; }
-            .col { height: auto !important; border-bottom: 2px solid #ddd; }
-        }
-
+        /* कोलमको लागि स्टाइल - डेस्कटपमा आफ्नो क्षेत्रमा स्क्रोल हुने */
         .col { padding: 15px; overflow-y: auto; height: 100vh; border-right: 1px solid #ddd; box-sizing: border-box; }
+
+        @media (max-width: 1200px) {
+            body { overflow-y: auto; } /* मोबाइलमा पूरै बडी स्क्रोल हुने */
+            .dashboard-wrapper { 
+                display: flex; 
+                flex-direction: column; 
+                height: auto; 
+            }
+            .col { 
+                height: auto !important; 
+                overflow-y: visible !important; 
+                border-right: none; 
+                border-bottom: 2px solid #ddd; 
+                padding-bottom: 30px;
+            }
+        }
 
         .col-title { 
             font-size: 14px; font-weight: bold; padding: 10px; margin-bottom: 15px;
@@ -200,11 +214,11 @@
             }
         },
 
-        // मल्टि-फंक्सन म्यासेजिङ लजिक (बाँकी दिनसहित)
+        // मल्टि-फंक्सन म्यासेजिङ लजिक
         getSocialButtonsHtml: function(n) {
             const myBrand = "Neelamb Art & Design";
             const myAddress = "Birgunj, Nepal";
-            const myPhone = "9779814272487"; // यहाँ आफ्नो फोन राख्नुहोला
+            const myPhone = "9779814272487"; 
             
             let dayStatus = "";
             if (n.diff < 0) {
