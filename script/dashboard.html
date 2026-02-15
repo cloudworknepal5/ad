@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeelamB Responsive Dashboard</title>
+    <style>
+        :root { --view: #1a73e8; --click: #e91e63; --green: #2ecc71; --bg: #f1f3f4; }
+        
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); padding: 15px; margin: 0; font-size: 13px; }
+
+        .container { max-width: 1100px; margin: auto; }
+
+        /* Summary Cards - Mobile Responsive Grid */
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 12px; 
+            margin-bottom: 20px; 
+        }
+        
+        .card { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 12px; 
+            text-align: center; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
+            border-top: 4px solid #ccc;
+        }
+        
+        .card h3 { margin: 0; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card p { font-size: 24px; font-weight: bold; margin: 8px 0 0 0; }
+
+        /* Table Responsive Wrapper */
+        .table-box { 
+            background: white; 
+            padding: 10px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
+            overflow: hidden; 
+        }
+        
+        .scroll-container { overflow-x: auto; width: 100%; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { text-align: left; padding: 12px 10px; background: #fafafa; border-bottom: 2px solid #eee; color: #444; }
+        td { padding: 10px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+
+        /* Badges & UI Elements */
+        .badge { padding: 4px 10px; border-radius: 20px; color: white; font-weight: bold; font-size: 10px; display: inline-block; }
+        .VIEW { background: var(--view); } 
+        .CLICK { background: var(--pink); background-color: var(--click); }
+        
+        .load-btn { 
+            display: block; 
+            width: 100%; 
+            max-width: 250px; 
+            margin: 20px auto; 
+            padding: 12px; 
+            background: #333; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .load-btn:active { transform: scale(0.98); }
+        
+        img { width: 45px; height: 28px; border-radius: 4px; object-fit: cover; border: 1px solid #eee; }
+
+        /* Media Queries for Smaller Screens */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .card p { font-size: 20px; }
+            .card { padding: 12px; }
+            th, td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align:center; font-size: 18px; color: #222;">Ad Analytics Pro</h2>
+
+    <div class="stats">
+        <div class="card" style="border-color: var(--view);"><h3>Views</h3><p id="vCount" style="color: var(--view);">0</p></div>
+        <div class="card" style="border-color: var(--click);"><h3>Clicks</h3><p id="cCount" style="color: var(--click);">0</p></div>
+        <div class="card" style="border-color: var(--green);"><h3>CTR %</h3><p id="ctr" style="color: var(--green);">0%</p></div>
+    </div>
+
+    <div class="table-box">
+        <div class="scroll-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Event</th>
+                        <th>Ad ID</th>
+                        <th>Img</th>
+                        <th>IP Address</th>
+                        <th>Location</th>
+                        <th>Device</th>
+                    </tr>
+                </thead>
+                <tbody id="logRows"></tbody>
+            </table>
+        </div>
+        <button id="loadBtn" class="load-btn" onclick="renderRows()">Load More Data</button>
+    </div>
+</div>
+
+<script>
+    const API = 'https://script.google.com/macros/s/AKfycbwIEUX7nS_iBTJfwG4G6RVnalfNLracsAQZlZl9m78M3_Fkmwug63h8QnfrgA2xQ-8azA/exec';
+    let logs = [], index = 0;
+    const LIMIT = 15;
+
+    async function init() {
+        try {
+            const res = await fetch(API);
+            const data = await res.json();
+            document.getElementById('vCount').innerText = data.summary.views.toLocaleString();
+            document.getElementById('cCount').innerText = data.summary.clicks.toLocaleString();
+            document.getElementById('ctr').innerText = data.summary.ctr;
+            logs = data.logs.reverse();
+            renderRows();
+        } catch (e) { console.error("Data load error"); }
+    }
+
+    function renderRows() {
+        const tbody = document.getElementById('logRows');
+        const chunk = logs.slice(index, index + LIMIT);
+        
+        chunk.forEach(r => {
+            const time = new Date(r.date).toLocaleString('ne-NP', { hour12: true, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const typeClass = r.type === 'CLICK' ? 'CLICK' : 'VIEW';
+
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td><small style="color:#666; white-space:nowrap;">${time}</small></td>
+                    <td><span class="badge ${typeClass}">${r.type}</span></td>
+                    <td><small>${r.adId}</small></td>
+                    <td><img src="${r.img}"></td>
+                    <td><small>${r.ip || 'Private'}</small></td>
+                    <td><div style="line-height:1.2"><strong>${r.city || '??'}</strong><br><small style="color:#888">${r.country || 'Global'}</small></div></td>
+                    <td><small style="color:#777">${r.platform.split(' ')[0]}</small></td>
+                </tr>
+            `);
+        });
+
+        index += LIMIT;
+        if (index >= logs.length) document.getElementById('loadBtn').style.display = 'none';
+    }
+    window.onload = init;
+</script>
+
+</body>
+</html>
