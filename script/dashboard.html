@@ -3,158 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeelamB Responsive Dashboard</title>
+    <title>NeelamB Ad-Engine Dashboard</title>
     <style>
-        :root { --view: #1a73e8; --click: #e91e63; --green: #2ecc71; --bg: #f1f3f4; }
-        
+        :root { --blue: #1a73e8; --pink: #e91e63; --green: #2ecc71; --bg: #f8f9fa; }
         * { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); padding: 15px; margin: 0; font-size: 13px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 15px; font-size: 13px; }
+        
+        .container { max-width: 1200px; margin: auto; }
+        
+        /* Stats Grid */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 5px solid #ccc; }
+        .card h3 { margin: 0; font-size: 12px; color: #777; text-transform: uppercase; }
+        .card p { font-size: 26px; font-weight: bold; margin: 10px 0 0 0; }
 
-        .container { max-width: 1100px; margin: auto; }
+        /* Table Design */
+        .table-box { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
+        .scroll-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th { background: #fdfdfd; padding: 15px; text-align: left; border-bottom: 2px solid #eee; color: #444; font-weight: 600; }
+        td { padding: 12px 15px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
 
-        /* Summary Cards - Mobile Responsive Grid */
-        .stats { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-            gap: 12px; 
-            margin-bottom: 20px; 
+        /* Status Badges */
+        .badge { padding: 5px 12px; border-radius: 50px; color: #fff; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .VIEW { background: var(--blue); }
+        .CLICK { background: var(--pink); }
+        
+        /* Elements */
+        .ad-img { width: 50px; height: 30px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; }
+        .url-link { color: var(--blue); text-decoration: none; font-weight: bold; }
+        code { background: #f1f1f1; padding: 3px 6px; border-radius: 4px; color: #d63384; font-size: 11px; }
+        
+        .load-more { 
+            display: block; width: 220px; margin: 25px auto; padding: 12px; 
+            background: #222; color: #fff; border: none; border-radius: 8px; 
+            cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s;
         }
+        .load-more:hover { background: #000; transform: translateY(-2px); }
         
-        .card { 
-            background: white; 
-            padding: 15px; 
-            border-radius: 12px; 
-            text-align: center; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
-            border-top: 4px solid #ccc;
-        }
-        
-        .card h3 { margin: 0; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
-        .card p { font-size: 24px; font-weight: bold; margin: 8px 0 0 0; }
-
-        /* Table Responsive Wrapper */
-        .table-box { 
-            background: white; 
-            padding: 10px; 
-            border-radius: 12px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
-            overflow: hidden; 
-        }
-        
-        .scroll-container { overflow-x: auto; width: 100%; }
-        
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { text-align: left; padding: 12px 10px; background: #fafafa; border-bottom: 2px solid #eee; color: #444; }
-        td { padding: 10px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
-
-        /* Badges & UI Elements */
-        .badge { padding: 4px 10px; border-radius: 20px; color: white; font-weight: bold; font-size: 10px; display: inline-block; }
-        .VIEW { background: var(--view); } 
-        .CLICK { background: var(--pink); background-color: var(--click); }
-        
-        .load-btn { 
-            display: block; 
-            width: 100%; 
-            max-width: 250px; 
-            margin: 20px auto; 
-            padding: 12px; 
-            background: #333; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .load-btn:active { transform: scale(0.98); }
-        
-        img { width: 45px; height: 28px; border-radius: 4px; object-fit: cover; border: 1px solid #eee; }
-
-        /* Media Queries for Smaller Screens */
+        /* Mobile View */
         @media (max-width: 600px) {
             body { padding: 10px; }
-            .card p { font-size: 20px; }
-            .card { padding: 12px; }
-            th, td { padding: 8px; }
+            .stats { gap: 10px; }
+            .card { padding: 15px; }
+            .card p { font-size: 22px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 style="text-align:center; font-size: 18px; color: #222;">Ad Analytics Pro</h2>
-
     <div class="stats">
-        <div class="card" style="border-color: var(--view);"><h3>Views</h3><p id="vCount" style="color: var(--view);">0</p></div>
-        <div class="card" style="border-color: var(--click);"><h3>Clicks</h3><p id="cCount" style="color: var(--click);">0</p></div>
-        <div class="card" style="border-color: var(--green);"><h3>CTR %</h3><p id="ctr" style="color: var(--green);">0%</p></div>
+        <div class="card" style="border-color: var(--blue);"><h3>Impressions</h3><p id="vCount" style="color:var(--blue)">0</p></div>
+        <div class="card" style="border-color: var(--pink);"><h3>Total Clicks</h3><p id="cCount" style="color:var(--pink)">0</p></div>
+        <div class="card" style="border-color: var(--green);"><h3>CTR</h3><p id="ctr" style="color:var(--green)">0%</p></div>
     </div>
 
     <div class="table-box">
-        <div class="scroll-container">
+        <div class="scroll-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th>Time</th>
+                        <th>Timestamp</th>
                         <th>Event</th>
                         <th>Ad ID</th>
-                        <th>Img</th>
+                        <th>Image URL</th>
+                        <th>Target Link</th>
                         <th>IP Address</th>
-                        <th>Location</th>
-                        <th>Device</th>
+                        <th>Country</th>
+                        <th>City</th>
+                        <th>Platform</th>
                     </tr>
                 </thead>
                 <tbody id="logRows"></tbody>
             </table>
         </div>
-        <button id="loadBtn" class="load-btn" onclick="renderRows()">Load More Data</button>
+        <button id="loadBtn" class="load-more" onclick="renderNext()">Load More Data</button>
     </div>
 </div>
 
 <script>
-    const API = 'https://script.google.com/macros/s/AKfycbwIEUX7nS_iBTJfwG4G6RVnalfNLracsAQZlZl9m78M3_Fkmwug63h8QnfrgA2xQ-8azA/exec';
-    let logs = [], index = 0;
-    const LIMIT = 15;
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwIEUX7nS_iBTJfwG4G6RVnalfNLracsAQZlZl9m78M3_Fkmwug63h8QnfrgA2xQ-8azA/exec';
+    let allLogs = [], currentIdx = 0;
+    const PAGE_SIZE = 15;
 
-    async function init() {
+    async function loadData() {
         try {
-            const res = await fetch(API);
-            const data = await res.json();
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            
+            // Update Summary
             document.getElementById('vCount').innerText = data.summary.views.toLocaleString();
             document.getElementById('cCount').innerText = data.summary.clicks.toLocaleString();
             document.getElementById('ctr').innerText = data.summary.ctr;
-            logs = data.logs.reverse();
-            renderRows();
-        } catch (e) { console.error("Data load error"); }
+            
+            // Logs (Newest First)
+            allLogs = data.logs.reverse();
+            renderNext();
+        } catch (error) {
+            console.error("Error:", error);
+            alert("डेटा लोड हुन सकेन।");
+        }
     }
 
-    function renderRows() {
+    function renderNext() {
         const tbody = document.getElementById('logRows');
-        const chunk = logs.slice(index, index + LIMIT);
+        const batch = allLogs.slice(currentIdx, currentIdx + PAGE_SIZE);
         
-        chunk.forEach(r => {
-            const time = new Date(r.date).toLocaleString('ne-NP', { hour12: true, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            const typeClass = r.type === 'CLICK' ? 'CLICK' : 'VIEW';
+        batch.forEach(r => {
+            // Formatting Date
+            const d = new Date(r.date);
+            const timeStr = isNaN(d.getTime()) ? "N/A" : d.toLocaleString('ne-NP', { 
+                hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' 
+            });
 
             tbody.insertAdjacentHTML('beforeend', `
                 <tr>
-                    <td><small style="color:#666; white-space:nowrap;">${time}</small></td>
-                    <td><span class="badge ${typeClass}">${r.type}</span></td>
-                    <td><small>${r.adId}</small></td>
-                    <td><img src="${r.img}"></td>
+                    <td><small style="white-space:nowrap">${timeStr}</small></td>
+                    <td><span class="badge ${r.type}">${r.type}</span></td>
+                    <td><code>${r.adId}</code></td>
+                    <td><img src="${r.img}" class="ad-img" onerror="this.src='https://via.placeholder.com/50x30'"></td>
+                    <td><a href="${r.link}" target="_blank" class="url-link">Link</a></td>
                     <td><small>${r.ip || 'Private'}</small></td>
-                    <td><div style="line-height:1.2"><strong>${r.city || '??'}</strong><br><small style="color:#888">${r.country || 'Global'}</small></div></td>
-                    <td><small style="color:#777">${r.platform.split(' ')[0]}</small></td>
+                    <td>${r.country || 'Global'}</td>
+                    <td><strong>${r.city || 'Unknown'}</strong></td>
+                    <td><small style="color:#666">${r.platform || 'N/A'}</small></td>
                 </tr>
             `);
         });
 
-        index += LIMIT;
-        if (index >= logs.length) document.getElementById('loadBtn').style.display = 'none';
+        currentIdx += PAGE_SIZE;
+        if (currentIdx >= allLogs.length) {
+            document.getElementById('loadBtn').style.display = 'none';
+        }
     }
-    window.onload = init;
-</script>
 
+    window.onload = loadData;
+</script>
 </body>
 </html>
