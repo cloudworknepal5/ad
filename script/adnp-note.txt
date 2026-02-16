@@ -1,0 +1,67 @@
+<script src="https://ad.neelamb.com/script/adnp-engine.js"></script>
+
+
+
+1
+
+<div id="ad-top-1200x200"></div>
+<script>
+    renderAdGrid({
+        containerId: "ad-top-1200x200",
+         pageId: "ad-top-1200x200", // 
+        isPage: true,       //  
+        width: 1200,
+        height: 200,
+        link: "https://neelamb.com"
+    });
+</script>
+
+
+2
+
+<div id="adnp-sidebar-300x300"></div>
+<script>
+    renderAdGrid({
+        containerId: "adnp-sidebar-300x300",
+       pageId: "adnp-sidebar-300x300", // 
+        isPage: true,       //
+        width: 300,
+        height: 300,
+        link: "https://neelamb.com"
+    });
+</script>
+
+
+3
+
+
+<div id="adnp-postpage"></div>
+<script>
+    renderAdGrid({
+        containerId: "adnp-postpage",
+        pageId: "adnp-postpage", // 
+        isPage: true,       // 
+        width: 600,
+        height: 400,
+        link: "https://neelamb.com"
+    });
+</script>
+
+
+4
+
+
+
+<div id="adnp-footer-1200x200"></div>
+<script>
+    renderAdGrid({
+        containerId: "adnp-footer-1200x200",
+         pageId: "adnp-footer-1200x200", // 
+        isPage: true,       //  
+        width: 1200,
+        height: 200,
+        link: "https://neelamb.com"
+    });
+</script>
+
+
