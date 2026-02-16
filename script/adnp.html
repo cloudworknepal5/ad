@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeelamB Ad-Engine Pro</title>
+    <style>
+        :root { --blue: #1a73e8; --pink: #e91e63; --green: #2ecc71; --bg: #f4f7f6; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; font-size: 13px; color: #333; }
+        .container { max-width: 1280px; margin: auto; }
+        
+        /* Stats */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-top: 5px solid #ccc; }
+        .card h3 { margin: 0; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .card p { font-size: 24px; font-weight: 800; margin: 8px 0 0 0; }
+
+        /* Controls Area */
+        .controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        #searchInput { flex-grow: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        .btn-export { background: var(--green); color: white; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* Table */
+        .table-box { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .scroll-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th { background: #fcfcfc; padding: 15px; text-align: left; border-bottom: 2px solid #eee; font-weight: 600; color: #555; }
+        td { padding: 12px 15px; border-bottom: 1px solid #f9f9f9; }
+        
+        .badge { padding: 4px 10px; border-radius: 4px; color: #fff; font-size: 10px; font-weight: bold; }
+        .VIEW { background: var(--blue); }
+        .CLICK { background: var(--pink); }
+        .ad-img { width: 45px; height: 28px; object-fit: cover; border-radius: 4px; }
+        
+        .load-more { display: block; width: 200px; margin: 20px auto; padding: 12px; background: #333; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .load-more:hover { background: #000; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="stats">
+        <div class="card" style="border-color: var(--blue);"><h3>Impressions</h3><p id="vCount" style="color:var(--blue)">0</p></div>
+        <div class="card" style="border-color: var(--pink);"><h3>Total Clicks</h3><p id="cCount" style="color:var(--pink)">0</p></div>
+        <div class="card" style="border-color: var(--green);"><h3>CTR</h3><p id="ctr" style="color:var(--green)">0%</p></div>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="searchInput" placeholder="Search by Ad ID, Country, or City..." onkeyup="handleSearch()">
+        <button class="btn-export" onclick="downloadCSV()">Download CSV</button>
+    </div>
+
+    <div class="table-box">
+        <div class="scroll-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp (Full)</th>
+                        <th>Event</th>
+                        <th>Ad ID</th>
+                        <th>Media</th>
+                        <th>Link</th>
+                        <th>IP Address</th>
+                        <th>Location</th>
+                        <th>Platform</th>
+                    </tr>
+                </thead>
+                <tbody id="logRows"></tbody>
+            </table>
+        </div>
+        <button id="loadBtn" class="load-more" onclick="renderNext()">Load More</button>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwIEUX7nS_iBTJfwG4G6RVnalfNLracsAQZlZl9m78M3_Fkmwug63h8QnfrgA2xQ-8azA/exec';
+    let allLogs = [], filteredLogs = [], currentIdx = 0;
+    const PAGE_SIZE = 15;
+
+    // 1. Format Date with Full Detail
+    function getFullDate(dateStr) {
+        const d = new Date(dateStr);
+        return isNaN(d.getTime()) ? "N/A" : d.toLocaleString('ne-NP', { 
+            year: 'numeric', month: 'short', day: 'numeric', 
+            hour: '2-digit', minute: '2-digit', second: '2-digit' 
+        });
+    }
+
+    // 2. CSV Generation Logic
+    function downloadCSV() {
+        let csv = "Timestamp,Type,AdID,IP,Country,City,Platform\n";
+        filteredLogs.forEach(r => {
+            csv += `"${r.date}","${r.type}","${r.adId}","${r.ip}","${r.country}","${r.city}","${r.platform}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `NeelamB_Logs_${new Date().toISOString().split('T')[0]}.csv`);
+        a.click();
+    }
+
+    // 3. Search Filter Logic
+    function handleSearch() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        filteredLogs = allLogs.filter(log => 
+            log.adId.toLowerCase().includes(query) || 
+            (log.country && log.country.toLowerCase().includes(query)) ||
+            (log.city && log.city.toLowerCase().includes(query))
+        );
+        currentIdx = 0;
+        document.getElementById('logRows').innerHTML = '';
+        document.getElementById('loadBtn').style.display = 'block';
+        renderNext();
+    }
+
+    // 4. Row Generator
+    function buildRow(r) {
+        return `
+            <tr>
+                <td><small>${getFullDate(r.date)}</small></td>
+                <td><span class="badge ${r.type}">${r.type}</span></td>
+                <td><code>${r.adId}</code></td>
+                <td><img src="${r.img}" class="ad-img" onerror="this.src='https://via.placeholder.com/45x28'"></td>
+                <td><a href="${r.link}" target="_blank" style="color:var(--blue)">Open</a></td>
+                <td><small>${r.ip || '0.0.0.0'}</small></td>
+                <td>${r.city || 'Unknown'}, ${r.country || 'Global'}</td>
+                <td><small>${r.platform || '-'}</small></td>
+            </tr>
+        `;
+    }
+
+    async function loadData() {
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            document.getElementById('vCount').innerText = data.summary.views.toLocaleString();
+            document.getElementById('cCount').innerText = data.summary.clicks.toLocaleString();
+            document.getElementById('ctr').innerText = data.summary.ctr;
+            
+            allLogs = data.logs.reverse();
+            filteredLogs = [...allLogs];
+            renderNext();
+        } catch (e) { alert("Error loading data."); }
+    }
+
+    function renderNext() {
+        const tbody = document.getElementById('logRows');
+        const batch = filteredLogs.slice(currentIdx, currentIdx + PAGE_SIZE);
+        batch.forEach(log => tbody.insertAdjacentHTML('beforeend', buildRow(log)));
+        currentIdx += PAGE_SIZE;
+        if (currentIdx >= filteredLogs.length) document.getElementById('loadBtn').style.display = 'none';
+    }
+
+    window.onload = loadData;
+</script>
+</body>
+</html>
