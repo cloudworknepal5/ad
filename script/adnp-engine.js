@@ -32,7 +32,7 @@
     // Multi-function 3: Ad Label Component (AdNP with Link)
     const getAdLabelHTML = () => {
         return `<a href="${adnpLink}" target="_blank" style="position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.8); color:#fff; font-size:10px; padding:2px 6px; border-radius:3px; font-family:sans-serif; text-decoration:none; z-index:100; line-height:1.2;">
-                    AdNP
+                    A
                 </a>`;
     };
 
