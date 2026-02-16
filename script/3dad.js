@@ -1,5 +1,5 @@
 (function() {
-    // १. CSS लाई Dynamic रूपमा हेडमा थप्ने फङ्सन (Multi-function)
+    // १. CSS Injector: मोबाइल र डेस्कटप दुवैको लागि स्टाइल
     const injectStyles = () => {
         const css = `
             #ad-3d-wrapper {
@@ -43,7 +43,7 @@
             }
             .close-btn {
                 position: absolute;
-                top: -20px;
+                top: -25px;
                 right: 0px;
                 background: #ff4d4d;
                 color: white;
@@ -56,8 +56,14 @@
                 font-weight: bold;
                 line-height: 1;
             }
+            
+            /* मोबाइलको लागि विशेष मिलावट (साइज अलि सानो र दायाँतिर च्यापिएको) */
             @media screen and (max-width: 768px) {
-                #ad-3d-wrapper { display: none; }
+                #ad-3d-wrapper {
+                    right: 30px; /* मोबाइलमा अलि छेउमा */
+                    top: 60%;    /* मोबाइलमा अलि तल ताकि कन्टेन्ट नछेकियोस् */
+                    transform: scale(0.8); /* साइज २०% सानो पारिएको */
+                }
             }
         `;
         const styleSheet = document.createElement("style");
@@ -68,7 +74,7 @@
     const cloudURL = 'https://script.google.com/macros/s/AKfycbwIEUX7nS_iBTJfwG4G6RVnalfNLracsAQZlZl9m78M3_Fkmwug63h8QnfrgA2xQ-8azA/exec';
     const adnpLink = 'https://adnp.neelamb.com';
 
-    // २. स्थान ट्र्याकिङ फङ्सन
+    // २. Geo Tracking
     const getGeo = async () => {
         try {
             const res = await fetch('https://freeipapi.com/api/json');
@@ -77,7 +83,7 @@
         } catch (e) { return { ip: "Private", co: "Global", ct: "Unknown" }; }
     };
 
-    // ३. इभेन्ट ट्र्याकिङ फङ्सन
+    // ३. Tracking Multi-function
     window.trackAd = async (type, info) => {
         const geo = await getGeo();
         const payload = {
@@ -87,7 +93,7 @@
         fetch(cloudURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
     };
 
-    // ४. ३डी स्लाइस डिजाइन गर्ने फङ्सन
+    // ४. 3D Slice Generation
     const getSliceHTML = (src, link, index, total, pageId) => {
         const angle = (360 / total) * index;
         const translateZ = total > 2 ? Math.round(100 / Math.tan(Math.PI / total)) : 110;
@@ -100,9 +106,9 @@
             </div>`;
     };
 
-    // ५. विज्ञापनको संरचना (HTML Wrapper) बनाउने र रेन्डर गर्ने फङ्सन
+    // ५. मुख्य रेन्डर फङ्सन
     window.renderAdNP3D = function(cfg) {
-        injectStyles(); // स्टाइल इन्जेक्ट गर्ने
+        injectStyles();
         
         const wrapper = document.createElement('div');
         wrapper.id = 'ad-3d-wrapper';
