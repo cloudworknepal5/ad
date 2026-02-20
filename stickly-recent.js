@@ -1,146 +1,134 @@
 (function() {
-    // 1. CSS Injection (Styles)
+    // 1. CSS: Rounded Buttons & Sticky Design
     const style = document.createElement('style');
     style.innerHTML = `
-        .rp-sticky-widget {
+        #rp-blogger-widget {
             width: 100%;
-            max-width: 320px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            border: 1px solid #e1e1e1;
+            max-width: 330px;
             background: #fff;
+            font-family: 'Kalimati', Arial, sans-serif;
             position: sticky;
-            top: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            border-radius: 4px;
-            overflow: hidden;
+            top: 20px;
             margin-bottom: 20px;
         }
-        .rp-header {
+        .rp-btn-group {
             display: flex;
-            background: #f4f4f4;
-            border-bottom: 2px solid #ed1c24;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f1f1;
+            margin-bottom: 10px;
         }
-        .rp-tab {
+        .rp-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
             flex: 1;
-            padding: 12px 5px;
+            padding: 10px;
             border: none;
+            border-radius: 50px;
             cursor: pointer;
-            background: #f4f4f4;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
+            background: #e0e0e0;
             color: #333;
-            transition: 0.3s;
+            transition: all 0.3s ease;
         }
-        .rp-tab.active {
-            background: #ed1c24;
+        .rp-btn.active {
+            background: #bc1d22;
             color: #fff;
         }
-        .rp-content {
-            max-height: 450px;
-            overflow-y: auto;
+        .rp-btn svg { width: 16px; height: 16px; fill: currentColor; }
+        .rp-feed-container { max-height: 450px; overflow-y: auto; }
+        .rp-feed-list { display: none; list-style: none; padding: 0; margin: 0; }
+        .rp-feed-list.active { display: block; }
+        .rp-post-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f1f1;
+            animation: fadeIn 0.5s ease;
         }
-        .rp-list {
-            display: none;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .rp-list.active {
-            display: block;
-        }
-        .rp-item {
-            padding: 12px 15px;
-            border-bottom: 1px dotted #ccc;
-            display: flex;
-            align-items: flex-start;
-        }
-        .rp-item:hover {
-            background: #fdf2f2;
-        }
-        .rp-item a {
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .rp-post-item a {
             text-decoration: none;
             color: #222;
-            font-size: 14px;
-            line-height: 1.5;
+            font-size: 15px;
+            line-height: 1.4;
+            display: block;
             font-weight: 500;
         }
-        .rp-item:before {
-            content: "•";
-            color: #ed1c24;
-            font-weight: bold;
-            margin-right: 8px;
-        }
-        .rp-footer {
-            padding: 10px;
-            text-align: center;
-            background: #fafafa;
-            font-size: 12px;
-        }
+        .rp-post-item a:hover { color: #bc1d22; }
+        .rp-post-item .date { font-size: 11px; color: #888; margin-top: 5px; }
+        .rp-feed-container::-webkit-scrollbar { width: 4px; }
+        .rp-feed-container::-webkit-scrollbar-thumb { background: #bc1d22; border-radius: 10px; }
     `;
     document.head.appendChild(style);
 
-    // 2. Multi-function Widget HTML Structure
+    // 2. HTML Structure
     const widgetHTML = `
-        <div class="rp-sticky-widget">
-            <div class="rp-header">
-                <button class="rp-tab active" data-target="taja">ताजा</button>
-                <button class="rp-tab" data-target="lokpriya">लोकप्रिय</button>
+        <div id="rp-blogger-widget">
+            <div class="rp-btn-group">
+                <button class="rp-btn active" onclick="toggleRP(event, 'rp-latest')">
+                    <svg viewBox="0 0 24 24"><path d="M17.66 11.2c-.23-.3-.51-.56-.77-.82-.67-.6-1.41-1.09-2.12-1.72C13.1 7.33 12.5 5.73 13 4c-2 1.35-3.5 4-3 6.67.1.52.28 1.03.5 1.51.26.5-.06 1.14-.64 1.1-.82-.07-1.55-.46-2.1-1.07-1.1-1.21-1.28-3.07-.44-4.59-1.93 1.25-2.8 3.6-2.32 5.82.48 2.22 2.1 4 4.07 4.8 1.76.71 3.74.52 5.23-.52 1.9-1.33 2.58-3.8 1.36-5.82z"/></svg>
+                    ताजा
+                </button>
+                <button class="rp-btn" onclick="toggleRP(event, 'rp-popular')">
+                    <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+                    लोकप्रिय
+                </button>
             </div>
-            <div class="rp-content">
-                <ul id="taja" class="rp-list active">
-                    <li class="rp-item"><a href="#">लोडिङ हुँदैछ...</a></li>
-                </ul>
-                <ul id="lokpriya" class="rp-list">
-                    <li class="rp-item"><a href="#">डाटा खोज्दै...</a></li>
-                </ul>
-            </div>
-            <div class="rp-footer">
-                <a href="/" style="color:#ed1c24; text-decoration:none;">थप समाचार »</a>
+            <div class="rp-feed-container">
+                <ul id="rp-latest" class="rp-feed-list active"><li>लोडिङ...</li></ul>
+                <ul id="rp-popular" class="rp-feed-list"><li>लोडिङ...</li></ul>
             </div>
         </div>
     `;
 
-    // 3. Script Execution Logic
-    document.addEventListener("DOMContentLoaded", function() {
-        const container = document.getElementById('rp-sidebar-container');
-        if (container) {
-            container.innerHTML = widgetHTML;
+    // 3. Functions: Tab Switch & Fetch Feed
+    window.toggleRP = function(e, id) {
+        document.querySelectorAll('.rp-feed-list').forEach(l => l.classList.remove('active'));
+        document.querySelectorAll('.rp-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        e.currentTarget.classList.add('active');
+    };
 
-            // Tab Switching Functionality
-            const tabs = document.querySelectorAll('.rp-tab');
-            const lists = document.querySelectorAll('.rp-list');
+    function fetchBloggerData(type, targetId) {
+        // Blogger RSS/JSON Feed URL
+        const maxResults = 6;
+        let feedUrl = `/feeds/posts/default?alt=json-in-script&max-results=${maxResults}&callback=parse${targetId}`;
+        
+        // Popular posts usually handled by 'orderby=published' or 'orderby=updated' 
+        // Blogger doesn't have a direct 'popular' JSON feed without a specific gadget, 
+        // so we use 'updated' for variety or you can use a specific Label.
+        if(type === 'popular') {
+            feedUrl = `/feeds/posts/default?orderby=updated&alt=json-in-script&max-results=${maxResults}&callback=parse${targetId}`;
+        }
 
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const target = this.getAttribute('data-target');
-                    
-                    tabs.forEach(t => t.classList.remove('active'));
-                    lists.forEach(l => l.classList.remove('active'));
+        const script = document.createElement('script');
+        script.src = feedUrl;
+        document.body.appendChild(script);
 
-                    this.classList.add('active');
-                    document.getElementById(target).classList.add('active');
-                });
+        window['parse' + targetId] = function(data) {
+            let html = "";
+            const entries = data.feed.entry || [];
+            entries.forEach(entry => {
+                let title = entry.title.$t;
+                let link = entry.link.find(l => l.rel === 'alternate').href;
+                let pubDate = new Date(entry.published.$t).toLocaleDateString('ne-NP');
+                html += `<li class="rp-post-item">
+                            <a href="${link}">${title}</a>
+                            <span class="date">${pubDate}</span>
+                         </li>`;
             });
+            document.getElementById(targetId).innerHTML = html || "कुनै पोष्ट भेटिएन।";
+        };
+    }
 
-            // Auto-fetch News Simulation (Multi-functionality)
-            fetchBloggerNews();
+    document.addEventListener("DOMContentLoaded", function() {
+        const mount = document.getElementById('rp-main-mount');
+        if (mount) {
+            mount.innerHTML = widgetHTML;
+            fetchBloggerData('latest', 'rp-latest');
+            fetchBloggerData('popular', 'rp-popular');
         }
     });
-
-    function fetchBloggerNews() {
-        // यहाँ तपाईंले आफ्नो ब्लगरको RSS Feed URL हाल्न सक्नुहुन्छ
-        const tajaList = document.getElementById('taja');
-        const dummyNews = [
-            { title: "नेपालको पछिल्लो राजनीतिक अवस्था र अबको बाटो", url: "#" },
-            { title: "आजको सुनचाँदीको भाउ: तोलामा ५०० ले वृद्धि", url: "#" },
-            { title: "खेलकुद: राष्ट्रिय टोलीको नयाँ जर्सी सार्वजनिक", url: "#" },
-            { title: "मौसम अपडेट: पहाडी क्षेत्रमा वर्षाको सम्भावना", url: "#" }
-        ];
-
-        let html = dummyNews.map(news => `
-            <li class="rp-item"><a href="${news.url}">${news.title}</a></li>
-        `).join('');
-        
-        tajaList.innerHTML = html;
-    }
 })();
