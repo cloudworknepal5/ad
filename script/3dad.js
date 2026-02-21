@@ -5,7 +5,7 @@
             #ad-3d-wrapper {
                 position: fixed;
                 right: 50px;
-                top: 40%;
+                top: 50%;
                 width: 220px;
                 height: 140px;
                 perspective: 1000px;
