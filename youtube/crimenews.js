@@ -4,15 +4,15 @@
 const CONFIG = {
     apiKey: 'AIzaSyAh5DKuOvbRcLEF3IFdq_XjeFGseKy5LWk',
     channelId: 'UCnaM-zAbh_-I4Bsd9Yqyjvg',
-    results: 6, // एक पटकमा कतिवटा लोड गर्ने
+    results: 6,
     containerId: 'video-container'
 };
 
-let nextPageToken = ''; // अर्को पेजको डेटाको लागि टोकन
+let nextPageToken = '';
 
 /**
- * २. न्यूनतम CSS Injection (Multi-function)
- * अनावश्यक ब्याकग्राउन्ड र फन्टहरू हटाइएको छ।
+ * २. क्लिन CSS Injection (Multi-function)
+ * कुनै पनि रङ वा ब्याकग्राउन्ड नराखिएको मात्र लेआउट सेटिङ
  */
 function injectStyles() {
     const css = `
@@ -23,37 +23,36 @@ function injectStyles() {
             max-width: 1200px;
             margin: 0 auto;
         }
-        .video-item { overflow: hidden; }
+        .video-item {
+            width: 100%;
+        }
         .video-item iframe {
             width: 100%;
             aspect-ratio: 16 / 9;
             border: none;
             display: block;
-            border-radius: 8px;
         }
         .video-title {
             display: block;
             padding: 10px 0;
             text-decoration: none;
-            color: inherit; /* वेबसाइटको फन्ट रङ लिने */
+            color: inherit; /* वेबसाइटको आफ्नै रङ लिने */
             font-size: 15px;
             font-weight: bold;
         }
         .load-more-wrapper {
             text-align: center;
-            margin: 30px 0;
+            margin: 20px 0;
             width: 100%;
         }
-        .btn-load-more {
-            padding: 10px 25px;
+        #btn-load-more {
+            padding: 8px 20px;
             cursor: pointer;
-            background: #ff0000;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
+            border: 1px solid #ccc;
+            background: transparent;
+            color: inherit;
         }
-        @media (max-width: 1024px) { #${CONFIG.containerId} { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 992px) { #${CONFIG.containerId} { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { #${CONFIG.containerId} { grid-template-columns: 1fr; } }
     `;
     const styleSheet = document.createElement("style");
@@ -75,12 +74,12 @@ function createVideoCard(id, title) {
 }
 
 /**
- * ४. डेटा फेच र लोड मोर प्रोसेसिङ (Multi-function)
+ * ४. डेटा लोड गर्ने मुख्य फङ्सन (Multi-function)
  */
 async function loadYouTubeVideos() {
     let container = document.getElementById(CONFIG.containerId);
     
-    // कन्टेनर र बटन बनाउने
+    // पहिलो पटक लोड हुँदा कन्टेनर र बटन तयार गर्ने
     if (!container) {
         container = document.createElement('div');
         container.id = CONFIG.containerId;
@@ -88,10 +87,9 @@ async function loadYouTubeVideos() {
         if (scriptTag) scriptTag.parentNode.insertBefore(container, scriptTag);
         else document.body.appendChild(container);
 
-        // Load More बटनको ढाँचा
         const loaderDiv = document.createElement('div');
         loaderDiv.className = 'load-more-wrapper';
-        loaderDiv.innerHTML = `<button id="btn-load-more" class="btn-load-more">Load More</button>`;
+        loaderDiv.innerHTML = `<button id="btn-load-more">Load More</button>`;
         container.after(loaderDiv);
         
         document.getElementById('btn-load-more').addEventListener('click', loadYouTubeVideos);
@@ -105,35 +103,37 @@ async function loadYouTubeVideos() {
         const data = await response.json();
 
         if (data.items && data.items.length > 0) {
-            nextPageToken = data.nextPageToken || ''; // अर्को पटकको लागि टोकन सेभ गर्ने
+            nextPageToken = data.nextPageToken || '';
             
             let html = '';
             data.items.forEach(item => {
-                html += createVideoCard(item.id.videoId, item.snippet.title);
+                if(item.id.videoId) {
+                    html += createVideoCard(item.id.videoId, item.snippet.title);
+                }
             });
             
             container.insertAdjacentHTML('beforeend', html);
 
-            // यदि थप भिडियो छैन भने बटन लुकाउने
+            // थप डेटा नभए बटन हटाउने
             if (!nextPageToken) {
-                document.querySelector('.load-more-wrapper').style.display = 'none';
+                document.querySelector('.load-more-wrapper').remove();
             }
         }
     } catch (err) {
-        console.error('Fetch error:', err);
+        console.error('Error fetching videos:', err);
     }
 }
 
 /**
- * ५. मुख्य नियन्त्रक
+ * ५. सुरुवात (Initialization)
  */
-function initWidget() {
+function init() {
     injectStyles();
     loadYouTubeVideos();
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initWidget);
+    document.addEventListener('DOMContentLoaded', init);
 } else {
-    initWidget();
+    init();
 }
