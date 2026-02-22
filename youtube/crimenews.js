@@ -1,31 +1,70 @@
 /**
- * १. CSS Styles Injection
+ * १. कन्फिगरेसन
+ */
+const YT_CONFIG = {
+    API_KEY: 'AIzaSyAh5DKuOvbRcLEF3IFdq_XjeFGseKy5LWk',
+    CHANNEL_ID: 'UCfUTicHKti23x6s6KPWtSmQ',
+    MAX_RESULTS: 6, // ३ को गुणाङ्क (३, ६, ९) राख्दा राम्रो देखिन्छ
+    CONTAINER_ID: 'video-container'
+};
+
+/**
+ * २. CSS Styles Injection (Multi-function)
+ * ३-कलम लेआउटको लागि सुधार गरिएको डिजाइन
  */
 function injectStyles() {
     const css = `
-        .yt-grid {
+        #${YT_CONFIG.CONTAINER_ID} {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            padding: 20px 0;
+            grid-template-columns: repeat(3, 1fr); /* मुख्य ३-कलम ग्रिड */
+            gap: 20px;
+            padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .yt-video-item {
-            width: 100%;
-            border-radius: 8px;
+
+        .video-item {
+            background: #fff;
+            border-radius: 12px;
             overflow: hidden;
-            background: #000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
-        .yt-video-item iframe {
+
+        .video-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-item iframe {
             width: 100%;
             aspect-ratio: 16 / 9;
             border: none;
-            display: block;
         }
+
+        .video-title {
+            padding: 12px;
+            font-size: 14px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* २ लाइन भन्दा बढी भएमा ... देखाउने */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ट्याब्लेटको लागि २ कलम (१०२४px भन्दा कम) */
+        @media (max-width: 1024px) {
+            #${YT_CONFIG.CONTAINER_ID} { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* मोबाइलको लागि १ कलम (७६८px भन्दा कम) */
         @media (max-width: 768px) {
-            .yt-grid { grid-template-columns: 1fr; padding: 10px; }
+            #${YT_CONFIG.CONTAINER_ID} { grid-template-columns: 1fr; padding: 10px; }
         }
     `;
     const styleSheet = document.createElement("style");
@@ -34,89 +73,58 @@ function injectStyles() {
 }
 
 /**
- * २. भिडियो ID निकाल्ने सुरक्षित तरिका (Regex Method)
- * Error 153 हटाउन यो महत्वपूर्ण छ।
+ * ३. भिडियोको HTML एलिमेन्ट बनाउने फङ्सन
  */
-function getYouTubeID(url) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+function createVideoElement(videoId, title) {
+    const videoItem = document.createElement('div');
+    videoItem.classList.add('video-item');
+    videoItem.innerHTML = `
+        <iframe allowfullscreen src="https://www.youtube.com/embed/${videoId}?rel=0"></iframe>
+        <a class="video-title" href="https://www.youtube.com/watch?v=${videoId}" target="_blank" title="${title}">${title}</a>
+    `;
+    return videoItem;
 }
 
 /**
- * ३. HTML Template Function
+ * ४. डेटा लोड गर्ने मुख्य फङ्सन
  */
-function createVideoHTML(videoID) {
-    if (!videoID) return '';
-    return `
-        <div class="yt-video-item">
-            <iframe 
-                src="https://www.youtube.com/embed/${videoID}?rel=0&modestbranding=1" 
-                allowfullscreen 
-                loading="lazy">
-            </iframe>
-        </div>`;
-}
-
-/**
- * ४. Main Controller & Data Fetching
- */
-async function fetchYouTubeFeed() {
-    const CHANNEL_ID = 'UCnaM-zAbh_-I4Bsd9Yqyjvg'; 
-    const MAX_VIDEOS = 6;
-    const feedURL = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
-    const apiURL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedURL)}`;
-
-    // 'youtube-feed' div छ कि छैन चेक गर्ने, नभए बनाउने
-    let container = document.getElementById('youtube-feed');
+async function loadVideos() {
+    let container = document.getElementById(YT_CONFIG.CONTAINER_ID);
     if (!container) {
         container = document.createElement('div');
-        container.id = 'youtube-feed';
-        // जहाँ स्क्रिप्ट छ त्यहीँ भिडियो देखाउन
-        const currentScript = document.currentScript;
-        if (currentScript) {
-            currentScript.parentNode.insertBefore(container, currentScript);
-        } else {
-            document.body.appendChild(container);
-        }
+        container.id = YT_CONFIG.CONTAINER_ID;
+        document.currentScript ? document.currentScript.parentNode.insertBefore(container, document.currentScript) : document.body.appendChild(container);
     }
-    container.classList.add('yt-grid');
+
+    const apiURL = `https://www.googleapis.com/youtube/v3/search?key=${YT_CONFIG.API_KEY}&channelId=${YT_CONFIG.CHANNEL_ID}&part=snippet,id&order=date&maxResults=${YT_CONFIG.MAX_RESULTS}&type=video`;
 
     try {
         const response = await fetch(apiURL);
         const data = await response.json();
 
-        if (data.status === 'ok' && data.items) {
-            let htmlContent = '';
-            const items = data.items.slice(0, MAX_VIDEOS);
-            
-            items.forEach(item => {
-                const videoID = getYouTubeID(item.link);
-                if (videoID) {
-                    htmlContent += createVideoHTML(videoID);
-                }
+        if (data.items) {
+            container.innerHTML = '';
+            data.items.forEach(video => {
+                const element = createVideoElement(video.id.videoId, video.snippet.title);
+                container.appendChild(element);
             });
-            container.innerHTML = htmlContent || 'कुनै भिडियो फेला परेन।';
-        } else {
-            container.innerHTML = 'फिड लोड गर्न सकिएन।';
         }
     } catch (error) {
-        console.error('Fetch Error:', error);
-        container.innerHTML = 'प्राविधिक समस्या देखियो।';
+        console.error('API Error:', error);
+        container.innerHTML = '<p>भिडियो लोड गर्न सकिएन।</p>';
     }
 }
 
 /**
- * ५. Execution logic
+ * ५. सुरुवात (Initialization)
  */
-function initFeed() {
+function init() {
     injectStyles();
-    fetchYouTubeFeed();
+    loadVideos();
 }
 
-// सुरक्षित तरिकाले स्क्रिप्ट लोड गर्ने
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initFeed);
+    document.addEventListener('DOMContentLoaded', init);
 } else {
-    initFeed();
+    init();
 }
