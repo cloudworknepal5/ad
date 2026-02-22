@@ -5,7 +5,7 @@
 (function() {
     const YT_CONFIG = {
         apiKey: 'AIzaSyAh5DKuOvbRcLEF3IFdq_XjeFGseKy5LWk',
-        channelId: 'UCnaM-zAbh_-I4Bsd9Yqyjvg'
+        channelId: 'UC09hwXZEtHcScFWebDsj7cA'
     };
 
     var playerHTML = `
