@@ -3,7 +3,7 @@
  */
 const CONFIG = {
     apiKey: 'AIzaSyAh5DKuOvbRcLEF3IFdq_XjeFGseKy5LWk',
-    channelId: 'UC09hwXZEtHcScFWebDsj7cA',
+    channelId: 'UCnaM-zAbh_-I4Bsd9Yqyjvg',
     results: 6,
     containerId: 'video-container',
     buttonId: 'btn-load-more'
