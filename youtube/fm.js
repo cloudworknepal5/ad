@@ -41,7 +41,7 @@
 
             <div id="yt-audio-info" style="background: rgba(255, 0, 0, 0.1); border-radius: 4px; padding: 2px 8px; border: 1px solid rgba(255,0,0,0.2); height: 18px; display: flex; align-items: center;">
                 <span style="color: #ff3d00; font-size: 10px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">
-                    बज्दैछ: युट्युब सामग्री...
+                    समाचार सुन्न रातो प्ले बटन र संगीत सुन्न नीलो प्ले बटन थिच्नुहोस
                 </span>
             </div>
         </div>
