@@ -11,7 +11,7 @@
         .news-paper-box { max-width: 1200px; margin: 10px auto; padding: 20px 20px 20px 20px; background: #fff; border: 1px solid #ddd; font-family: 'Mukta', sans-serif; color: #000; }
         .news-headline { font-weight: 900; font-size: 70px; text-align: center; border-bottom: 2px solid #000; margin: 0 0 15px 0; padding: 0 0 2px 0; line-height: 1.0; letter-spacing: -1px; }
         .columns-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-        .column-part { font-size: 16px; line-height: 1.5em; overflow: hidden; text-align: justify; }
+        .column-part { font-size: 18px; line-height: 1.5em; overflow: hidden; text-align: justify; }
         .col-1 { height: calc(1.5em * 14); border-right: 1px solid #eee; padding-right: 10px; }
         .col-4 { height: calc(1.5em * 13); }
         .col-mid-text { height: calc(1.5em * 2); margin-top: 10px; }
