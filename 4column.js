@@ -8,7 +8,7 @@
     const style = document.createElement('style');
     style.innerHTML = `
         @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;800;900&display=swap');
-        .news-paper-box { max-width: 1200px; margin: 10px auto; padding: 10px 20px 20px 20px; background: #fff; border: 1px solid #ddd; font-family: 'Mukta', sans-serif; color: #000; }
+        .news-paper-box { max-width: 1200px; margin: 10px auto; padding: 20px 20px 20px 20px; background: #fff; border: 1px solid #ddd; font-family: 'Mukta', sans-serif; color: #000; }
         .news-headline { font-weight: 900; font-size: 70px; text-align: center; border-bottom: 2px solid #000; margin: 0 0 15px 0; padding: 0 0 2px 0; line-height: 1.0; letter-spacing: -1px; }
         .columns-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
         .column-part { font-size: 16px; line-height: 1.5em; overflow: hidden; text-align: justify; }
