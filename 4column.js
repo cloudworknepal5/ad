@@ -65,7 +65,7 @@
     // ==========================================
     // लेबल यहाँ राख्नुहोस् (politics को ठाउँमा)
     // ==========================================
-    const MY_LABEL = "Article"; 
+    const MY_LABEL = "main-news"; 
     
     const script = document.createElement('script');
     script.src = `https://birgunj.eu.org/feeds/posts/default/-/${MY_LABEL}?alt=json-in-script&callback=renderLayout&max-results=1`;
