@@ -1,222 +1,134 @@
 /**
- * Birgunj News Tab Widget - Audio & Icon Version
- * Features: Icons, Responsive, Text-to-Speech Multi-functionality
+ * Birgunj News - Multi-function Audio Fix
+ * Features: Guaranteed User-Gesture Activation, Voice Initialization, Nepali Support
  */
+
+window.birgunjStore = { taja: [], pop: [] };
+
+// Global Callbacks for Blogger
+window.renderTaja = (d) => processFeed(d, 'taja');
+window.renderPop = (d) => processFeed(d, 'pop');
+
+function processFeed(data, type) {
+    const listEl = document.getElementById(type + '-list');
+    if (!listEl || !data.feed.entry) return;
+
+    let html = "";
+    window.birgunjStore[type] = [];
+
+    data.feed.entry.forEach(e => {
+        const title = e.title.$t;
+        const link = e.link.find(l => l.rel === 'alternate').href;
+        const snippet = e.summary ? e.summary.$t.replace(/<[^>]*>?/gm, '').trim() : "विवरण छैन";
+        
+        window.birgunjStore[type].push({ title, snippet });
+        html += `<div class="news-item" style="padding:12px; border-bottom:1px solid #eee;">
+                    <a href="${link}" target="_blank" style="text-decoration:none; color:#222; font-weight:600; font-size:14px;">${title}</a>
+                 </div>`;
+    });
+    listEl.innerHTML = html;
+}
+
 (function() {
-    const rootId = 'birgunj-widget-root';
-    if (!document.getElementById(rootId)) {
-        const div = document.createElement('div');
-        div.id = rootId;
-        document.body.appendChild(div);
-    }
+    // UI Setup
+    const root = document.getElementById('birgunj-widget-root');
+    if (!root) return;
 
     const style = document.createElement('style');
     style.textContent = `
-        #floating-wrapper {
-            position: fixed;
-            top: 150px;
-            right: 12px;
-            z-index: 999999;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 12px;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-        .tabs-trigger { display: flex; flex-direction: column; gap: 10px; }
-        .tab-btn {
-            width: 48px; height: 48px;
-            background: #bc1d22 !important;
-            border-radius: 50% !important;
-            border: 2px solid #fff !important;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white !important;
-            font-size: 22px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            padding: 0;
-            outline: none;
-        }
-        .tab-btn:hover { transform: scale(1.1); background: #333 !important; }
-        .tab-btn.active { background: #333 !important; border-color: #00d2ff !important; }
-        .tab-btn.playing { background: #2ecc71 !important; animation: pulse 1.5s infinite; }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
-        }
-
-        #news-content {
-            width: 300px;
-            background: #fff !important;
-            border-radius: 12px;
-            max-height: 0;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            position: absolute;
-            right: 60px;
-            top: 0;
-            border: none;
-        }
-        #news-content.show { max-height: 450px; border: 1px solid #ddd; }
-        
-        .content-area { overflow-y: auto; max-height: 400px; padding: 5px 0; }
-        .news-list { display: none; list-style: none; padding: 0; margin: 0; }
-        .news-list.active { display: block; }
-        
-        .news-item { padding: 12px 15px; border-bottom: 1px solid #f2f2f2; transition: background 0.2s; }
-        .news-item:hover { background: #f9f9f9; }
-        .news-item a { 
-            text-decoration: none !important; 
-            color: #333 !important; 
-            font-size: 14px; 
-            display: block; 
-            line-height: 1.5; 
-            font-weight: 500; 
-        }
-
-        @media (max-width: 480px) {
-            #news-content { width: 260px; right: 55px; }
-            .tab-btn { width: 42px; height: 42px; font-size: 18px; }
-            #floating-wrapper { top: 120px; right: 8px; }
-        }
-        .content-area::-webkit-scrollbar { width: 4px; }
-        .content-area::-webkit-scrollbar-thumb { background: #bc1d22; border-radius: 10px; }
+        #floating-wrapper { position: fixed; top: 150px; right: 12px; z-index: 999999; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; font-family: sans-serif; }
+        .tab-btn { width: 50px; height: 50px; background: #bc1d22; border-radius: 50%; border: 2px solid #fff; cursor: pointer; color: white; font-size: 22px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .tab-btn.playing { background: #2ecc71 !important; animation: b-pulse 1.2s infinite; }
+        #news-box { width: 300px; background: white; border-radius: 10px; position: absolute; right: 60px; top: 0; box-shadow: 0 5px 25px rgba(0,0,0,0.2); display: none; overflow: hidden; border: 1px solid #ddd; }
+        #news-box.show { display: block; }
+        .active-list { display: block !important; }
+        @keyframes b-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     `;
     document.head.appendChild(style);
 
-    const root = document.getElementById(rootId);
     root.innerHTML = `
         <div id="floating-wrapper">
-            <div class="tabs-trigger">
-                <button class="tab-btn" id="btn-taja" title="ताजा खबर">⚡</button>
-                <button class="tab-btn" id="btn-pop" title="लोकप्रिय">🔥</button>
-                <button class="tab-btn" id="btn-audio" title="समाचार सुन्नुहोस्">🔊</button>
-            </div>
-            <div id="news-content">
-                <div style="background:#bc1d22; color:white; padding:8px 15px; font-size:13px; font-weight:bold; text-align:center;" id="list-header">समाचार</div>
-                <div class="content-area">
-                    <div id="taja-list" class="news-list">लोडिङ...</div>
-                    <div id="pop-list" class="news-list">लोडिङ...</div>
-                </div>
+            <button class="tab-btn" onclick="toggleView('taja')" id="t-btn">⚡</button>
+            <button class="tab-btn" onclick="toggleView('pop')" id="p-btn">🔥</button>
+            <button class="tab-btn" onclick="handleAudio()" id="a-btn">🔊</button>
+            <div id="news-box">
+                <div id="box-head" style="background:#bc1d22; color:white; padding:10px; text-align:center; font-weight:bold;">बिरगञ्ज न्यूज</div>
+                <div id="taja-list" class="news-list" style="display:none; max-height:400px; overflow-y:auto;"></div>
+                <div id="pop-list" class="news-list" style="display:none; max-height:400px; overflow-y:auto;"></div>
             </div>
         </div>
     `;
 
-    const content = document.getElementById('news-content');
-    const header = document.getElementById('list-header');
-    const tajaBtn = document.getElementById('btn-taja');
-    const popBtn = document.getElementById('btn-pop');
-    const audioBtn = document.getElementById('btn-audio');
-    const tajaList = document.getElementById('taja-list');
-    const popList = document.getElementById('pop-list');
-
     let synth = window.speechSynthesis;
-    let isSpeaking = false;
+    let currentType = 'taja';
 
-    // --- Multi-function logic for UI toggle ---
-    function toggle(type, btn) {
-        const isActive = btn.classList.contains('active');
-        [tajaBtn, popBtn].forEach(b => b.classList.remove('active'));
-        [tajaList, popList].forEach(l => l.classList.remove('active'));
-        
-        if (!isActive) {
-            btn.classList.add('active');
-            content.classList.add('show');
-            header.innerText = (type === 'taja') ? "ताजा समाचार" : "लोकप्रिय समाचार";
-            (type === 'taja' ? tajaList : popList).classList.add('active');
-        } else {
-            content.classList.remove('show');
-        }
-    }
+    // 1. Multi-function: UI Toggle
+    window.toggleView = (type) => {
+        currentType = type;
+        document.getElementById('news-box').classList.add('show');
+        document.querySelectorAll('.news-list').forEach(l => l.style.display = 'none');
+        document.getElementById(type + '-list').style.display = 'block';
+        document.getElementById('box-head').innerText = type === 'taja' ? "ताजा समाचार" : "लोकप्रिय समाचार";
+    };
 
-    // --- Multi-function logic for Audio (TTS) ---
-    function speakNews() {
-        if (isSpeaking) {
+    // 2. Multi-function: Audio Handling with Fix
+    window.handleAudio = () => {
+        if (synth.speaking) {
             synth.cancel();
-            isSpeaking = false;
-            audioBtn.classList.remove('playing');
-            audioBtn.innerText = "🔊";
+            setAudioState(false);
             return;
         }
 
-        const activeList = document.querySelector('.news-list.active');
-        const items = activeList ? activeList.querySelectorAll('.news-item a') : [];
-        
-        if (items.length === 0) {
-            alert("कृपया पहिले समाचार सूची लोड गर्नुहोस्।");
+        const items = window.birgunjStore[currentType];
+        if (!items || items.length === 0) {
+            alert("समाचार लोड हुँदैछ, कृपया एकछिन पर्खनुहोस्।");
             return;
         }
 
-        isSpeaking = true;
-        audioBtn.classList.add('playing');
-        audioBtn.innerText = "🛑";
-
-        let fullText = "नमस्ते, बिरगञ्ज न्यूजमा स्वागत छ। आजका मुख्य समाचारहरू यस प्रकार छन्: ";
-        items.forEach((item, index) => {
-            fullText += (index + 1) + ". " + item.innerText + ". ";
+        setAudioState(true);
+        let text = "नमस्ते, बिरगञ्ज न्यूज सुन्नुहोस्। ";
+        items.forEach((item, i) => {
+            text += `समाचार ${i+1}: ${item.title}. विवरण: ${item.snippet}. `;
         });
 
-        const utterance = new SpeechSynthesisUtterance(fullText);
-        utterance.lang = 'ne-NP'; // Sets language to Nepali
-        utterance.rate = 0.9;
+        const utter = new SpeechSynthesisUtterance(text);
+        
+        // Voice Fix: Get Nepali or Hindi
+        const voices = synth.getVoices();
+        const nepaliVoice = voices.find(v => v.lang.includes('ne') || v.lang.includes('hi'));
+        
+        utter.voice = nepaliVoice || voices[0];
+        utter.lang = 'ne-NP';
+        utter.rate = 0.85; // Clarity fix
 
-        utterance.onend = () => {
-            isSpeaking = false;
-            audioBtn.classList.remove('playing');
-            audioBtn.innerText = "🔊";
+        utter.onend = () => setAudioState(false);
+        utter.onerror = () => {
+            console.error("Audio Error");
+            setAudioState(false);
         };
 
-        synth.speak(utterance);
+        synth.speak(utter);
+    };
+
+    function setAudioState(playing) {
+        const btn = document.getElementById('a-btn');
+        btn.innerText = playing ? "🛑" : "🔊";
+        playing ? btn.classList.add('playing') : btn.classList.remove('playing');
     }
 
-    tajaBtn.onclick = () => toggle('taja', tajaBtn);
-    popBtn.onclick = () => toggle('pop', popBtn);
-    audioBtn.onclick = () => speakNews();
-
-    let tajaTitles = [];
-
-    window.renderTaja = function(data) {
-        let html = "";
-        const entries = data.feed.entry || [];
-        entries.forEach(e => {
-            let t = e.title.$t; 
-            tajaTitles.push(t);
-            let l = e.link.find(x => x.rel==='alternate').href;
-            html += `<div class="news-item"><a href="${l}" target="_parent">${t}</a></div>`;
-        });
-        tajaList.innerHTML = html || "समाचार फेला परेन।";
-    };
-
-    window.renderPop = function(data) {
-        let html = "", count = 0;
-        const entries = data.feed.entry || [];
-        entries.forEach(e => {
-            let t = e.title.$t;
-            if(!tajaTitles.includes(t) && count < 8) {
-                let l = e.link.find(x => x.rel==='alternate').href;
-                html += `<div class="news-item"><a href="${l}" target="_parent">${t}</a></div>`;
-                count++;
-            }
-        });
-        popList.innerHTML = html || "थप समाचार लोड हुँदैछ...";
-    };
-
-    function injectScript(url) {
+    // Load Feeds
+    const load = (url) => {
         const s = document.createElement('script');
         s.src = url;
         document.body.appendChild(s);
+    };
+
+    load("https://www.birgunj.eu.org/feeds/posts/summary?alt=json-in-script&max-results=6&callback=renderTaja");
+    setTimeout(() => load("https://www.birgunj.eu.org/feeds/posts/summary?alt=json-in-script&max-results=6&callback=renderPop"), 1000);
+
+    // Safari Fix: Initialize voices
+    synth.getVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = synth.getVoices;
     }
-
-    injectScript("https://www.birgunj.eu.org/feeds/posts/default?alt=json-in-script&max-results=10&callback=renderTaja");
-    
-    setTimeout(() => {
-        injectScript("https://www.birgunj.eu.org/feeds/posts/default?alt=json-in-script&orderby=updated&max-results=20&callback=renderPop");
-    }, 1500);
-
 })();
