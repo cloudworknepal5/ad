@@ -1,12 +1,12 @@
 (function() {
-    // १. कन्टेनर आफैँ सिर्जना गर्ने (जहाँ स्क्रिप्ट राखिन्छ त्यहीँ समाचार देखिन्छ)
+    // १. कन्टेनर आफैँ सिर्जना गर्ने
     const currentScript = document.currentScript;
     const container = document.createElement('div');
     container.id = 'newspaper-layout-dynamic';
     container.innerHTML = '<p style="text-align:center;">समाचार लोड हुँदैछ...</p>';
     currentScript.parentNode.insertBefore(container, currentScript);
 
-    // २. CSS इन्जेक्सन (Multi-function design)
+    // २. CSS इन्जेक्सन (Image Height: 400px र Multi-function)
     const style = document.createElement('style');
     style.innerHTML = `
         @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;800;900&display=swap');
@@ -14,15 +14,30 @@
         .news-headline { font-weight: 900; font-size: 70px; text-align: center; border-bottom: 2px solid #000; margin: 0 0 15px 0; padding: 0 0 2px 0; line-height: 1.0; letter-spacing: -1px; }
         .columns-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
         .column-part { font-size: 16px; line-height: 1.5em; overflow: hidden; text-align: justify; }
+        
+        /* कोलम हाइट */
         .col-1 { height: calc(1.5em * 14); border-right: 1px solid #eee; padding-right: 10px; }
         .col-4 { height: calc(1.5em * 13); }
         .col-mid-text { height: calc(1.5em * 2); margin-top: 10px; }
-        .top-image-container { grid-column: 2 / 4; height: calc(1.5em * 11.5); overflow: hidden; border: 1px solid #eee; margin-bottom: 5px; }
-        .top-image-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* फोटो सेक्सन: उचाइ ४०० पिक्सेल */
+        .top-image-container {
+            grid-column: 2 / 4;
+            height: 400px; /* तपाईंको अनुरोध अनुसार ४००px */
+            overflow: hidden;
+            border: 1px solid #eee;
+            margin-bottom: 5px;
+        }
+
+        .top-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .read-more-btn { display: block; height: 1.5em; line-height: 1.5em; color: #ce0000; text-decoration: none; font-weight: 800; border-top: 1px dashed #ccc; text-align: right; }
         
         @media (max-width: 800px) {
-            .news-paper-box { padding: 10px; margin: 5px; }
             .news-headline { font-size: 42px; line-height: 1.1; margin-bottom: 10px; }
             .columns-container { grid-template-columns: 1fr; gap: 15px; }
             .column-part { height: auto !important; border: none !important; padding: 0 !important; font-size: 17px; }
@@ -33,7 +48,7 @@
     `;
     document.head.appendChild(style);
 
-    // ३. डाटा प्रोसेसिङ फङ्सन
+    // ३. डाटा प्रोसेसिङ
     window.loadResponsiveLayout = function(json) {
         if (!json.feed.entry) return;
         let entry = json.feed.entry[0];
@@ -71,7 +86,7 @@
         `;
     };
 
-    // ४. फिड कल गर्ने (Blogger Feed API)
+    // ४. फिड कल
     const script = document.createElement('script');
     script.src = "https://birgunj.eu.org/feeds/posts/default?alt=json-in-script&callback=loadResponsiveLayout&max-results=1";
     document.body.appendChild(script);
