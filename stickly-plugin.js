@@ -123,8 +123,8 @@ function processFeed(data, type) {
         document.body.appendChild(s);
     };
 
-    load("https://www.birgunj.eu.org/feeds/posts/summary?alt=json-in-script&max-results=6&callback=renderTaja");
-    setTimeout(() => load("https://www.birgunj.eu.org/feeds/posts/summary?alt=json-in-script&max-results=6&callback=renderPop"), 1000);
+    load("/feeds/posts/summary?alt=json-in-script&max-results=6&callback=renderTaja");
+    setTimeout(() => load("/feeds/posts/summary?alt=json-in-script&max-results=6&callback=renderPop"), 1000);
 
     // Safari Fix: Initialize voices
     synth.getVoices();
