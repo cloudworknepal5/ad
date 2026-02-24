@@ -4,7 +4,7 @@
 const CONFIG = {
     apiKey: 'AIzaSyAh5DKuOvbRcLEF3IFdq_XjeFGseKy5LWk',
     channelId: 'UCnaM-zAbh_-I4Bsd9Yqyjvg',
-    results: 7, 
+    results: 8, // अब जम्मा ८ वटा भिडियो लोड हुनेछ
     containerId: 'video-container',
     buttonId: 'btn-load-more'
 };
@@ -12,7 +12,7 @@ const CONFIG = {
 let nextPageToken = '';
 
 /**
- * २. स्केच अनुसारको CSS (थम्बनेल बायाँ, टाइटल दायाँ)
+ * २. स्केच अनुसारको CSS (हाइट र एलाइनमेन्ट मिलाइएको)
  */
 function injectStyles() {
     const css = `
@@ -26,13 +26,28 @@ function injectStyles() {
         }
         
         .video-item-main { grid-column: 1 / 2; }
-        .video-item-main iframe { width: 100%; height: 320px; background: #000; border: none; }
-        .main-title { padding: 10px 0; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #eee; margin-bottom: 10px; }
+        .video-item-main iframe { 
+            width: 100%; 
+            height: 380px; /* ४ वटा साइड भिडियोको कुल हाइटसँग मिलाउन अलि बढाइएको */
+            background: #000; 
+            border: none; 
+            display: block;
+        }
+        .main-title { 
+            padding: 10px 0; 
+            font-weight: bold; 
+            font-size: 18px; 
+            border-bottom: 2px solid #eee; 
+            margin-bottom: 10px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
 
-        /* साइडका ४, ५, ६ भिडियोहरू */
+        /* साइडका ४ वटा भिडियोहरू (४, ५, ६ र नयाँ थपिएको ८ नम्बर) */
         .sidebar-section { display: flex; flex-direction: column; gap: 12px; }
 
-        /* तल्लो २, ३, ७ भिडियोहरू */
+        /* तल्लो ३ वटा भिडियोहरू (२, ३, ७ नम्बर) */
         .bottom-section { 
             grid-column: 1 / 3; 
             display: grid; 
@@ -41,16 +56,18 @@ function injectStyles() {
             margin-top: 15px; 
         }
 
-        /* साझा भिडियो कार्ड स्टाइल (थम्बनेल बायाँ, टाइटल दायाँ) */
+        /* साझा भिडियो कार्ड स्टाइल */
         .video-card { 
             display: flex; 
             gap: 10px; 
             cursor: pointer; 
             background: #fff; 
-            border: 1px solid #ddd; 
+            border: 1px solid #eee; 
             padding: 5px;
             align-items: center;
+            transition: 0.2s;
         }
+        .video-card:hover { border-color: #ff0000; }
         
         .thumb-box { 
             position: relative; 
@@ -78,9 +95,10 @@ function injectStyles() {
             color: #333; 
             line-height: 1.4;
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2; /* २ लाइनमा मात्र देखाउन */
             -webkit-box-orient: vertical;
             overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .load-more-wrapper { text-align: center; margin: 20px 0; width: 100%; clear: both; }
@@ -89,6 +107,7 @@ function injectStyles() {
         @media (max-width: 900px) {
             #${CONFIG.containerId} { grid-template-columns: 1fr; }
             .sidebar-section, .bottom-section { grid-column: 1 / -1; }
+            .video-item-main iframe { height: auto; aspect-ratio: 16/9; }
             .bottom-section { grid-template-columns: 1fr; }
         }
     `;
@@ -114,6 +133,7 @@ function playInMain(videoId, title) {
  * ४. कार्ड बनाउने फङ्सन
  */
 function getCardHtml(item) {
+    if(!item) return '';
     const vId = item.id.videoId;
     const vTitle = item.snippet.title.replace(/'/g, "\\'");
     return `
@@ -161,19 +181,19 @@ async function loadYouTubeVideos() {
             nextPageToken = data.nextPageToken || '';
             const v = data.items;
             
-            // १. पहिलो भिडियो र टाइटल
+            // १. पहिलो भिडियो (Main)
             let html = `
                 <div class="video-item-main">
                     <iframe src="https://www.youtube.com/embed/${v[0].id.videoId}?rel=0" allowfullscreen></iframe>
                     <div class="main-title">${v[0].snippet.title}</div>
                 </div>`;
 
-            // २. साइडबार (४, ५, ६ नम्बर)
+            // २. साइडबार (४ वटा भिडियोहरू - कार्ड ३, ४, ५, ६)
             html += '<div class="sidebar-section">';
-            [3, 4, 5].forEach(i => { if(v[i]) html += getCardHtml(v[i]); });
+            [3, 4, 5, 7].forEach(i => { if(v[i]) html += getCardHtml(v[i]); });
             html += '</div>';
 
-            // ३. तल (२, ३, ७ नम्बर)
+            // ३. तल (३ वटा भिडियोहरू - कार्ड १, २, ७)
             html += '<div class="bottom-section">';
             [1, 2, 6].forEach(i => { if(v[i]) html += getCardHtml(v[i]); });
             html += '</div>';
