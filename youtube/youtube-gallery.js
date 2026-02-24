@@ -12,7 +12,7 @@ const CONFIG = {
 let nextPageToken = '';
 
 /**
- * २. परिमार्जित CSS (प्ले बटन र लेआउट)
+ * २. स्केच अनुसारको CSS (थम्बनेल बायाँ, टाइटल दायाँ)
  */
 function injectStyles() {
     const css = `
@@ -23,85 +23,73 @@ function injectStyles() {
             max-width: 1200px;
             margin: 0 auto;
             padding: 10px;
-            align-items: start;
         }
         
-        .video-item-main { grid-column: 1 / 2; display: flex; flex-direction: column; }
-        .video-item-main iframe { width: 100%; height: 285px; background: #000; border: none; display: block; }
+        .video-item-main { grid-column: 1 / 2; }
+        .video-item-main iframe { width: 100%; height: 320px; background: #000; border: none; }
+        .main-title { padding: 10px 0; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #eee; margin-bottom: 10px; }
 
-        /* साना भिडियोहरूको लागि कन्टेनर */
-        .sidebar-videos { display: flex; flex-direction: column; gap: 10px; }
-        
-        /* थम्बनेल र प्ले बटनको डिजाइन */
-        .video-thumb-wrapper {
-            position: relative;
-            flex-shrink: 0;
-            display: flex;
+        /* साइडका ४, ५, ६ भिडियोहरू */
+        .sidebar-section { display: flex; flex-direction: column; gap: 12px; }
+
+        /* तल्लो २, ३, ७ भिडियोहरू */
+        .bottom-section { 
+            grid-column: 1 / 3; 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            margin-top: 15px; 
+        }
+
+        /* साझा भिडियो कार्ड स्टाइल (थम्बनेल बायाँ, टाइटल दायाँ) */
+        .video-card { 
+            display: flex; 
+            gap: 10px; 
+            cursor: pointer; 
+            background: #fff; 
+            border: 1px solid #ddd; 
+            padding: 5px;
             align-items: center;
-            justify-content: center;
+        }
+        
+        .thumb-box { 
+            position: relative; 
+            width: 150px; 
+            height: 80px; 
+            flex-shrink: 0; 
+            background: #000; 
+        }
+        .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* प्ले बटन */
+        .play-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 30px; height: 30px; background: rgba(255,0,0,0.8); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .play-overlay::after {
+            content: ''; border-style: solid; border-width: 5px 0 5px 8px;
+            border-color: transparent transparent transparent white; margin-left: 2px;
+        }
+
+        .title-box { 
+            font-size: 13px; 
+            font-weight: bold; 
+            color: #333; 
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            background: #000;
         }
-        
-        /* प्ले बटन आइकन (CSS बाट बनाइएको) */
-        .play-icon {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background: rgba(255, 0, 0, 0.8);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-            transition: 0.3s;
-        }
-        .play-icon::after {
-            content: '';
-            border-style: solid;
-            border-width: 5px 0 5px 8px;
-            border-color: transparent transparent transparent white;
-            margin-left: 2px;
-        }
-        
-        .side-item:hover .play-icon, .bottom-item:hover .play-icon {
-            background: #ff0000;
-            transform: scale(1.1);
-        }
-
-        .side-item { display: flex; gap: 12px; cursor: pointer; height: 85px; align-items: center; }
-        .side-thumb { width: 150px; height: 80px; object-fit: cover; border: 1px solid #eee; }
-        
-        .side-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
-        }
-
-        .bottom-videos {
-            grid-column: 1 / 3;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 5px;
-        }
-        .bottom-item { cursor: pointer; }
-        .bottom-item img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
-
-        .main-t { padding: 8px 0; font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .load-more-wrapper { text-align: center; margin: 20px 0; width: 100%; clear: both; }
-        #${CONFIG.buttonId} { padding: 8px 20px; cursor: pointer; border: 1px solid #ccc; background: #fff; }
+        #${CONFIG.buttonId} { padding: 10px 25px; cursor: pointer; border: 1px solid #ccc; background: #fff; }
 
-        @media (max-width: 850px) {
+        @media (max-width: 900px) {
             #${CONFIG.containerId} { grid-template-columns: 1fr; }
-            .video-item-main, .bottom-videos { grid-column: 1 / -1; }
-            .video-item-main iframe { height: auto; aspect-ratio: 16/9; }
-            .bottom-videos { grid-template-columns: 1fr 1fr; }
+            .sidebar-section, .bottom-section { grid-column: 1 / -1; }
+            .bottom-section { grid-template-columns: 1fr; }
         }
     `;
     const styleSheet = document.createElement("style");
@@ -110,20 +98,36 @@ function injectStyles() {
 }
 
 /**
- * ३. भिडियो स्विच गर्ने फङ्सन (Multi-function)
+ * ३. भिडियो रिप्लेस गर्ने फङ्सन (Multi-function)
  */
-function playThisVideo(videoId, title) {
-    const mainPlayer = document.querySelector('.video-item-main iframe');
-    const mainTitle = document.querySelector('.video-item-main .main-t');
-    if (mainPlayer) {
-        mainPlayer.src = `https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1`;
-        if(mainTitle) mainTitle.innerText = title;
+function playInMain(videoId, title) {
+    const player = document.querySelector('.video-item-main iframe');
+    const playerTitle = document.querySelector('.main-title');
+    if (player) {
+        player.src = `https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1`;
+        if(playerTitle) playerTitle.innerText = title;
         window.scrollTo({ top: document.getElementById(CONFIG.containerId).offsetTop - 20, behavior: 'smooth' });
     }
 }
 
 /**
- * ४. डेटा लोड र रेन्डर गर्ने मुख्य फङ्सन
+ * ४. कार्ड बनाउने फङ्सन
+ */
+function getCardHtml(item) {
+    const vId = item.id.videoId;
+    const vTitle = item.snippet.title.replace(/'/g, "\\'");
+    return `
+        <div class="video-card" onclick="playInMain('${vId}', '${vTitle}')">
+            <div class="thumb-box">
+                <div class="play-overlay"></div>
+                <img src="${item.snippet.thumbnails.medium.url}">
+            </div>
+            <div class="title-box">${item.snippet.title}</div>
+        </div>`;
+}
+
+/**
+ * ५. डेटा लोड गर्ने मुख्य फङ्सन
  */
 async function loadYouTubeVideos() {
     let container = document.getElementById(CONFIG.containerId);
@@ -155,50 +159,26 @@ async function loadYouTubeVideos() {
 
         if (data.items && data.items.length > 0) {
             nextPageToken = data.nextPageToken || '';
-            const videos = data.items;
+            const v = data.items;
             
-            // १. मुख्य भिडियो
-            const first = videos[0];
-            let mainHtml = `
+            // १. पहिलो भिडियो र टाइटल
+            let html = `
                 <div class="video-item-main">
-                    <iframe src="https://www.youtube.com/embed/${first.id.videoId}?rel=0" allowfullscreen></iframe>
-                    <div class="main-t">${first.snippet.title}</div>
+                    <iframe src="https://www.youtube.com/embed/${v[0].id.videoId}?rel=0" allowfullscreen></iframe>
+                    <div class="main-title">${v[0].snippet.title}</div>
                 </div>`;
 
-            // २. साइडका ३ भिडियो (४, ५, ६ नम्बर)
-            let sideHtml = '<div class="sidebar-videos">';
-            for(let i=3; i<6; i++) {
-                if(videos[i]) {
-                    sideHtml += `
-                        <div class="side-item" onclick="playThisVideo('${videos[i].id.videoId}', '${videos[i].snippet.title.replace(/'/g, "\\'")}')">
-                            <div class="video-thumb-wrapper" style="width:150px; height:80px;">
-                                <div class="play-icon"></div>
-                                <img class="side-thumb" src="${videos[i].snippet.thumbnails.medium.url}" style="width:100%; height:100%;">
-                            </div>
-                            <div class="side-title">${videos[i].snippet.title}</div>
-                        </div>`;
-                }
-            }
-            sideHtml += '</div>';
+            // २. साइडबार (४, ५, ६ नम्बर)
+            html += '<div class="sidebar-section">';
+            [3, 4, 5].forEach(i => { if(v[i]) html += getCardHtml(v[i]); });
+            html += '</div>';
 
-            // ३. तल्लो ३ भिडियो (२, ३, ७ नम्बर)
-            let bottomIndices = [1, 2, 6]; 
-            let bottomHtml = '<div class="bottom-videos">';
-            bottomIndices.forEach(idx => {
-                if(videos[idx]) {
-                    bottomHtml += `
-                        <div class="bottom-item" onclick="playThisVideo('${videos[idx].id.videoId}', '${videos[idx].snippet.title.replace(/'/g, "\\'")}')">
-                            <div class="video-thumb-wrapper">
-                                <div class="play-icon" style="width:40px; height:40px;"></div>
-                                <img src="${videos[idx].snippet.thumbnails.medium.url}">
-                            </div>
-                            <div class="side-title" style="margin-top:5px;">${videos[idx].snippet.title}</div>
-                        </div>`;
-                }
-            });
-            bottomHtml += '</div>';
+            // ३. तल (२, ३, ७ नम्बर)
+            html += '<div class="bottom-section">';
+            [1, 2, 6].forEach(i => { if(v[i]) html += getCardHtml(v[i]); });
+            html += '</div>';
 
-            container.innerHTML = mainHtml + sideHtml + bottomHtml;
+            container.innerHTML = html;
             btn.innerText = 'Load More';
             if (!nextPageToken) btn.parentElement.remove();
         }
