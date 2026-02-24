@@ -12,84 +12,95 @@ const CONFIG = {
 let nextPageToken = '';
 
 /**
- * २. अपडेटेड CSS (साइड भिडियोलाई सानो बनाइएको)
+ * २. परिमार्जित CSS (प्ले बटन र लेआउट)
  */
 function injectStyles() {
     const css = `
         #${CONFIG.containerId} {
             display: grid;
             grid-template-columns: 1.8fr 1.2fr;
-            grid-gap: 20px;
+            grid-gap: 15px;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 10px;
+            align-items: start;
         }
         
-        /* पहिलो मुख्य भिडियो */
-        .video-item-main {
-            grid-column: 1 / 2;
-            grid-row: 1 / 2;
-        }
-        .video-item-main iframe {
-            width: 100%;
-            aspect-ratio: 16 / 9;
+        .video-item-main { grid-column: 1 / 2; display: flex; flex-direction: column; }
+        .video-item-main iframe { width: 100%; height: 285px; background: #000; border: none; display: block; }
+
+        /* साना भिडियोहरूको लागि कन्टेनर */
+        .sidebar-videos { display: flex; flex-direction: column; gap: 10px; }
+        
+        /* थम्बनेल र प्ले बटनको डिजाइन */
+        .video-thumb-wrapper {
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
             background: #000;
-            border: none;
+        }
+        
+        /* प्ले बटन आइकन (CSS बाट बनाइएको) */
+        .play-icon {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 0, 0, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: 0.3s;
+        }
+        .play-icon::after {
+            content: '';
+            border-style: solid;
+            border-width: 5px 0 5px 8px;
+            border-color: transparent transparent transparent white;
+            margin-left: 2px;
+        }
+        
+        .side-item:hover .play-icon, .bottom-item:hover .play-icon {
+            background: #ff0000;
+            transform: scale(1.1);
         }
 
-        /* साइडका साना भिडियोहरू (४, ५, ६ नम्बर) */
-        .sidebar-videos {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .side-item {
-            display: flex;
-            gap: 10px;
-            cursor: pointer;
-            align-items: flex-start;
-        }
-        .side-thumb {
-            width: 150px;
-            height: 80px;
-            object-fit: cover;
-            flex-shrink: 0;
-            background: #eee;
-        }
+        .side-item { display: flex; gap: 12px; cursor: pointer; height: 85px; align-items: center; }
+        .side-thumb { width: 150px; height: 80px; object-fit: cover; border: 1px solid #eee; }
+        
         .side-title {
             font-size: 14px;
             font-weight: bold;
-            line-height: 1.3;
             color: #333;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
+            white-space: nowrap;
             overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
         }
 
-        /* तल्लो भिडियोहरू (२, ३ र ७ नम्बर) */
         .bottom-videos {
             grid-column: 1 / 3;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 10px;
+            gap: 15px;
+            margin-top: 5px;
         }
-        .bottom-item {
-            cursor: pointer;
-        }
-        .bottom-item img {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            object-fit: cover;
-        }
+        .bottom-item { cursor: pointer; }
+        .bottom-item img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
 
-        .load-more-wrapper { text-align: center; margin: 30px 0; width: 100%; clear: both; }
+        .main-t { padding: 8px 0; font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .load-more-wrapper { text-align: center; margin: 20px 0; width: 100%; clear: both; }
         #${CONFIG.buttonId} { padding: 8px 20px; cursor: pointer; border: 1px solid #ccc; background: #fff; }
 
         @media (max-width: 850px) {
             #${CONFIG.containerId} { grid-template-columns: 1fr; }
             .video-item-main, .bottom-videos { grid-column: 1 / -1; }
+            .video-item-main iframe { height: auto; aspect-ratio: 16/9; }
             .bottom-videos { grid-template-columns: 1fr 1fr; }
         }
     `;
@@ -136,8 +147,7 @@ async function loadYouTubeVideos() {
 
     btn.innerText = 'Loading...';
 
-    const pageParam = nextPageToken ? `&pageToken=${nextPageToken}` : '';
-    const apiURL = `https://www.googleapis.com/youtube/v3/search?key=${CONFIG.apiKey}&channelId=${CONFIG.channelId}&part=snippet,id&order=date&maxResults=${CONFIG.results}&type=video${pageParam}`;
+    const apiURL = `https://www.googleapis.com/youtube/v3/search?key=${CONFIG.apiKey}&channelId=${CONFIG.channelId}&part=snippet,id&order=date&maxResults=${CONFIG.results}&type=video${nextPageToken ? `&pageToken=${nextPageToken}` : ''}`;
 
     try {
         const response = await fetch(apiURL);
@@ -147,36 +157,41 @@ async function loadYouTubeVideos() {
             nextPageToken = data.nextPageToken || '';
             const videos = data.items;
             
-            // १. पहिलो भिडियो (Main)
+            // १. मुख्य भिडियो
             const first = videos[0];
             let mainHtml = `
                 <div class="video-item-main">
                     <iframe src="https://www.youtube.com/embed/${first.id.videoId}?rel=0" allowfullscreen></iframe>
-                    <div class="main-t" style="padding:10px 0; font-weight:bold; font-size:18px;">${first.snippet.title}</div>
+                    <div class="main-t">${first.snippet.title}</div>
                 </div>`;
 
-            // २. साइड भिडियोहरू (इमेजको ४, ५, ६ नम्बर)
+            // २. साइडका ३ भिडियो (४, ५, ६ नम्बर)
             let sideHtml = '<div class="sidebar-videos">';
             for(let i=3; i<6; i++) {
                 if(videos[i]) {
                     sideHtml += `
                         <div class="side-item" onclick="playThisVideo('${videos[i].id.videoId}', '${videos[i].snippet.title.replace(/'/g, "\\'")}')">
-                            <img class="side-thumb" src="${videos[i].snippet.thumbnails.medium.url}">
+                            <div class="video-thumb-wrapper" style="width:150px; height:80px;">
+                                <div class="play-icon"></div>
+                                <img class="side-thumb" src="${videos[i].snippet.thumbnails.medium.url}" style="width:100%; height:100%;">
+                            </div>
                             <div class="side-title">${videos[i].snippet.title}</div>
                         </div>`;
                 }
             }
             sideHtml += '</div>';
 
-            // ३. तल्लो भिडियोहरू (इमेजको २, ३ र ७ नम्बर)
-            // यहाँ अर्डर मिलाउन २, ३ र ७ इन्डेक्स लिइएको छ
+            // ३. तल्लो ३ भिडियो (२, ३, ७ नम्बर)
             let bottomIndices = [1, 2, 6]; 
             let bottomHtml = '<div class="bottom-videos">';
             bottomIndices.forEach(idx => {
                 if(videos[idx]) {
                     bottomHtml += `
                         <div class="bottom-item" onclick="playThisVideo('${videos[idx].id.videoId}', '${videos[idx].snippet.title.replace(/'/g, "\\'")}')">
-                            <img src="${videos[idx].snippet.thumbnails.medium.url}">
+                            <div class="video-thumb-wrapper">
+                                <div class="play-icon" style="width:40px; height:40px;"></div>
+                                <img src="${videos[idx].snippet.thumbnails.medium.url}">
+                            </div>
                             <div class="side-title" style="margin-top:5px;">${videos[idx].snippet.title}</div>
                         </div>`;
                 }
