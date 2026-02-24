@@ -4,7 +4,7 @@
 const CONFIG = {
     apiKey: 'AIzaSyAh5DKuOvbRcLEF3IFdq_XjeFGseKy5LWk',
     channelId: 'UCnaM-zAbh_-I4Bsd9Yqyjvg',
-    results: 8, // अब जम्मा ८ वटा भिडियो लोड हुनेछ
+    results: 8,
     containerId: 'video-container',
     buttonId: 'btn-load-more'
 };
@@ -12,7 +12,7 @@ const CONFIG = {
 let nextPageToken = '';
 
 /**
- * २. स्केच अनुसारको CSS (हाइट र एलाइनमेन्ट मिलाइएको)
+ * २. परिमार्जित CSS (ग्याप कम गरिएको र मोबाइल रेस्पोन्सिभ)
  */
 function injectStyles() {
     const css = `
@@ -28,35 +28,35 @@ function injectStyles() {
         .video-item-main { grid-column: 1 / 2; }
         .video-item-main iframe { 
             width: 100%; 
-            height: 380px; /* ४ वटा साइड भिडियोको कुल हाइटसँग मिलाउन अलि बढाइएको */
+            height: 380px; 
             background: #000; 
             border: none; 
             display: block;
         }
+        
+        /* ग्याप कम गर्न टाइटलको स्पेस घटाइएको */
         .main-title { 
-            padding: 10px 0; 
+            padding: 8px 0; 
             font-weight: bold; 
-            font-size: 18px; 
-            border-bottom: 2px solid #eee; 
-            margin-bottom: 10px; 
+            font-size: 17px; 
+            border-bottom: 1px solid #ddd; 
+            margin-bottom: 5px; /* तलको सेक्सन माथि सार्न कम गरिएको */
             white-space: nowrap; 
             overflow: hidden; 
             text-overflow: ellipsis; 
         }
 
-        /* साइडका ४ वटा भिडियोहरू (४, ५, ६ र नयाँ थपिएको ८ नम्बर) */
-        .sidebar-section { display: flex; flex-direction: column; gap: 12px; }
+        .sidebar-section { display: flex; flex-direction: column; gap: 10px; }
 
-        /* तल्लो ३ वटा भिडियोहरू (२, ३, ७ नम्बर) */
+        /* तल्लो सेक्सनको मार्जिन कम गरिएको */
         .bottom-section { 
             grid-column: 1 / 3; 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
             gap: 15px; 
-            margin-top: 15px; 
+            margin-top: 5px; /* ग्याप कम गर्न ५px मात्र राखिएको */
         }
 
-        /* साझा भिडियो कार्ड स्टाइल */
         .video-card { 
             display: flex; 
             gap: 10px; 
@@ -65,9 +65,7 @@ function injectStyles() {
             border: 1px solid #eee; 
             padding: 5px;
             align-items: center;
-            transition: 0.2s;
         }
-        .video-card:hover { border-color: #ff0000; }
         
         .thumb-box { 
             position: relative; 
@@ -78,7 +76,6 @@ function injectStyles() {
         }
         .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* प्ले बटन */
         .play-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 30px; height: 30px; background: rgba(255,0,0,0.8); border-radius: 50%;
@@ -93,22 +90,39 @@ function injectStyles() {
             font-size: 13px; 
             font-weight: bold; 
             color: #333; 
-            line-height: 1.4;
+            line-height: 1.3;
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* २ लाइनमा मात्र देखाउन */
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .load-more-wrapper { text-align: center; margin: 20px 0; width: 100%; clear: both; }
-        #${CONFIG.buttonId} { padding: 10px 25px; cursor: pointer; border: 1px solid #ccc; background: #fff; }
+        #${CONFIG.buttonId} { padding: 10px 25px; cursor: pointer; border: 1px solid #ccc; background: #fff; border-radius: 4px; }
 
-        @media (max-width: 900px) {
-            #${CONFIG.containerId} { grid-template-columns: 1fr; }
-            .sidebar-section, .bottom-section { grid-column: 1 / -1; }
-            .video-item-main iframe { height: auto; aspect-ratio: 16/9; }
-            .bottom-section { grid-template-columns: 1fr; }
+        /* मोबाइल रेस्पोन्सबिलिटी (Mobile Responsiveness) */
+        @media (max-width: 850px) {
+            #${CONFIG.containerId} { 
+                grid-template-columns: 1fr; 
+                grid-gap: 20px;
+            }
+            .video-item-main, .sidebar-section, .bottom-section { 
+                grid-column: 1 / -1; 
+            }
+            .video-item-main iframe { 
+                height: auto; 
+                aspect-ratio: 16 / 9; 
+            }
+            .bottom-section { 
+                grid-template-columns: 1fr; /* मोबाइलमा तलका भिडियोहरू पनि एक एक गरी आउने */
+            }
+            .video-card {
+                padding: 10px;
+            }
+            .thumb-box {
+                width: 120px; /* मोबाइलमा थम्बनेल अलि सानो */
+                height: 70px;
+            }
         }
     `;
     const styleSheet = document.createElement("style");
@@ -125,6 +139,7 @@ function playInMain(videoId, title) {
     if (player) {
         player.src = `https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1`;
         if(playerTitle) playerTitle.innerText = title;
+        // मोबाइलमा भिडियो क्लिक गरेपछि माथि सार्न
         window.scrollTo({ top: document.getElementById(CONFIG.containerId).offsetTop - 20, behavior: 'smooth' });
     }
 }
@@ -181,19 +196,18 @@ async function loadYouTubeVideos() {
             nextPageToken = data.nextPageToken || '';
             const v = data.items;
             
-            // १. पहिलो भिडियो (Main)
             let html = `
                 <div class="video-item-main">
                     <iframe src="https://www.youtube.com/embed/${v[0].id.videoId}?rel=0" allowfullscreen></iframe>
                     <div class="main-title">${v[0].snippet.title}</div>
                 </div>`;
 
-            // २. साइडबार (४ वटा भिडियोहरू - कार्ड ३, ४, ५, ६)
+            // साइडबार (४ वटा भिडियो - ३, ४, ५, ७ इन्डेक्स)
             html += '<div class="sidebar-section">';
             [3, 4, 5, 7].forEach(i => { if(v[i]) html += getCardHtml(v[i]); });
             html += '</div>';
 
-            // ३. तल (३ वटा भिडियोहरू - कार्ड १, २, ७)
+            // तलको सेक्सन (३ वटा भिडियो - १, २, ६ इन्डेक्स)
             html += '<div class="bottom-section">';
             [1, 2, 6].forEach(i => { if(v[i]) html += getCardHtml(v[i]); });
             html += '</div>';
