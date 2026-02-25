@@ -29,15 +29,15 @@
         fetch(cloudURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
     };
 
-    // Multi-function 3: Popup Logic (Responsive and Precise Positioning)
+    // Multi-function 3: Popup Logic (Responsive & Limited Size)
     const showPopupAd = (src, link, pageId) => {
         const overlay = document.createElement('div');
         overlay.id = 'adnp-popup-overlay';
-        overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999999; display:flex; align-items:center; justify-content:center; perspective:1000px;";
+        overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999999; display:flex; align-items:center; justify-content:center; perspective:1000px; padding: 20px;";
 
         const adContainer = document.createElement('div');
-        // Image को साइज अनुसार कन्टेनर स्वतः एडजस्ट हुन्छ
-        adContainer.style = "position:relative; display:inline-block; max-width:90%; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
+        // अधिकतम साइज यहाँ सेट गरिएको छ (४००px चौडाइ र ७०% उचाइ)
+        adContainer.style = "position:relative; display:inline-block; width:100%; max-width:400px; max-height:70vh; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
 
         const style = document.createElement('style');
         style.innerHTML = `
@@ -49,19 +49,19 @@
         document.head.appendChild(style);
 
         adContainer.innerHTML = `
-            <a href="${adnpLink}" target="_blank" style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.7); color:#fff; width:22px; height:22px; border-radius:50%; font-size:12px; display:flex; align-items:center; justify-content:center; font-family:sans-serif; text-decoration:none; z-index:10; border:1px solid rgba(255,255,255,0.5); font-weight:bold; line-height:1;">A</a>
+            <a href="${adnpLink}" target="_blank" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); color:#fff; width:22px; height:22px; border-radius:50%; font-size:12px; display:flex; align-items:center; justify-content:center; font-family:sans-serif; text-decoration:none; z-index:10; border:1px solid rgba(255,255,255,0.5); font-weight:bold; line-height:1;">A</a>
             
-            <button onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; bottom:8px; right:8px; background:rgba(255,255,255,0.9); color:#000; border:none; padding:4px 10px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold; font-family:sans-serif; z-index:10; box-shadow:0 2px 5px rgba(0,0,0,0.3); line-height:1;">Close</button>
+            <button onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; bottom:10px; right:10px; background:rgba(255,255,255,0.95); color:#000; border:none; padding:5px 12px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold; font-family:sans-serif; z-index:10; box-shadow:0 2px 8px rgba(0,0,0,0.4); line-height:1;">Close</button>
 
             <a href="${link}" target="_blank" onclick="trackAd('CLICK', {id:'${pageId}', src:'${src}', link:'${link}'})" style="display:block;">
-                <img src="${src}" style="max-width:100%; height:auto; border-radius:8px; display:block; box-shadow:0 0 40px rgba(0,0,0,0.6);">
+                <img src="${src}" style="width:100%; max-height:70vh; object-fit: contain; border-radius:12px; display:block; box-shadow:0 10px 50px rgba(0,0,0,0.8);">
             </a>
         `;
 
         overlay.appendChild(adContainer);
         document.body.appendChild(overlay);
 
-        // १० सेकेन्डपछि स्वतः बन्द हुने
+        // १० सेकेन्डपछि स्वतः बन्द
         setTimeout(() => {
             const el = document.getElementById('adnp-popup-overlay');
             if(el) {
@@ -74,7 +74,7 @@
         trackAd('VIEW', { id: pageId, src: src, link: link });
     };
 
-    // Multi-function 4: Main Data Loader
+    // Multi-function 4: Main Loader
     window.renderAdGrid = function(cfg) {
         const cb = 'cb_' + cfg.containerId.replace(/-/g, '_');
         window[cb] = function(json) {
