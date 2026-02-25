@@ -10,7 +10,7 @@
         id: container.id || 'newspaper-layout-dynamic',
         label: container.getAttribute('data-label') || 'Article',
         margin: container.getAttribute('data-margin') || '50px',
-        imgHeight: container.getAttribute('data-img-height') || '285px'
+        imgHeight: container.getAttribute('data-img-height') || '280px'
     };
 
     // २. CSS इन्जेक्सन (डेस्कटप र मोबाइल दुवैका लागि)
