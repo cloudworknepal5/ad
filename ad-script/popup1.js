@@ -29,14 +29,15 @@
         fetch(cloudURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
     };
 
-    // Multi-function 3: Popup Rendering (30px Close Button & Bottom-Right A)
+    // Multi-function 3: Popup Rendering (Larger Desktop Size & Floating Buttons)
     const showPopupAd = (src, link, pageId) => {
         const overlay = document.createElement('div');
         overlay.id = 'adnp-popup-overlay';
-        overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; padding:20px;";
+        overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; padding:30px;";
 
         const adWrapper = document.createElement('div');
-        adWrapper.style = "position:relative; width:100%; max-width:380px; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
+        // डेस्कटपका लागि ५५०px सम्म ठुलो बनाइएको छ
+        adWrapper.style = "position:relative; width:100%; max-width:550px; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
 
         const style = document.createElement('style');
         style.innerHTML = `
@@ -48,12 +49,12 @@
         document.head.appendChild(style);
 
         adWrapper.innerHTML = `
-            <div onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; top:-15px; right:-15px; background:#fff; color:#000; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; font-family:sans-serif; z-index:1002; box-shadow:0 4px 10px rgba(0,0,0,0.5); font-weight:bold; border:1px solid #000; line-height:1;">&times;</div>
+            <div onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; top:-15px; right:-15px; background:#fff; color:#000; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; font-family:sans-serif; z-index:1002; box-shadow:0 4px 12px rgba(0,0,0,0.5); font-weight:bold; border:1px solid #000; line-height:1;">&times;</div>
 
             <a href="${adnpLink}" target="_blank" style="position:absolute; bottom:-7px; right:-7px; background:#000; color:#fff; width:13px; height:13px; border-radius:50%; font-size:9px; display:flex; align-items:center; justify-content:center; font-family:sans-serif; text-decoration:none; z-index:1001; border:1px solid #fff; line-height:1; font-weight:bold;">A</a>
             
             <a href="${link}" target="_blank" onclick="trackAd('CLICK', {id:'${pageId}', src:'${src}', link:'${link}'})" style="display:block;">
-                <img src="${src}" style="width:100%; max-height:75vh; object-fit:contain; border-radius:10px; display:block; box-shadow:0 10px 40px rgba(0,0,0,0.7);">
+                <img src="${src}" style="width:100%; max-height:80vh; object-fit:contain; border-radius:12px; display:block; box-shadow:0 15px 50px rgba(0,0,0,0.8);">
             </a>
         `;
 
@@ -73,7 +74,7 @@
         trackAd('VIEW', { id: pageId, src: src, link: link });
     };
 
-    // Multi-function 4: Main Loader
+    // Multi-function 4: Main Data Loader
     window.renderAdGrid = function(cfg) {
         const cb = 'cb_' + cfg.containerId.replace(/-/g, '_');
         window[cb] = function(json) {
