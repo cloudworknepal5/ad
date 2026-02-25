@@ -1,5 +1,5 @@
 (function() {
-    // १. CSS Injector: विज्ञापन लेबल (Ad by...) सहितको स्टाइल
+    // १. CSS Injector: विज्ञापन स्टाइल र "A" आइकनको डिजाइन
     if (!document.getElementById('adnp-popup-style')) {
         const css = `
             .adnp-overlay {
@@ -14,14 +14,6 @@
                 animation: adnpSpinIn 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
                 max-width: 90%;
             }
-            /* विज्ञापन लेबल (Adsense Style) */
-            .adnp-label {
-                position: absolute; top: 5px; right: 40px;
-                font-size: 10px; color: #666; font-family: sans-serif;
-                background: rgba(255,255,255,0.8); padding: 2px 6px;
-                border-radius: 4px; text-decoration: none;
-                pointer-events: auto; z-index: 10;
-            }
             @media screen and (min-width: 769px) { .adnp-box { width: 550px; } }
             @media screen and (max-width: 768px) { .adnp-box { width: 320px; } }
             
@@ -30,13 +22,25 @@
                 100% { transform: scale(1) rotate(0deg); opacity: 1; }
             }
             .adnp-box img { width: 100%; height: auto; display: block; border-radius: 8px; }
+
+            /* माथि दायाँपटीको क्लोज बटन (X) */
             .adnp-close {
                 position: absolute; top: -15px; right: -15px;
                 background: #ff0000; color: #fff; border: 2px solid #fff;
-                border-radius: 50%; width: 32px; height: 32px;
-                cursor: pointer; font-weight: bold; font-size: 20px;
+                border-radius: 50%; width: 30px; height: 30px;
+                cursor: pointer; font-weight: bold; font-size: 18px;
                 display: flex; align-items: center; justify-content: center;
                 z-index: 11;
+            }
+
+            /* तल दायाँपटीको "A" आइकन (Ad Label) */
+            .adnp-a-icon {
+                position: absolute; bottom: -15px; right: -15px;
+                background: #000; color: #fff; border: 2px solid #fff;
+                border-radius: 50%; width: 30px; height: 30px;
+                text-decoration: none; font-weight: bold; font-size: 16px;
+                display: flex; align-items: center; justify-content: center;
+                z-index: 11; font-family: sans-serif;
             }
         `;
         const style = document.createElement("style");
@@ -48,7 +52,7 @@
     const cloudURL = 'https://script.google.com/macros/s/AKfycbwIEUX7nS_iBTJfwG4G6RVnalfNLracsAQZlZl9m78M3_Fkmwug63h8QnfrgA2xQ-8azA/exec';
     const adnpLink = 'https://adnp.neelamb.com';
 
-    // २. Geo & Tracking Multi-function
+    // २. Tracking Multi-function
     const trackEvent = async (type, info) => {
         try {
             const res = await fetch('https://freeipapi.com/api/json');
@@ -58,7 +62,7 @@
                 ip: d.ipAddress, country: d.countryName, city: d.cityName, platform: navigator.platform
             };
             fetch(cloudURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        } catch (e) { console.warn("Tracking failed"); }
+        } catch (e) { }
     };
 
     // ३. मुख्य रेन्डर फङ्सन
@@ -69,9 +73,9 @@
         overlay.id = id;
         overlay.innerHTML = `
             <div class="adnp-box">
-                <a href="${adnpLink}" target="_blank" class="adnp-label">Ad by adnp.neelamb.com</a>
                 <button class="adnp-close" onclick="document.getElementById('${id}').remove()">×</button>
                 <div id="cnt_${id}" style="text-align:center; padding:15px; font-family:sans-serif;">लोड हुँदैछ...</div>
+                <a href="${adnpLink}" target="_blank" class="adnp-a-icon">A</a>
             </div>
         `;
         document.body.appendChild(overlay);
@@ -94,22 +98,16 @@
                     let src = img.src.replace(/s\d+(-c)?/, 's1600');
                     let link = cfg.link || (img.parentElement.tagName === 'A' ? img.parentElement.href : src);
                     
-                    // View Tracking
                     trackEvent('VIEW', { id: cfg.pageId, src: src, link: link });
 
                     const box = document.getElementById('cnt_' + id);
                     box.style.padding = "0";
                     box.innerHTML = `
-                        <a href="${link}" target="_blank" onclick="window.trackClick('${cfg.pageId}','${src}','${link}')">
+                        <a href="${link}" target="_blank" onclick="trackEvent('CLICK', {id:'${cfg.pageId}', src:'${src}', link:'${link}'})">
                             <img src="${src}">
                         </a>`;
                 }
             }
-        };
-
-        // Click Tracking global function
-        window.trackClick = (adId, src, link) => {
-            trackEvent('CLICK', { id: adId, src: src, link: link });
         };
 
         const s = document.createElement('script');
