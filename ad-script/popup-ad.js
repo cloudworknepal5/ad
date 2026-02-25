@@ -1,9 +1,5 @@
-/**
- * AdNP Multi-function Responsive Pop-up Script
- * फीचर्स: चक्कर एनिमेसन, अटो-क्लोज (५ सेकेन्ड), रेस्पोन्सिभ साइज, स्मार्ट लिङ्किङ
- */
 (function() {
-    // CSS Injector: एक पटक मात्र स्टाइल लोड हुने गरी
+    // १. CSS Injector: विज्ञापन लेबल (Ad by...) सहितको स्टाइल
     if (!document.getElementById('adnp-popup-style')) {
         const css = `
             .adnp-overlay {
@@ -17,6 +13,14 @@
                 border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.8);
                 animation: adnpSpinIn 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
                 max-width: 90%;
+            }
+            /* विज्ञापन लेबल (Adsense Style) */
+            .adnp-label {
+                position: absolute; top: 5px; right: 40px;
+                font-size: 10px; color: #666; font-family: sans-serif;
+                background: rgba(255,255,255,0.8); padding: 2px 6px;
+                border-radius: 4px; text-decoration: none;
+                pointer-events: auto; z-index: 10;
             }
             @media screen and (min-width: 769px) { .adnp-box { width: 550px; } }
             @media screen and (max-width: 768px) { .adnp-box { width: 320px; } }
@@ -32,7 +36,7 @@
                 border-radius: 50%; width: 32px; height: 32px;
                 cursor: pointer; font-weight: bold; font-size: 20px;
                 display: flex; align-items: center; justify-content: center;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                z-index: 11;
             }
         `;
         const style = document.createElement("style");
@@ -41,7 +45,23 @@
         document.head.appendChild(style);
     }
 
-    // मुख्य रेन्डर फङ्सन
+    const cloudURL = 'https://script.google.com/macros/s/AKfycbwIEUX7nS_iBTJfwG4G6RVnalfNLracsAQZlZl9m78M3_Fkmwug63h8QnfrgA2xQ-8azA/exec';
+    const adnpLink = 'https://adnp.neelamb.com';
+
+    // २. Geo & Tracking Multi-function
+    const trackEvent = async (type, info) => {
+        try {
+            const res = await fetch('https://freeipapi.com/api/json');
+            const d = await res.json();
+            const payload = {
+                event: type, adId: info.id, imageUrl: info.src, targetUrl: info.link,
+                ip: d.ipAddress, country: d.countryName, city: d.cityName, platform: navigator.platform
+            };
+            fetch(cloudURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        } catch (e) { console.warn("Tracking failed"); }
+    };
+
+    // ३. मुख्य रेन्डर फङ्सन
     window.renderAdNP = function(cfg) {
         const id = 'ad_' + Math.random().toString(36).substr(2, 9);
         const overlay = document.createElement('div');
@@ -49,13 +69,14 @@
         overlay.id = id;
         overlay.innerHTML = `
             <div class="adnp-box">
+                <a href="${adnpLink}" target="_blank" class="adnp-label">Ad by adnp.neelamb.com</a>
                 <button class="adnp-close" onclick="document.getElementById('${id}').remove()">×</button>
                 <div id="cnt_${id}" style="text-align:center; padding:15px; font-family:sans-serif;">लोड हुँदैछ...</div>
             </div>
         `;
         document.body.appendChild(overlay);
 
-        // ५ सेकेन्डपछि अटो-क्लोज
+        // १० सेकेन्डपछि अटो-क्लोज
         setTimeout(() => {
             const el = document.getElementById(id);
             if(el) el.remove();
@@ -72,11 +93,23 @@
                 if (img) {
                     let src = img.src.replace(/s\d+(-c)?/, 's1600');
                     let link = cfg.link || (img.parentElement.tagName === 'A' ? img.parentElement.href : src);
+                    
+                    // View Tracking
+                    trackEvent('VIEW', { id: cfg.pageId, src: src, link: link });
+
                     const box = document.getElementById('cnt_' + id);
                     box.style.padding = "0";
-                    box.innerHTML = `<a href="${link}" target="_blank"><img src="${src}"></a>`;
+                    box.innerHTML = `
+                        <a href="${link}" target="_blank" onclick="window.trackClick('${cfg.pageId}','${src}','${link}')">
+                            <img src="${src}">
+                        </a>`;
                 }
             }
+        };
+
+        // Click Tracking global function
+        window.trackClick = (adId, src, link) => {
+            trackEvent('CLICK', { id: adId, src: src, link: link });
         };
 
         const s = document.createElement('script');
