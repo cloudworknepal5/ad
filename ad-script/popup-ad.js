@@ -59,7 +59,7 @@
         setTimeout(() => {
             const el = document.getElementById(id);
             if(el) el.remove();
-        }, 5000);
+        }, 10000);
 
         const cb = 'cb_' + id;
         window[cb] = function(json) {
