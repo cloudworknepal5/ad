@@ -144,7 +144,7 @@
 
     // ५. फिड लिङ्क कल
     const scriptTag = document.createElement('script');
-    scriptTag.src = `https://birgunj.eu.org/feeds/posts/default/-/${SETTINGS.label}?alt=json-in-script&callback=renderLayout&max-results=1`;
+    scriptTag.src = `/feeds/posts/default/-/${SETTINGS.label}?alt=json-in-script&callback=renderLayout&max-results=1`;
     document.body.appendChild(scriptTag);
 
 })();
