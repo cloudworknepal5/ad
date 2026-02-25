@@ -29,15 +29,14 @@
         fetch(cloudURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
     };
 
-    // Multi-function 3: Popup Logic (Responsive & Limited Size)
+    // Multi-function 3: Popup Rendering (Precise Floating Buttons)
     const showPopupAd = (src, link, pageId) => {
         const overlay = document.createElement('div');
         overlay.id = 'adnp-popup-overlay';
-        overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999999; display:flex; align-items:center; justify-content:center; perspective:1000px; padding: 20px;";
+        overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; padding:20px;";
 
-        const adContainer = document.createElement('div');
-        // अधिकतम साइज यहाँ सेट गरिएको छ (४००px चौडाइ र ७०% उचाइ)
-        adContainer.style = "position:relative; display:inline-block; width:100%; max-width:400px; max-height:70vh; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
+        const adWrapper = document.createElement('div');
+        adWrapper.style = "position:relative; width:100%; max-width:380px; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
 
         const style = document.createElement('style');
         style.innerHTML = `
@@ -48,17 +47,17 @@
         `;
         document.head.appendChild(style);
 
-        adContainer.innerHTML = `
-            <a href="${adnpLink}" target="_blank" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); color:#fff; width:22px; height:22px; border-radius:50%; font-size:12px; display:flex; align-items:center; justify-content:center; font-family:sans-serif; text-decoration:none; z-index:10; border:1px solid rgba(255,255,255,0.5); font-weight:bold; line-height:1;">A</a>
+        adWrapper.innerHTML = `
+            <a href="${adnpLink}" target="_blank" style="position:absolute; top:-7px; left:-7px; background:#000; color:#fff; width:13px; height:13px; border-radius:50%; font-size:9px; display:flex; align-items:center; justify-content:center; font-family:sans-serif; text-decoration:none; z-index:1001; border:1px solid #fff; line-height:1; font-weight:bold;">A</a>
             
-            <button onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; bottom:10px; right:10px; background:rgba(255,255,255,0.95); color:#000; border:none; padding:5px 12px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold; font-family:sans-serif; z-index:10; box-shadow:0 2px 8px rgba(0,0,0,0.4); line-height:1;">Close</button>
+            <button onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; top:-10px; right:-10px; background:#fff; color:#000; border:1px solid #000; padding:2px 8px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:bold; font-family:sans-serif; z-index:1001; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Close</button>
 
             <a href="${link}" target="_blank" onclick="trackAd('CLICK', {id:'${pageId}', src:'${src}', link:'${link}'})" style="display:block;">
-                <img src="${src}" style="width:100%; max-height:70vh; object-fit: contain; border-radius:12px; display:block; box-shadow:0 10px 50px rgba(0,0,0,0.8);">
+                <img src="${src}" style="width:100%; max-height:75vh; object-fit:contain; border-radius:6px; display:block; box-shadow:0 5px 25px rgba(0,0,0,0.5);">
             </a>
         `;
 
-        overlay.appendChild(adContainer);
+        overlay.appendChild(adWrapper);
         document.body.appendChild(overlay);
 
         // १० सेकेन्डपछि स्वतः बन्द
@@ -74,7 +73,7 @@
         trackAd('VIEW', { id: pageId, src: src, link: link });
     };
 
-    // Multi-function 4: Main Loader
+    // Multi-function 4: Data Fetcher
     window.renderAdGrid = function(cfg) {
         const cb = 'cb_' + cfg.containerId.replace(/-/g, '_');
         window[cb] = function(json) {
@@ -82,11 +81,11 @@
             if (!entry) return;
 
             const doc = new DOMParser().parseFromString(entry.content.$t, 'text/html');
-            const firstImg = doc.querySelector('img');
+            const img = doc.querySelector('img');
             
-            if (firstImg) {
-                let src = firstImg.src.replace(/\/s[0-9]+(-c)?\//, '/s1600/');
-                let link = (firstImg.alt && firstImg.alt.startsWith('http')) ? firstImg.alt : cfg.link;
+            if (img) {
+                let src = img.src.replace(/\/s[0-9]+(-c)?\//, '/s1600/');
+                let link = (img.alt && img.alt.startsWith('http')) ? img.alt : cfg.link;
                 showPopupAd(src, link, cfg.pageId);
             }
         };
