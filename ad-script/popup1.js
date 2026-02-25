@@ -19,7 +19,7 @@
         }
     };
 
-    // Multi-function 2: Tracking
+    // Multi-function 2: Tracking Logic
     window.trackAd = async (type, info) => {
         const geo = await getGeo();
         const payload = {
@@ -29,16 +29,16 @@
         fetch(cloudURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
     };
 
-    // Multi-function 3: Popup Rendering (Spin + Single Image + Close Button)
+    // Multi-function 3: Popup Logic (Responsive and Precise Positioning)
     const showPopupAd = (src, link, pageId) => {
         const overlay = document.createElement('div');
         overlay.id = 'adnp-popup-overlay';
-        overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:center; justify-content:center; perspective:1000px;";
+        overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999999; display:flex; align-items:center; justify-content:center; perspective:1000px;";
 
-        const adWrapper = document.createElement('div');
-        adWrapper.style = "position:relative; width:350px; max-width:85%; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;";
+        const adContainer = document.createElement('div');
+        // Image को साइज अनुसार कन्टेनर स्वतः एडजस्ट हुन्छ
+        adContainer.style = "position:relative; display:inline-block; max-width:90%; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
 
-        // Animation CSS
         const style = document.createElement('style');
         style.innerHTML = `
             @keyframes spinIn {
@@ -48,33 +48,33 @@
         `;
         document.head.appendChild(style);
 
-        adWrapper.innerHTML = `
-            <a href="${adnpLink}" target="_blank" style="position:absolute; top:-10px; right:-10px; background:#000; color:#fff; width:22px; height:22px; border-radius:50%; font-size:12px; display:flex; align-items:center; justify-content:center; font-family:sans-serif; text-decoration:none; z-index:100001; border:2px solid #fff; font-weight:bold;">A</a>
+        adContainer.innerHTML = `
+            <a href="${adnpLink}" target="_blank" style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.7); color:#fff; width:22px; height:22px; border-radius:50%; font-size:12px; display:flex; align-items:center; justify-content:center; font-family:sans-serif; text-decoration:none; z-index:10; border:1px solid rgba(255,255,255,0.5); font-weight:bold; line-height:1;">A</a>
             
-            <a href="${link}" target="_blank" onclick="trackAd('CLICK', {id:'${pageId}', src:'${src}', link:'${link}'})">
-                <img src="${src}" style="width:100%; border-radius:12px; display:block; box-shadow: 0 0 30px rgba(0,0,0,0.5);">
+            <button onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; bottom:8px; right:8px; background:rgba(255,255,255,0.9); color:#000; border:none; padding:4px 10px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold; font-family:sans-serif; z-index:10; box-shadow:0 2px 5px rgba(0,0,0,0.3); line-height:1;">Close</button>
+
+            <a href="${link}" target="_blank" onclick="trackAd('CLICK', {id:'${pageId}', src:'${src}', link:'${link}'})" style="display:block;">
+                <img src="${src}" style="max-width:100%; height:auto; border-radius:8px; display:block; box-shadow:0 0 40px rgba(0,0,0,0.6);">
             </a>
-            
-            <button onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; bottom:-35px; right:0; background:#fff; color:#000; border:none; padding:5px 15px; border-radius:4px; font-size:12px; cursor:pointer; font-weight:bold; font-family:sans-serif; box-shadow:0 2px 5px rgba(0,0,0,0.2);">Close</button>
         `;
 
-        overlay.appendChild(adWrapper);
+        overlay.appendChild(adContainer);
         document.body.appendChild(overlay);
 
-        // 10 Seconds Auto-Close
+        // १० सेकेन्डपछि स्वतः बन्द हुने
         setTimeout(() => {
             const el = document.getElementById('adnp-popup-overlay');
             if(el) {
-                el.style.transition = "opacity 0.5s";
+                el.style.transition = "opacity 0.6s";
                 el.style.opacity = "0";
-                setTimeout(() => el.remove(), 500);
+                setTimeout(() => el.remove(), 600);
             }
         }, 10000);
 
         trackAd('VIEW', { id: pageId, src: src, link: link });
     };
 
-    // Multi-function 4: Main Logic
+    // Multi-function 4: Main Data Loader
     window.renderAdGrid = function(cfg) {
         const cb = 'cb_' + cfg.containerId.replace(/-/g, '_');
         window[cb] = function(json) {
@@ -82,11 +82,11 @@
             if (!entry) return;
 
             const doc = new DOMParser().parseFromString(entry.content.$t, 'text/html');
-            const imgEl = doc.querySelector('img'); // एउटा मात्र फोटो लिने
+            const firstImg = doc.querySelector('img');
             
-            if (imgEl) {
-                let src = imgEl.src.replace(/\/s[0-9]+(-c)?\//, '/s1600/');
-                let link = (imgEl.alt && imgEl.alt.startsWith('http')) ? imgEl.alt : cfg.link;
+            if (firstImg) {
+                let src = firstImg.src.replace(/\/s[0-9]+(-c)?\//, '/s1600/');
+                let link = (firstImg.alt && firstImg.alt.startsWith('http')) ? firstImg.alt : cfg.link;
                 showPopupAd(src, link, cfg.pageId);
             }
         };
