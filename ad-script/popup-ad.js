@@ -1,5 +1,5 @@
 (function() {
-    // १. CSS Injector: विज्ञापन स्टाइल र "A" आइकनको डिजाइन
+    // १. CSS Injector: विज्ञापन स्टाइल र आइकनहरूको डिजाइन
     if (!document.getElementById('adnp-popup-style')) {
         const css = `
             .adnp-overlay {
@@ -52,17 +52,32 @@
     const cloudURL = 'https://script.google.com/macros/s/AKfycbwIEUX7nS_iBTJfwG4G6RVnalfNLracsAQZlZl9m78M3_Fkmwug63h8QnfrgA2xQ-8azA/exec';
     const adnpLink = 'https://adnp.neelamb.com';
 
-    // २. Tracking Multi-function
+    // २. Geo & Tracking Multi-function
     const trackEvent = async (type, info) => {
         try {
             const res = await fetch('https://freeipapi.com/api/json');
             const d = await res.json();
             const payload = {
-                event: type, adId: info.id, imageUrl: info.src, targetUrl: info.link,
-                ip: d.ipAddress, country: d.countryName, city: d.cityName, platform: navigator.platform
+                event: type, 
+                adId: info.id, 
+                imageUrl: info.src, 
+                targetUrl: info.link,
+                ip: d.ipAddress, 
+                country: d.countryName, 
+                city: d.cityName, 
+                platform: navigator.platform,
+                timestamp: new Date().toISOString()
             };
-            fetch(cloudURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        } catch (e) { }
+            
+            // Google Apps Script मा डाटा पठाउने
+            fetch(cloudURL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: JSON.stringify(payload) 
+            });
+        } catch (e) {
+            console.warn("Tracking failed", e);
+        }
     };
 
     // ३. मुख्य रेन्डर फङ्सन
@@ -98,6 +113,7 @@
                     let src = img.src.replace(/s\d+(-c)?/, 's1600');
                     let link = cfg.link || (img.parentElement.tagName === 'A' ? img.parentElement.href : src);
                     
+                    // View Event ट्र्याक गर्ने
                     trackEvent('VIEW', { id: cfg.pageId, src: src, link: link });
 
                     const box = document.getElementById('cnt_' + id);
