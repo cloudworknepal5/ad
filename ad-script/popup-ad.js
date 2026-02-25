@@ -37,8 +37,8 @@
             .adnp-a-icon {
                 position: absolute; bottom: -15px; right: -15px;
                 background: #000; color: #fff; border: 2px solid #fff;
-                border-radius: 50%; width: 30px; height: 30px;
-                text-decoration: none; font-weight: bold; font-size: 16px;
+                border-radius: 50%; width: 15px; height: 15px;
+                text-decoration: none; font-weight: bold; font-size: 10px;
                 display: flex; align-items: center; justify-content: center;
                 z-index: 11; font-family: sans-serif;
             }
