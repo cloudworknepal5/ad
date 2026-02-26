@@ -29,15 +29,15 @@
         fetch(cloudURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
     };
 
-    // Multi-function 3: Popup Rendering (Larger Desktop Size & Floating Buttons)
+    // Multi-function 3: Popup Rendering (Responsive Mobile & Desktop)
     const showPopupAd = (src, link, pageId) => {
         const overlay = document.createElement('div');
         overlay.id = 'adnp-popup-overlay';
-        overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; padding:30px;";
+        overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; padding:20px;";
 
         const adWrapper = document.createElement('div');
-        // डेस्कटपका लागि ५५०px सम्म ठुलो बनाइएको छ
-        adWrapper.style = "position:relative; width:100%; max-width:550px; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
+        adWrapper.className = 'adnp-wrapper';
+        adWrapper.style = "position:relative; width:100%; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
 
         const style = document.createElement('style');
         style.innerHTML = `
@@ -45,11 +45,18 @@
                 from { transform: scale(0) rotate(0deg); opacity: 0; }
                 to { transform: scale(1) rotate(720deg); opacity: 1; }
             }
+            /* Desktop View: Max 550px */
+            .adnp-wrapper { max-width: 550px; }
+            
+            /* Mobile View: Max 200px as requested */
+            @media (max-width: 600px) {
+                .adnp-wrapper { max-width: 200px !important; }
+            }
         `;
         document.head.appendChild(style);
 
         adWrapper.innerHTML = `
-            <div onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; top:-15px; right:-15px; background:#fff; color:#000; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; font-family:sans-serif; z-index:1002; box-shadow:0 4px 12px rgba(0,0,0,0.5); font-weight:bold; border:1px solid #000; line-height:1;">&times;</div>
+            <div onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; top:-12px; right:-12px; background:#fff; color:#000; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; font-family:sans-serif; z-index:1002; box-shadow:0 4px 12px rgba(0,0,0,0.5); font-weight:bold; border:1px solid #000; line-height:1;">&times;</div>
 
             <a href="${adnpLink}" target="_blank" style="position:absolute; bottom:-7px; right:-7px; background:#000; color:#fff; width:13px; height:13px; border-radius:50%; font-size:9px; display:flex; align-items:center; justify-content:center; font-family:sans-serif; text-decoration:none; z-index:1001; border:1px solid #fff; line-height:1; font-weight:bold;">A</a>
             
@@ -61,7 +68,7 @@
         overlay.appendChild(adWrapper);
         document.body.appendChild(overlay);
 
-        // १० सेकेन्डपछि स्वतः बन्द
+        // Auto-close after 10 seconds
         setTimeout(() => {
             const el = document.getElementById('adnp-popup-overlay');
             if(el) {
