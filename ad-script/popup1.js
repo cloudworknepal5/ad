@@ -48,9 +48,9 @@
             /* Desktop View: Max 550px */
             .adnp-wrapper { max-width: 550px; }
             
-            /* Mobile View: Max 200px as requested */
+            /* Mobile View: Max 300px as requested */
             @media (max-width: 600px) {
-                .adnp-wrapper { max-width: 200px !important; }
+                .adnp-wrapper { max-width: 300px !important; }
             }
         `;
         document.head.appendChild(style);
