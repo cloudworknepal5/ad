@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepal Top Khabar - News Generator Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    
+    <style>
+        :root { --fb-red: #ed1c24; --fb-blue: #002e5b; }
+        body { background: #f4f4f4; margin: 0; padding: 0; font-family: 'Mukta', sans-serif; }
+        
+        #gh-outer-wrapper {
+            width: 100%; overflow: hidden; display: flex; 
+            flex-direction: column; align-items: center; padding-bottom: 50px;
+        }
+
+        /* Instructions Styling */
+        .gh-instructions {
+            background: #fff3f3; border-left: 5px solid var(--fb-red);
+            padding: 15px; margin: 20px auto; width: 90%; max-width: 800px;
+            border-radius: 8px; font-size: 16px; color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .gh-instructions b { color: var(--fb-red); }
+        .gh-instructions ul { margin: 5px 0 0 20px; padding: 0; }
+
+        /* Control Panel */
+        .gh-controls-panel {
+            background: #fff; padding: 20px; border-bottom: 1px solid #ddd; 
+            width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px;
+        }
+        .gh-controls-panel select, .gh-controls-panel input { padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-family: 'Mukta'; }
+        
+        /* Dynamic Inputs Styling */
+        .gh-dynamic-inputs {
+            display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;
+        }
+        .gh-dynamic-inputs input { min-width: 250px; font-size: 14px; }
+
+        /* Master Container */
+        #gh-master-container { 
+            transform-origin: top center; 
+            transition: transform 0.2s ease-out; 
+            margin: 20px 0;
+            padding: 10px;
+        }
+
+        /* The News Card */
+        .gh-master-wrap { 
+            width: 1200px; height: 630px; 
+            background: #fff; border: 15px solid var(--fb-red); 
+            box-sizing: border-box; position: relative;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            outline: none;
+        }
+
+        .gh-logo-watermark { 
+            position: absolute; top: 30px; right: 25px; 
+            width: 150px; height: auto; z-index: 100; object-fit: contain; pointer-events: none;
+        }
+
+        .gh-img-frame { 
+            position: relative; width: 100%; flex: 1;
+            background: #222; overflow: hidden; display: flex; 
+            align-items: center; justify-content: center;
+            touch-action: none;
+        }
+        
+        .draggable-img { position: absolute; will-change: transform; cursor: move; max-width: none; }
+
+        .gh-red-overlay { 
+            position: absolute; inset: 12px;
+            border: 2px solid rgba(237, 28, 36, 0.4); z-index: 10; pointer-events: none; 
+        }
+
+        .gh-small-ribbon { 
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%); 
+            background: var(--fb-red); color: #fff; padding: 3px 35px; 
+            font-size: 16px; font-weight: 700; z-index: 20; border-radius: 3px; 
+        }
+
+        .gh-social-icons { 
+            position: absolute; bottom: 15px; left: 20px; 
+            display: flex; gap: 10px; z-index: 110; 
+        }
+        .gh-social-icons img { 
+            width: 42px; height: 42px; background: #fff; padding: 8px; 
+            border-radius: 50%; border: 1px solid var(--fb-red); 
+            box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .gh-headline { 
+            padding: 10px 40px; 
+            font-weight: 800; 
+            color: var(--fb-red); 
+            line-height: 1.15; 
+            text-align: center;
+            background: #fff; 
+            min-height: 140px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            z-index: 5;
+            overflow: hidden;
+            word-break: keep-all;
+        }
+
+        .gh-nav-row { display: flex; justify-content: center; gap: 15px; margin: 20px 0; width: 100%; }
+        .gh-nav-btn { background: var(--fb-red); color: #fff; padding: 12px 30px; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 18px; }
+        .gh-nav-btn:disabled { background: #ccc; }
+        
+        .zoom-ctrl { display: flex; align-items: center; gap: 10px; background: #eee; padding: 5px 15px; border-radius: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="gh-outer-wrapper">
+    <div class="gh-instructions">
+        <b><i class="fas fa-info-circle"></i> प्रयोग गर्ने तरिका:</b>
+        <ul>
+            <li><b>फोटो मिलाउन:</b> फोटोलाई माउस वा औंलाले <b>Drag</b> र स्लाइडरबाट <b>Zoom</b> गर्नुहोस्।</li>
+            <li><b>वेबसाइट नाम:</b> तपाईंको पोर्टलको नाम (उदा: ghantaghartv.com) राख्नुहोस्, न्यूज फिड स्वतः अपडेट हुनेछ।</li>
+            <li><b>लोगो परिवर्तन:</b> आफ्नो लोगोको <b>Direct Link</b> राखेर कार्डमा लोगो बदल्नुहोस्।</li>
+            <li><b>कस्टम फिड:</b> यदि विशेष JSON लिङ्क छ भने मात्र यो बक्स प्रयोग गर्नुहोस्, नत्र खाली छोड्नुहोस्।</li>
+            <li><b>अपडेट:</b> विवरण परिवर्तन गरेपछि अनिवार्य रूपमा <b>Update</b> बटनमा क्लिक गर्नुहोस्।</li>
+            <li><b>डाउनलोड:</b> सबै मिलेपछि <b>HD डाउनलोड</b> बाट फोटो सेभ गर्नुहोस्।</li>
+        </ul>
+    </div>
+
+    <div class="gh-controls-panel">
+        <select id="formatSelector" onchange="changeFormat()">
+            <option value="landscape" data-w="1200" data-h="630">Facebook Landscape (1200x630)</option>
+            <option value="square" data-w="1200" data-h="1200">Facebook Square (1200x1200)</option>
+            <option value="portrait" data-w="1080" data-h="1350">Facebook Portrait (1080x1350)</option>
+            <option value="profile" data-w="1080" data-h="1080">Profile Picture (1080x1080)</option>
+            <option value="stories" data-w="1080" data-h="1920">Stories / Reels (1080x1920)</option>
+        </select>
+
+        <div class="zoom-ctrl">
+            <i class="fas fa-search-minus"></i>
+            <input type="range" id="imgZoom" min="0.5" max="3" step="0.1" value="1" oninput="applyTransform()">
+            <i class="fas fa-search-plus"></i>
+        </div>
+
+        <button onclick="capturePNG()" style="background: #28a745; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;">
+            <i class="fas fa-download"></i> HD डाउनलोड
+        </button>
+
+        <div class="gh-dynamic-inputs">
+            <input type="text" id="inputDomain" placeholder="वेबसाइटको नाम (उदा: google.com)" value="nepaltopkhabar.com">
+            <input type="text" id="inputLogo" placeholder="लोगोको सिधा लिङ्क (Direct URL)" value="https://nepaltopkhabar.com/wp-content/uploads/2025/09/logo11-copy-300x84.png">
+            <input type="text" id="inputFeed" placeholder="Custom JSON (नचाहिएमा खाली छोड्नुहोस्)">
+            <button onclick="updateSettings()" style="background: #002e5b; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">
+                <i class="fas fa-sync-alt"></i> Update
+            </button>
+        </div>
+    </div>
+
+    <div id="gh-master-container"></div>
+</div>
+
+<script>
+let gh_posts_data = [];
+let gh_current_idx = 0;
+let imgState = { x: 0, y: 0, scale: 1 };
+let SITE_DOMAIN = "nepaltopkhabar.com";
+let SITE_LOGO_URL = "https://nepaltopkhabar.com/wp-content/uploads/2025/09/logo11-copy-300x84.png";
+const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/channel/UCfySzdquhwBDUKx1Aa5CU_w";
+
+/** Multi-Function: Update Settings (Auto-Gen Feed from Domain) **/
+function updateSettings() {
+    const d = document.getElementById('inputDomain').value.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const l = document.getElementById('inputLogo').value.trim();
+    const f = document.getElementById('inputFeed').value.trim();
+
+    if(d) SITE_DOMAIN = d;
+    if(l) SITE_LOGO_URL = l;
+
+    // यदि कस्टूम फिड लिङ्क छैन भने डोमेनबाट स्वतः JSON लिङ्क बनाउने
+    let finalFeedUrl = f ? f : `https://${SITE_DOMAIN}/wp-json/wp/v2/posts?_embed&per_page=20`;
+    
+    loadData(finalFeedUrl);
+}
+
+/** Multi-Function: Headline Resizer **/
+function adjustHeadlineFontSize() {
+    const headline = document.querySelector('.gh-headline');
+    if (!headline) return;
+    const textLength = headline.innerText.length;
+    let fontSize = textLength < 30 ? 72 : textLength < 60 ? 58 : textLength < 90 ? 48 : 42;
+    headline.style.fontSize = fontSize + "px";
+}
+
+/** Multi-Function: Apply Transform **/
+function applyTransform() {
+    const img = document.querySelector('.draggable-img');
+    if(!img) return;
+    imgState.scale = document.getElementById('imgZoom').value;
+    img.style.transform = `translate(${imgState.x}px, ${imgState.y}px) scale(${imgState.scale})`;
+}
+
+/** Multi-Function: Drag Logic **/
+function initDraggable() {
+    interact('.draggable-img').draggable({
+        listeners: { move(event) { imgState.x += event.dx; imgState.y += event.dy; applyTransform(); } }
+    });
+}
+
+/** Multi-Function: Format Switcher **/
+function changeFormat() {
+    const sel = document.getElementById('formatSelector');
+    const opt = sel.options[sel.selectedIndex];
+    const wrap = document.querySelector('.gh-master-wrap');
+    if(wrap) {
+        wrap.style.width = opt.getAttribute('data-w') + 'px';
+        wrap.style.height = opt.getAttribute('data-h') + 'px';
+        wrap.style.borderRadius = (sel.value === 'profile') ? '50%' : '0px';
+        document.getElementById('imgZoom').value = (sel.value === 'portrait' || sel.value === 'stories') ? 1.6 : 1;
+        applyTransform();
+    }
+    adjustScale();
+    adjustHeadlineFontSize();
+}
+
+/** Multi-Function: Responsive Scaling **/
+function adjustScale() {
+    const container = document.getElementById('gh-master-container');
+    const wrap = document.querySelector('.gh-master-wrap');
+    if(!wrap) return;
+    const availableWidth = window.innerWidth - 40;
+    const currentW = parseInt(wrap.style.width);
+    if (availableWidth < currentW) {
+        const scale = availableWidth / currentW;
+        container.style.transform = `scale(${scale})`;
+        container.style.marginBottom = `-${parseInt(wrap.style.height) * (1 - scale)}px`;
+    } else {
+        container.style.transform = `scale(1)`;
+        container.style.marginBottom = `0px`;
+    }
+}
+
+function shareWhatsApp() {
+    const post = gh_posts_data[gh_current_idx];
+    const text = `*${post.title.rendered}*\n\nपूरा विवरण यहाँ हेर्नुहोस्: https://${SITE_DOMAIN}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+}
+function openYouTube() { window.open(YOUTUBE_CHANNEL_URL, '_blank'); }
+
+/** Multi-Function: PNG Capture **/
+async function capturePNG() {
+    const container = document.getElementById('gh-master-container');
+    const target = document.querySelector('.gh-master-wrap');
+    const originalTransform = container.style.transform;
+    const originalMargin = container.style.marginBottom;
+    window.scrollTo(0,0);
+    container.style.transform = "scale(1)";
+    container.style.marginBottom = "0px";
+    setTimeout(async () => {
+        try {
+            const canvas = await html2canvas(target, { useCORS: true, scale: 2 });
+            const link = document.createElement('a');
+            link.download = `news-${Date.now()}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        } catch (err) { alert("Error capturing image"); }
+        finally { container.style.transform = originalTransform; container.style.marginBottom = originalMargin; adjustScale(); }
+    }, 400);
+}
+
+/** Multi-Function: UI Renderer **/
+function updateDisplay() {
+    const box = document.getElementById('gh-master-container');
+    const p = gh_posts_data[gh_current_idx];
+    if(!p) return;
+    let featuredImg = p._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+    imgState = { x: 0, y: 0, scale: 1 };
+    if(document.getElementById('imgZoom')) document.getElementById('imgZoom').value = 1;
+
+    box.innerHTML = `
+        <div class="gh-master-wrap">
+            <img src="https://images.weserv.nl/?url=${encodeURIComponent(SITE_LOGO_URL.replace('https://',''))}" class="gh-logo-watermark">
+            <div class="gh-img-frame">
+                <img src="https://images.weserv.nl/?url=${encodeURIComponent(featuredImg.replace('https://',''))}" class="draggable-img" id="mainImg">
+                <div class="gh-red-overlay">
+                    <div class="gh-small-ribbon">${SITE_DOMAIN}</div>
+                </div>
+                <div class="gh-social-icons">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" title="Facebook">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" title="TikTok">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" onclick="openYouTube()" title="YouTube">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" onclick="shareWhatsApp()" title="WhatsApp">
+                </div>
+            </div>
+            <div class="gh-headline">${p.title.rendered}</div>
+        </div>
+        <div class="gh-nav-row">
+            <button class="gh-nav-btn" onclick="move(-1)" ${gh_current_idx === 0 ? 'disabled' : ''}>← अघिल्लो</button>
+            <button class="gh-nav-btn" onclick="move(1)" ${gh_current_idx === gh_posts_data.length - 1 ? 'disabled' : ''}>अर्को →</button>
+        </div>
+    `;
+    const imgEl = document.getElementById('mainImg');
+    imgEl.onload = () => { initDraggable(); changeFormat(); adjustHeadlineFontSize(); };
+}
+
+async function loadData(url) {
+    try {
+        const res = await fetch(url);
+        gh_posts_data = await res.json();
+        if (gh_posts_data.length > 0) { 
+            gh_current_idx = 0; 
+            updateDisplay(); 
+        } else {
+            alert("यो वेबसाइटमा समाचार भेटिएन।");
+        }
+    } catch (err) { 
+        alert("माफ गर्नुहोला, यो वेबसाइटबाट समाचार लोड गर्न सकिएन। वेबसाइटले JSON API ब्लक गरेको हुन सक्छ।"); 
+    }
+}
+
+window.move = (n) => { gh_current_idx += n; updateDisplay(); };
+window.addEventListener('resize', adjustScale);
+
+// Initial Load
+updateSettings();
+</script>
+
+</body>
+</html>
