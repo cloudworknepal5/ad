@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neelamb - HD News Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <style>
+        :root { --fb-red: #ed1c24; --fb-blue: #002e5b; }
+        body { background: #f0f2f5; margin: 0; padding: 0; font-family: 'Mukta', sans-serif; touch-action: manipulation; }
+        
+        #gh-outer-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+        /* Instructions Container */
+        .gh-instructions-box { 
+            background: #fff; border-left: 6px solid var(--fb-red); padding: 20px; 
+            margin: 20px auto; width: 90%; max-width: 850px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #333;
+        }
+        .gh-instructions-box h3 { margin-top: 0; color: var(--fb-red); display: flex; align-items: center; gap: 10px; }
+        .gh-instructions-box ul { padding-left: 20px; line-height: 1.8; }
+        .gh-instructions-box b { color: #000; }
+
+        /* Responsive Controls */
+        .gh-controls-panel { 
+            background: #fff; padding: 15px; border-bottom: 2px solid #ddd; 
+            width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;
+        }
+        .control-group { display: flex; align-items: center; gap: 10px; background: #f1f3f4; padding: 8px 15px; border-radius: 30px; border: 1px solid #ddd; font-weight: bold; font-size: 14px; }
+        .gh-controls-panel select, .gh-controls-panel input { border: 1px solid #ccc; border-radius: 4px; padding: 6px; font-family: 'Mukta'; }
+        
+        /* Master Container */
+        #gh-master-container { transform-origin: top center; margin: 25px 0; }
+
+        /* The Card Design */
+        .gh-master-wrap { 
+            width: 1200px; height: 630px; 
+            background: #000; border: 18px solid var(--fb-red); 
+            box-sizing: border-box; position: relative;
+            overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .gh-inner-border { position: absolute; inset: 12px; border: 2px solid rgba(255, 255, 255, 0.4); pointer-events: none; z-index: 25; }
+        .gh-domain-ribbon { 
+            position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
+            background: var(--fb-red); color: #fff; padding: 6px 50px;
+            font-size: 20px; font-weight: 800; z-index: 35; border-radius: 0 0 12px 12px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+        }
+
+        /* Elements Styling */
+        .draggable-item { position: absolute; z-index: 100; cursor: move; touch-action: none; }
+        .gh-logo-watermark { width: 240px; height: auto; object-fit: contain; pointer-events: none; }
+        .gh-img-frame { position: absolute; inset: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; }
+        .main-photo { position: absolute; will-change: transform; cursor: move; touch-action: none; }
+
+        .gh-social-icons { display: flex; flex-direction: column; gap: 15px; padding: 12px; }
+        .gh-social-icons img { width: 50px; height: 50px; border-radius: 50%; border: 2.5px solid #fff; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
+
+        .gh-headline { 
+            width: 90%; text-align: center; font-weight: 800; line-height: 1.15;
+            background: transparent; padding: 15px;
+            text-shadow: 3px 3px 10px rgba(0,0,0,1), -1px -1px 0px rgba(0,0,0,0.8);
+            word-break: keep-all; user-select: none;
+        }
+
+        /* Navigation & Footer */
+        .gh-nav-row { display: flex; justify-content: center; gap: 15px; margin: 20px 0; width: 100%; }
+        .gh-nav-btn { background: var(--fb-red); color: #fff; padding: 12px 35px; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; font-size: 18px; transition: 0.3s; }
+        .gh-nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .gh-footer { margin-top: 30px; padding: 20px; width: 100%; text-align: center; background: #fff; border-top: 1px solid #ddd; font-weight: bold; color: #555; }
+
+        @media (max-width: 600px) {
+            .gh-controls-panel { padding: 10px; gap: 8px; }
+            .gh-nav-btn { flex: 1; padding: 10px; font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="gh-outer-wrapper">
+    <div class="gh-instructions-box">
+        <h3><i class="fas fa-tools"></i> न्यूज कार्ड प्रयोग गर्ने तरिका:</h3>
+        <ul>
+            <li><b>आकार छान्नुहोस्:</b> सबैभन्दा माथिको मेनुबाट 'फेसबुक', 'इन्स्टाग्राम' वा 'स्टोरी' को साइज छान्न सक्नुहुन्छ।</li>
+            <li><b>शीर्षक (Title) घट-बढ:</b> फन्ट आइकन <i class="fas fa-font"></i> भएको मिटर प्रयोग गरी समाचारको हेडलाइन सानो वा ठूलो बनाउनुहोस्।</li>
+            <li><b>रङ छान्नुहोस्:</b> रङको बक्समा क्लिक गरी हेडलाइनलाई फोटो सुहाउँदो रङ (सेतो, पहेलो आदि) दिन सक्नुहुन्छ।</li>
+            <li><b>फोटो मिलाउनुहोस्:</b> फोटोमा थिचेर यताउता सार्न (Drag) र फोटो मिटरबाट जुम गर्न सक्नुहुन्छ।</li>
+            <li><b>लोगो र आइकन सार्न:</b> लोगो, हेडलाइन र सोसल आइकनहरूलाई मोबाइलमा <b>औंलाले</b> वा कम्प्युटरमा <b>माउसले</b> समातेर जहाँ पनि राख्न सकिन्छ।</li>
+            <li><b>नयाँ र पुराना पोष्ट:</b> मुनि रहेका 'अघिल्लो' र 'अर्को' बटन थिचेर पुराना वा नयाँ समाचारहरू लोड गर्न सक्नुहुन्छ।</li>
+            <li><b>एचडीमा सेभ:</b> सबै सेटिङ मिलेपछि <b>"HD सेभ"</b> बटन थिचेर उच्च गुणस्तरको फोटो डाउनलोड गर्नुहोस्।</li>
+        </ul>
+    </div>
+
+    <div class="gh-controls-panel">
+        <div class="control-group">
+            <i class="fas fa-expand"></i>
+            <select id="formatSelector" onchange="changeFormat()">
+                <option value="landscape" data-w="1200" data-h="630">फेसबुक ल्याण्डस्केप</option>
+                <option value="square" data-w="1200" data-h="1200">फेसबुक स्क्वायर</option>
+                <option value="stories" data-w="1080" data-h="1920">स्टोरी / रिल्स्</option>
+            </select>
+        </div>
+        
+        <div class="control-group" title="फोटो जुम गर्नुहोस्">
+            <i class="fas fa-image"></i>
+            <input type="range" id="imgZoom" min="0.1" max="5" step="0.1" value="1" oninput="applyTransform()">
+        </div>
+
+        <div class="control-group" title="अक्षरको साइज">
+            <i class="fas fa-font"></i>
+            <input type="range" id="headlineSize" min="20" max="150" step="1" value="65" oninput="adjustHeadline()">
+        </div>
+
+        <div class="control-group" title="अक्षरको रङ">
+            <i class="fas fa-palette"></i>
+            <input type="color" id="textColor" value="#ffffff" oninput="adjustHeadline()">
+        </div>
+
+        <button onclick="capturePNG()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer;">
+            <i class="fas fa-download"></i> HD सेभ
+        </button>
+
+        <div class="gh-dynamic-inputs">
+            <input type="text" id="inputDomain" placeholder="वेबसाइट लिंक" value="baraupdate.com">
+            <button onclick="updateSettings()" style="background: var(--fb-blue); color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">Update</button>
+        </div>
+    </div>
+
+    <div id="gh-master-container"></div>
+
+    <div class="gh-footer">
+        Copyright &copy; 2026 | Designed & Maintained by 
+        <a href="https://neelamb.com" target="_blank" style="color: var(--fb-red); text-decoration: none; border-bottom: 1px solid var(--fb-red);">
+            <b>Neelamb.com</b>
+        </a>
+    </div>
+
+<script>
+let gh_posts_data = [];
+let gh_current_idx = 0;
+let imgState = { x: 0, y: 0, scale: 1 };
+let SITE_DOMAIN = "baraupdate.com";
+let SITE_LOGO_URL = "https://baraupdate.com.np/wp-content/uploads/2024/06/Bara-update-logo-main-copy-copy-300x35-1.png";
+
+/** Multi-Function: Drag & Drop Logic (Touch + Mouse) **/
+function initInteract() {
+    interact('.draggable-item').draggable({
+        inertia: true,
+        listeners: {
+            move(event) {
+                const target = event.target;
+                const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                target.style.transform = `translate(${x}px, ${y}px)`;
+                target.setAttribute('data-x', x);
+                target.setAttribute('data-y', y);
+            }
+        }
+    });
+
+    interact('.main-photo').draggable({
+        listeners: { move(event) { imgState.x += event.dx; imgState.y += event.dy; applyTransform(); } }
+    });
+}
+
+function applyTransform() {
+    const img = document.getElementById('mainImg');
+    if(!img) return;
+    imgState.scale = document.getElementById('imgZoom').value;
+    img.style.transform = `translate(${imgState.x}px, ${imgState.y}px) scale(${imgState.scale})`;
+}
+
+function adjustHeadline() {
+    const headline = document.getElementById('ghHeadline');
+    if (!headline) return;
+    headline.style.fontSize = document.getElementById('headlineSize').value + "px";
+    headline.style.color = document.getElementById('textColor').value;
+}
+
+/** Multi-Function: UI Renderer **/
+function updateDisplay() {
+    const container = document.getElementById('gh-master-container');
+    const p = gh_posts_data[gh_current_idx];
+    if(!p) return;
+
+    let featuredImg = p._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+    
+    container.innerHTML = `
+        <div class="gh-master-wrap" id="captureArea">
+            <div class="gh-domain-ribbon">${SITE_DOMAIN}</div>
+            <div class="gh-inner-border"></div>
+
+            <div class="gh-img-frame">
+                <img src="https://images.weserv.nl/?url=${encodeURIComponent(featuredImg.replace('https://',''))}" class="main-photo" id="mainImg">
+            </div>
+
+            <div class="draggable-item" style="top: 55px; right: 55px;">
+                <img src="https://images.weserv.nl/?url=${encodeURIComponent(SITE_LOGO_URL.replace('https://',''))}" class="gh-logo-watermark">
+            </div>
+
+            <div class="draggable-item gh-social-icons" style="top: 55px; left: 55px;">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png">
+                <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png">
+                <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+            </div>
+
+            <div class="draggable-item gh-headline" id="ghHeadline" style="bottom: 70px; left: 50%; transform: translateX(-50%);">
+                ${p.title.rendered}
+            </div>
+        </div>
+        
+        <div class="gh-nav-row">
+            <button class="gh-nav-btn" onclick="move(-1)" ${gh_current_idx === 0 ? 'disabled' : ''}>← नयाँ (New)</button>
+            <button class="gh-nav-btn" onclick="move(1)" ${gh_current_idx === gh_posts_data.length - 1 ? 'disabled' : ''}>पुरानो (Old) →</button>
+        </div>
+    `;
+
+    const imgEl = document.getElementById('mainImg');
+    imgEl.onload = () => { initInteract(); changeFormat(); adjustHeadline(); };
+}
+
+function adjustScale() {
+    const container = document.getElementById('gh-master-container');
+    const wrap = document.querySelector('.gh-master-wrap');
+    if(!wrap) return;
+    const scale = Math.min(1, (window.innerWidth - 30) / parseInt(wrap.style.width));
+    container.style.transform = `scale(${scale})`;
+    container.style.marginBottom = `-${parseInt(wrap.style.height) * (1 - scale)}px`;
+}
+
+function changeFormat() {
+    const sel = document.getElementById('formatSelector');
+    const opt = sel.options[sel.selectedIndex];
+    const wrap = document.querySelector('.gh-master-wrap');
+    if(wrap) {
+        wrap.style.width = opt.getAttribute('data-w') + 'px';
+        wrap.style.height = opt.getAttribute('data-h') + 'px';
+    }
+    adjustScale();
+}
+
+async function capturePNG() {
+    const container = document.getElementById('gh-master-container');
+    const target = document.getElementById('captureArea');
+    const originalTransform = container.style.transform;
+    window.scrollTo(0,0);
+    container.style.transform = "scale(1)";
+    setTimeout(async () => {
+        try {
+            const canvas = await html2canvas(target, { useCORS: true, scale: 2 });
+            const link = document.createElement('a');
+            link.download = `news-${Date.now()}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        } catch (e) { alert("Error saving HD image."); }
+        finally { container.style.transform = originalTransform; }
+    }, 500);
+}
+
+function updateSettings() {
+    const d = document.getElementById('inputDomain').value.trim();
+    if(d) SITE_DOMAIN = d;
+    loadData(`https://${SITE_DOMAIN}/wp-json/wp/v2/posts?_embed&per_page=20`);
+}
+
+async function loadData(url) {
+    try {
+        const res = await fetch(url);
+        gh_posts_data = await res.json();
+        if (gh_posts_data.length > 0) { gh_current_idx = 0; updateDisplay(); }
+    } catch (e) { alert("Data fetch error."); }
+}
+
+window.move = (n) => { gh_current_idx += n; updateDisplay(); };
+window.addEventListener('resize', adjustScale);
+updateSettings();
+</script>
+</body>
+
+</html>
