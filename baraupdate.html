@@ -266,7 +266,7 @@ async function capturePNG() {
 function updateSettings() {
     const d = document.getElementById('inputDomain').value.trim();
     if(d) SITE_DOMAIN = d;
-    loadData(`https://${SITE_DOMAIN}/wp-json/wp/v2/posts?_embed&per_page=20`);
+    loadData(`https://baraupdate.com.np/wp-json/wp/v2/posts?_embed&per_page=20`);
 }
 
 async function loadData(url) {
