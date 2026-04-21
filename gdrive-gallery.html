@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neelamb Galery Portal</title>
+    <style>
+        body { background: #f0f2f5; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .nav { background: #1a1a1a; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .nav .brand { color: #fff; font-size: 24px; font-weight: bold; letter-spacing: 1px; }
+        .nav .brand span { color: #e60000; }
+        .search-container input { padding: 12px 25px; border-radius: 30px; border: none; width: 350px; outline: none; font-size: 16px; }
+        
+        .container { padding: 20px; }
+
+        @media (max-width: 768px) {
+            .nav { flex-direction: column; gap: 15px; }
+            .search-container input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <div class="brand">Flyer<span>design</span></div>
+        <div class="search-container">
+            <input type="text" placeholder="Search across all folders..." onkeyup="multiFunctionController.globalSearch(this.value)">
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="Neelamb-gallery"></div>
+        <div id="Manojgas-gallery"></div>
+        <div id="other-gallery"></div>
+    </div>
+
+    <script src="file:///C:/Users/DELL/Desktop/hugo/my-news-portal/static/github/gdrive-gallery.js"></script>
+
+    <script>
+        /**
+         * MULTI-FUNCTION CONTROLLER
+         * Centralized management for initialization and global interactions.
+         */
+        const multiFunctionController = {
+            galleries: [],
+
+            init() {
+                // 1. Neelamb Gallery Setup
+                this.galleries.push(new NeelambGallery({
+                    containerId: "Neelamb-gallery",
+                    folderId: "1dhTXfPliMkFSbboXXvjjfqQCDbxEItS4",
+                    title: "Neelamb Gallery",
+                    allowUpload: true
+                }));
+
+                // 2. Manojgas Gallery Setup
+                this.galleries.push(new NeelambGallery({
+                    containerId: "Manojgas-gallery",
+                    folderId: "1lYFnpnYWMykrFShv_mbd7Ypu7AnS5Dl0",
+                    title: "Manojgas Gallery",
+                    allowUpload: true
+                }));
+
+                // 3. Other Gallery Setup
+                this.galleries.push(new NeelambGallery({
+                    containerId: "other-gallery",
+                    folderId: "1bFN79McWlR5nsOWWKnj5yRdrWr6ZOfwH",
+                    title: "Other Gallery",
+                    allowUpload: true
+                }));
+            },
+
+            /**
+             * Multi-function Search:
+             * Iterates through all registered gallery instances and applies the filter.
+             */
+            globalSearch(val) {
+                if (window.neelambInstances) {
+                    window.neelambInstances.forEach(inst => {
+                        if (typeof inst.applyGlobalSearch === 'function') {
+                            inst.applyGlobalSearch(val);
+                        }
+                    });
+                }
+            }
+        };
+
+        // Initialize all functions on DOM ready
+        document.addEventListener('DOMContentLoaded', () => {
+            multiFunctionController.init();
+        });
+    </script>
+
+</body>
+</html>
