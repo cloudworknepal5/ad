@@ -1,5 +1,5 @@
 (function() {
-    // 1. CSS - Spacing, Center Alignment र Mobile Responsiveness का लागि
+    // 1. CSS - Spacing, Center Alignment, र बढी प्याडिङका लागि
     const style = document.createElement('style');
     style.innerHTML = `
         #neelamb-header-v2 { all: initial; font-family: 'Mukta', sans-serif; display: block; background: #fff; width: 100%; }
@@ -12,60 +12,63 @@
         .h2-container { max-width: 1240px; margin: 0 auto; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; position: relative; }
         
         /* Branding Section */
-        .h2-branding { padding: 15px 0; background: #fff; border-bottom: 1px solid #eee; width: 100%; min-height: 80px; }
+        .h2-branding { padding: 15px 0; background: #fff; border-bottom: 1px solid #eee; width: 100%; min-height: 85px; display: flex; align-items: center; }
         .h2-brand-flex { display: flex; justify-content: space-between; align-items: center; width: 100%; position: relative; }
         
-        /* Logo Styling */
-        .h2-logo { position: absolute; left: 50%; transform: translateX(-50%); text-align: center; z-index: 5; }
-        .h2-logo img { max-height: 60px; width: auto; object-fit: contain; display: block; }
-        .h2-logo h1 { font-size: 26px; font-weight: 800; color: var(--rp-red); margin: 0; }
+        /* Logo Center Fix */
+        .h2-logo { position: absolute; left: 50%; transform: translateX(-50%); text-align: center; z-index: 5; min-width: 180px; }
+        .h2-logo img { max-height: 65px; width: auto; object-fit: contain; display: block; margin: 0 auto; }
+        .h2-logo h1 { font-size: 28px; font-weight: 800; color: var(--rp-red); margin: 0; }
 
-        /* Icon Buttons */
-        .h2-icon-btn { font-size: 24px; color: #333; cursor: pointer; background: none; border: none; padding: 10px; z-index: 10; display: flex; align-items: center; }
+        .h2-icon-btn { font-size: 26px; color: #333; cursor: pointer; background: none; border: none; padding: 10px; z-index: 10; display: flex; align-items: center; }
 
-        /* Navigation Menu - लेबललाई फराकिलो र सेन्टर बनाइएको */
-        .h2-nav-bar { background: #fff; border-bottom: 3px solid var(--rp-red); width: 100%; overflow: hidden; }
+        /* Navigation Menu - Center र बढी Padding */
+        .h2-nav-bar { background: #fff; border-bottom: 4px solid var(--rp-red); width: 100%; display: flex; justify-content: center; }
         .h2-main-menu { 
             display: flex; 
             flex-wrap: nowrap; 
             overflow-x: auto; 
-            gap: 10px; /* लेबलहरु बीचको न्यूनतम दूरी */
-            padding: 0 10px; 
+            gap: 5px; 
+            padding: 0; 
             margin: 0; 
             scrollbar-width: none; 
             justify-content: center; /* डेस्कटपमा सेन्टर */
+            width: 100%;
+            max-width: 1240px;
         }
         .h2-main-menu::-webkit-scrollbar { display: none; }
         
         .h2-main-menu li { display: flex; align-items: center; }
         .h2-main-menu li a { 
             display: block; 
-            padding: 12px 20px; /* फराकिलो बनाउन प्याडिङ थपिएको */
+            padding: 15px 25px; /* प्याडिङ बढाइएको - फराकिलो बनाउन */
             color: #1a1a1a; 
             font-weight: 700; 
-            font-size: 17px; 
+            font-size: 18px; 
             white-space: nowrap; 
             transition: all 0.3s ease;
+            text-align: center;
         }
-        .h2-main-menu li a:hover { color: var(--rp-red); background: #f8f8f8; }
+        .h2-main-menu li a:hover { color: var(--rp-red); background: #f9f9f9; }
 
-        /* Dark Mode Support */
+        /* Dark Mode */
         .dark #neelamb-header-v2, .dark #neelamb-header-v2 .h2-branding, .dark #neelamb-header-v2 .h2-nav-bar { background: #161e2e !important; border-color: #374151; }
         .dark #neelamb-header-v2 .h2-logo h1, .dark #neelamb-header-v2 .h2-main-menu li a, .dark #neelamb-header-v2 .h2-icon-btn { color: #f1f5f9 !important; }
 
         /* Mobile Adjustments */
         @media (max-width: 768px) {
             .h2-main-menu { 
-                justify-content: flex-start; /* मोबाइलमा बायाँबाट सुरु हुने गरी (स्क्रोल गर्न सजिलो) */
-                gap: 5px; 
+                justify-content: flex-start; /* मोबाइलमा धेरै लेबल भए स्क्रोल गर्न सजिलो */
+                padding: 0 10px;
             }
-            .h2-main-menu li a { padding: 10px 15px; font-size: 16px; }
-            .h2-logo img { max-height: 45px; }
-            .h2-branding { padding: 5px 0; min-height: 60px; }
+            .h2-main-menu li a { padding: 12px 18px; font-size: 16px; }
+            .h2-logo img { max-height: 50px; }
+            .h2-branding { min-height: 70px; }
         }
     `;
     document.head.appendChild(style);
 
+    // 2. HTML Structure
     const headerHTML = `
         <header class="h2-wrapper">
             <div class="h2-top-mini">
@@ -84,11 +87,9 @@
                 </div>
             </div>
             <nav class="h2-nav-bar">
-                <div class="h2-container">
-                    <ul class="h2-main-menu" id="auto-menu">
-                        <li><a href="/">गृहपृष्ठ</a></li>
-                    </ul>
-                </div>
+                <ul class="h2-main-menu" id="auto-menu">
+                    <li><a href="/">गृहपृष्ठ</a></li>
+                </ul>
             </nav>
         </header>
     `;
@@ -115,7 +116,7 @@
         const logoContainer = document.getElementById('auto-logo');
         const blogTitle = data.feed.title.$t;
 
-        // Logo Logic
+        // Auto-Logo Logic
         const existingLogo = document.querySelector('.Header img, #header-inner img, .header-logo img');
         if (existingLogo && existingLogo.src) {
             logoContainer.innerHTML = `<a href="/"><img src="${existingLogo.src}" alt="${blogTitle}"/></a>`;
@@ -123,7 +124,7 @@
             logoContainer.innerHTML = `<a href="/"><h1>${blogTitle}</h1></a>`;
         }
 
-        // Labels Logic - Spacing र Padding सहित
+        // Labels Logic (बढेको प्याडिङ सहित)
         const labels = data.feed.category || [];
         labels.slice(0, 10).forEach(cat => {
             const li = document.createElement('li');
@@ -131,7 +132,7 @@
             menuContainer.appendChild(li);
         });
 
-        // Date Logic (नेपालीमा)
+        // Nepali Date
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('h2-nepali-date').innerHTML = new Date().toLocaleDateString('ne-NP', options);
     };
