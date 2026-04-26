@@ -1,40 +1,56 @@
-/* * Professional Header v2.1 - Fixed for Post Pages
- * Features: Scoped CSS, Dynamic Feed, Auto-Logo & Labels
- */
-
 (function() {
-    // 1. Inject Scoped CSS (पोष्ट पेजमा ओभरराइड हुन नदिन)
+    // 1. CSS Fixes (Spacing र Dark Mode का लागि)
     const style = document.createElement('style');
     style.innerHTML = `
-        #neelamb-header-v2 { all: initial; font-family: 'Mukta', sans-serif; display: block; }
-        #neelamb-header-v2 * { box-sizing: border-box; margin: 0; padding: 0; }
+        #neelamb-header-v2 { all: initial; font-family: 'Mukta', sans-serif; display: block; background: #fff; }
+        #neelamb-header-v2 * { box-sizing: border-box; margin: 0; padding: 0; text-decoration: none; list-style: none !important; }
         
         :root { --rp-red: #e31e24; --rp-dark-red: #b31419; }
         
-        .h2-wrapper { width: 100%; border-bottom: 3px solid var(--rp-red); background: #fff; position: relative; z-index: 9999; }
+        /* Top Bar */
+        .h2-top-mini { background: var(--rp-dark-red); color: #fff; padding: 8px 0; font-size: 14px; width: 100%; }
         .h2-container { max-width: 1240px; margin: 0 auto; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; }
         
-        .h2-top-mini { background: var(--rp-dark-red); color: #fff; padding: 5px 0; font-size: 13px; width: 100%; }
-        .h2-branding { padding: 15px 0; border-bottom: 1px solid #eee; background: #fff; width: 100%; }
+        /* Branding */
+        .h2-branding { padding: 15px 0; background: #fff; border-bottom: 1px solid #eee; width: 100%; }
+        .h2-logo h1 { font-size: 28px; font-weight: 800; color: #333; margin: 0; }
+        .h2-logo img { max-height: 60px; display: block; }
+
+        /* Menu Spacing Fix (टाँसिएको हटाउन) */
+        .h2-nav-bar { background: #fff; border-bottom: 3px solid var(--rp-red); width: 100%; }
+        .h2-main-menu { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 5px; padding: 0; margin: 0; scrollbar-width: none; }
+        .h2-main-menu::-webkit-scrollbar { display: none; }
+        .h2-main-menu li { display: inline-block !important; margin: 0 !important; padding: 0 !important; }
+        .h2-main-menu li a { 
+            display: block; 
+            padding: 12px 18px !important; 
+            color: #1a1a1a; 
+            font-weight: 700; 
+            font-size: 17px; 
+            white-space: nowrap; 
+            transition: 0.2s;
+        }
+        .h2-main-menu li a:hover { color: var(--rp-red); background: #f9f9f9; }
+
+        /* Dark Mode Overrides (तपाईंको साइटको .dark class सँग मिल्ने गरी) */
+        html.dark #neelamb-header-v2, 
+        .dark-mode #neelamb-header-v2,
+        body.dark #neelamb-header-v2 { background: #161e2e !important; }
+
+        .dark #neelamb-header-v2 .h2-branding,
+        .dark #neelamb-header-v2 .h2-nav-bar { background: #161e2e !important; border-color: #374151; }
+
+        .dark #neelamb-header-v2 .h2-logo h1,
+        .dark #neelamb-header-v2 .h2-main-menu li a,
+        .dark #neelamb-header-v2 .h2-menu-icon { color: #f1f5f9 !important; }
         
-        .h2-logo img { max-height: 60px; display: block; filter: none !important; }
-        .h2-brand-left { display: flex; align-items: center; gap: 15px; }
-        .h2-menu-icon { font-size: 24px; cursor: pointer; color: #333; }
-        
-        .h2-nav-bar { background: #fff; width: 100%; display: block; }
-        .h2-main-menu { list-style: none !important; display: flex; flex-wrap: wrap; margin: 0; padding: 0; }
-        .h2-main-menu li { list-style: none !important; }
-        .h2-main-menu li a { display: block; padding: 12px 15px; color: #333; text-decoration: none; font-weight: 700; font-size: 17px; }
-        
-        /* Mobile View Fixes */
+        .dark #neelamb-header-v2 .h2-main-menu li a:hover { background: #1f2937; }
+
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
             .h2-branding { background: var(--rp-red); }
             .h2-logo h1 { color: #fff !important; }
-            .h2-logo img { filter: brightness(0) invert(1) !important; }
-            .h2-menu-icon { color: #fff; }
-            .h2-main-menu { display: none; }
-            .h2-main-menu.active { display: flex; flex-direction: column; width: 100%; background: #fff; }
-            .h2-main-menu.active li a { color: #333; border-bottom: 1px solid #eee; }
+            .h2-menu-icon { color: #fff; font-size: 24px; cursor: pointer; }
         }
     `;
     document.head.appendChild(style);
@@ -44,15 +60,15 @@
         <header class="h2-wrapper">
             <div class="h2-top-mini">
                 <div class="h2-container">
-                    <div id="h2-nepali-date">मिति लोड हुँदै...</div>
-                    <div style="display:flex; gap:10px;">युनिकोड | रेडियो</div>
+                    <div id="h2-nepali-date">...</div>
+                    <div style="font-weight:600;">युनिकोड | रेडियो</div>
                 </div>
             </div>
             <div class="h2-branding">
                 <div class="h2-container">
-                    <div class="h2-brand-left">
-                        <span id="menuToggle" class="h2-menu-icon">&#9776;</span>
-                        <div id="auto-logo" class="h2-logo">लोड हुँदै...</div>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <span class="h2-menu-icon">&#9776;</span>
+                        <div id="auto-logo" class="h2-logo"></div>
                     </div>
                 </div>
             </div>
@@ -66,13 +82,10 @@
         </header>
     `;
 
-    // 3. Render and Fetch Data
     function initHeader() {
         const container = document.getElementById('neelamb-header-v2');
         if (container) {
             container.innerHTML = headerHTML;
-            
-            // पोष्ट पेजमा पनि काम गर्ने गरी पूर्ण URL प्रयोग गरिएको
             const feedUrl = window.location.origin + '/feeds/posts/summary?alt=json-in-script&callback=getBloggerHeaderData';
             const script = document.createElement('script');
             script.src = feedUrl;
@@ -85,35 +98,21 @@
         const logoContainer = document.getElementById('auto-logo');
         const blogTitle = data.feed.title.$t;
         
-        // १. लोगो सेट गर्ने (यदि इमेज छ भने इमेज, नत्र टाइटल)
-        const blogIcon = data.feed.icon ? data.feed.icon.$t : '';
-        if (blogIcon) {
-            logoContainer.innerHTML = `<a href="/"><img src="${blogIcon}" alt="${blogTitle}"/></a>`;
-        } else {
-            logoContainer.innerHTML = `<a href="/" style="text-decoration:none; color:inherit;"><h1 style="font-size:24px; font-weight:800; margin:0;">${blogTitle}</h1></a>`;
-        }
+        // Auto Logo
+        logoContainer.innerHTML = `<a href="/"><h1 id="blog-title-text">${blogTitle}</h1></a>`;
 
-        // २. लेबलहरू मेनुमा थप्ने
+        // Auto Labels (Spacing मिलाउन padding थपिएको छ)
         const labels = data.feed.category || [];
-        labels.slice(0, 10).forEach(cat => {
+        labels.slice(0, 12).forEach(cat => {
             const li = document.createElement('li');
             li.innerHTML = `<a href="/search/label/${encodeURIComponent(cat.term)}">${cat.term}</a>`;
             menuContainer.appendChild(li);
         });
 
-        // ३. मोबाइल मेनु टोगल
-        document.getElementById('menuToggle').onclick = function() {
-            menuContainer.classList.toggle('active');
-        };
-
-        // ४. मिति अपडेट
+        // Nepali Date
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('h2-nepali-date').innerHTML = new Date().toLocaleDateString('ne-NP', options);
     };
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initHeader);
-    } else {
-        initHeader();
-    }
+    initHeader();
 })();
