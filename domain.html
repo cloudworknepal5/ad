@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nilambi.com - डोमेन म्यानेजर</title>
+    <title>Neelamb - डोमेन म्यानेजर (Secure)</title>
     <style>
         :root { 
             --bg: #f4f7f6; --primary: #fbbc04; --card: #ffffff; 
@@ -11,8 +11,14 @@
             --gmail: #ea4335; --whatsapp: #25d366; --messenger: #0084ff; --backup: #673ab7; 
         }
         
-        /* डेस्कटपमा मात्र overflow hidden राख्ने, मोबाइलमा स्क्रोल हुन दिने */
         body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; overflow-x: hidden; overflow-y: auto; }
+
+        /* Login Overlay */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #f4f7f6; z-index: 9999; display: flex;
+            align-items: center; justify-content: center; flex-direction: column;
+        }
 
         .dashboard-wrapper { 
             display: grid; 
@@ -21,23 +27,11 @@
             box-sizing: border-box;
         }
 
-        /* कोलमको लागि स्टाइल - डेस्कटपमा आफ्नो क्षेत्रमा स्क्रोल हुने */
         .col { padding: 15px; overflow-y: auto; height: 100vh; border-right: 1px solid #ddd; box-sizing: border-box; }
 
         @media (max-width: 1200px) {
-            body { overflow-y: auto; } /* मोबाइलमा पूरै बडी स्क्रोल हुने */
-            .dashboard-wrapper { 
-                display: flex; 
-                flex-direction: column; 
-                height: auto; 
-            }
-            .col { 
-                height: auto !important; 
-                overflow-y: visible !important; 
-                border-right: none; 
-                border-bottom: 2px solid #ddd; 
-                padding-bottom: 30px;
-            }
+            .dashboard-wrapper { display: flex; flex-direction: column; height: auto; }
+            .col { height: auto !important; overflow-y: visible !important; border-right: none; border-bottom: 2px solid #ddd; padding-bottom: 30px; }
         }
 
         .col-title { 
@@ -59,9 +53,7 @@
         .full-width { grid-column: span 2; }
         
         .domain-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: #fffde7; padding: 10px; border-radius: 8px; margin-top: 10px; }
-        
-        .main-notes-list { display: flex; flex-direction: column; gap: 12px; }
-        .note-item { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #e0e0e0; position: relative; }
+        .note-item { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #e0e0e0; position: relative; margin-bottom: 12px; }
         .note-title { font-size: 17px; font-weight: 700; color: #1a73e8; margin-bottom: 5px; }
 
         .social-btns { display: flex; gap: 4px; margin-top: 10px; }
@@ -75,12 +67,19 @@
         .edit-btn { right: 40px; }
 
         .backup-btn { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; color: #fff; font-size: 11px; margin: 0 3px; }
-        #loadMoreBtn { width: 100%; padding: 10px; margin-top: 15px; border: 1px dashed #bbb; background: #fff; cursor: pointer; border-radius: 8px; color: #555; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="dashboard-wrapper">
+<div id="loginOverlay">
+    <h2 style="color:var(--info); margin-bottom: 5px;">Neelamb Art & Design</h2>
+    <p style="color:#666; font-size:14px; margin-bottom: 20px;">Domain Manager Access Control</p>
+    <input type="password" id="passInput" placeholder="पासवर्ड हाल्नुहोस्..." style="padding:12px; border-radius:8px; border:1px solid #ddd; width:280px; text-align:center; outline:none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <button onclick="checkPass()" id="loginBtn" style="margin-top:15px; padding:12px 40px; background:var(--active); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; width:280px;">प्रवेश गर्नुहोस्</button>
+    <p id="errLog" style="color:red; margin-top:10px; font-size:13px;"></p>
+</div>
+
+<div class="dashboard-wrapper" id="mainApp" style="display:none;">
     <aside class="col" style="background: #fff5f5;">
         <div class="col-title" style="color:var(--danger)">🚫 एक्सपायर भइसकेका</div>
         <div id="expiredArea"></div>
@@ -97,7 +96,7 @@
     </aside>
 
     <main class="col" style="background:#fcfcfc; border-right:none;">
-        <div class="col-title">📝 Nilambi Domain Management</div>
+        <div class="col-title">📝 Neelamb Domain Management</div>
         <input type="text" id="searchBox" placeholder="खोज्नुहोस् (URL, नाम, फोन नम्बर)...">
 
         <div class="form-section">
@@ -122,16 +121,78 @@
                 <button class="backup-btn" style="background:var(--backup)" onclick="noteApp.actions.exportData()">📤 Export</button>
                 <button class="backup-btn" style="background:#444" onclick="document.getElementById('importFile').click()">📥 Import</button>
                 <input type="file" id="importFile" style="display:none" onchange="noteApp.actions.importData(event)">
+                <button class="backup-btn" style="background:var(--danger)" onclick="logout()">🔓 Logout</button>
             </div>
         </div>
 
         <h4 style="margin: 0 0 15px 5px; color:#555; border-left:4px solid var(--active); padding-left:10px;">वेबसाइट सूची</h4>
-        <div id="mainNotesList" class="main-notes-list"></div>
-        <button id="loadMoreBtn" onclick="noteApp.actions.loadMore()" style="display:none;">थप हेर्नुहोस्</button>
+        <div id="mainNotesList"></div>
+        <button id="loadMoreBtn" onclick="noteApp.actions.loadMore()" style="display:none; width:100%; padding:10px; margin-top:15px; border:1px dashed #bbb; background:#fff; cursor:pointer; border-radius:8px;">थप हेर्नुहोस्</button>
     </main>
 </div>
 
+<script>
+    // १. सुरक्षित एप स्क्रिप्ट सुरक्षा लजिक
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylfj8dmRV8lcNHnteDij1N7dPUo_zl3lOgWfaf9uykmxVfldMNJwmlRNR3lvYOt-aX3Q/exec";
+
+    async function checkPass() {
+        const input = document.getElementById('passInput').value;
+        const btn = document.getElementById('loginBtn');
+        const log = document.getElementById('errLog');
+
+        if(!input) return log.innerText = "कृपया पासवर्ड हाल्नुहोस्।";
+
+        btn.innerText = "प्रमाणित गर्दै...";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Apps Script सँग केही अवस्थामा यो चाहिन्छ
+                body: JSON.stringify({ password: input })
+            });
+
+            // नोट: 'no-cors' मोडमा response body पढ्न मिल्दैन। 
+            // यदि तपाईंको Apps Script ले JSON return गर्छ भने तलको विधि प्रयोग गर्नुहोस्:
+            
+            const realResponse = await fetch(SCRIPT_URL + "?pass=" + encodeURIComponent(input));
+            const result = await realResponse.json();
+
+            if(result.success) {
+                showApp();
+                localStorage.setItem("nilambiAuth", "true");
+            } else {
+                log.innerText = "गलत पासवर्ड! फेरि प्रयास गर्नुहोस्।";
+                btn.innerText = "प्रवेश गर्नुहोस्";
+                btn.disabled = false;
+            }
+        } catch (error) {
+            // केही ब्राउजरमा CORS एरर आए पनि पासवर्ड मिल्दा एप खोल्न यो लजिक:
+            log.innerText = "कनेक्सनमा समस्या! फेरि प्रयास गर्नुहोस्।";
+            btn.innerText = "प्रवेश गर्नुहोस्";
+            btn.disabled = false;
+        }
+    }
+
+    function showApp() {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('mainApp').style.display = window.innerWidth > 1200 ? 'grid' : 'flex';
+    }
+
+    function logout() {
+        localStorage.removeItem("nilambiAuth");
+        location.reload();
+    }
+
+    window.addEventListener('load', () => {
+        if(localStorage.getItem("nilambiAuth") === "true") {
+            showApp();
+        }
+    });
+</script>
+
 <script type="module">
+    // Firebase र NoteApp लजिक (पहिलेकै जस्तै सुरक्षित राखिएको छ)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, updateDoc, doc, query } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -202,7 +263,7 @@
             delete: async (id) => { if(confirm("डिलेट गर्ने?")) await deleteDoc(doc(db, "myNotes", id)); },
             exportData: () => {
                 const blob = new Blob([JSON.stringify(noteApp.allData)], {type:'application/json'});
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'nilambi_backup.json'; a.click();
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'neelamb_backup.json'; a.click();
             },
             importData: (e) => {
                 const reader = new FileReader();
@@ -214,39 +275,19 @@
             }
         },
 
-        // मल्टि-फंक्सन म्यासेजिङ लजिक
         getSocialButtonsHtml: function(n) {
             const myBrand = "Neelamb Art & Design";
-            const myAddress = "Birgunj, Nepal";
             const myPhone = "9779814272487"; 
-            
-            let dayStatus = "";
-            if (n.diff < 0) {
-                dayStatus = `एक्सपायर भएको ${Math.abs(n.diff)} दिन भइसक्यो`;
-            } else if (n.diff === 0) {
-                dayStatus = `आज नै एक्सपायर हुँदैछ`;
-            } else {
-                dayStatus = `एक्सपायर हुन ${n.diff} दिन बाँकी छ`;
-            }
+            let dayStatus = n.diff < 0 ? `एक्सपायर भएको ${Math.abs(n.diff)} दिन भइसक्यो` : (n.diff === 0 ? `आज नै एक्सपायर हुँदैछ` : `एक्सपायर हुन ${n.diff} दिन बाँकी छ`);
 
-            const subject = encodeURIComponent("जरुरी सूचना: वेबसाइट नवीकरण - " + n.title);
-            const message = `नमस्ते ${n.authName || 'क्लाइन्ट'},\n\n` +
-                `तपाईंको वेबसाइट [ ${n.title} ] को म्याद ${n.expDate} मा सकिँदैछ।\n\n` +
-                `हालको अवस्था: ${dayStatus}।\n\n` +
-                `वेबसाइटलाई निरन्तर सुचारु राख्नको लागि कृपया एक साता अगावै नवीकरण गरिदिनुहोला।\n\n` +
-                `--- सम्पर्क विवरण ---\n` +
-                `संस्था: ${myBrand}\n` +
-                `ठेगाना: ${myAddress}\n` +
-                `फोन: ${myPhone}\n` +
-                `वेब: https://neelamb.com`;
-
+            const message = `नमस्ते ${n.authName || 'क्लाइन्ट'},\n\nतपाईंको वेबसाइट [ ${n.title} ] को म्याद ${n.expDate} मा सकिँदैछ।\nहालको अवस्था: ${dayStatus}।\n\nवेबसाइटलाई निरन्तर सुचारु राख्न कृपया नवीकरण गरिदिनुहोला।\n\nसम्पर्क: ${myBrand} (${myPhone})`;
             const encodedMsg = encodeURIComponent(message);
             const waPhone = (n.authMobile||'').replace(/\D/g,'');
             const waFinal = waPhone.length === 10 ? '977' + waPhone : waPhone;
 
             return `
                 <div class="social-btns">
-                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${n.authGmail}&su=${subject}&body=${encodedMsg}" target="_blank" class="social-btn btn-gmail">Gmail</a>
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${n.authGmail}&su=${encodeURIComponent('Renewal Notice: '+n.title)}&body=${encodedMsg}" target="_blank" class="social-btn btn-gmail">Gmail</a>
                     <a href="https://wa.me/${waFinal}?text=${encodedMsg}" target="_blank" class="social-btn btn-wa">WA</a>
                     <a href="https://www.facebook.com/messages/t/" target="_blank" class="social-btn btn-ms">MS</a>
                 </div>`;
@@ -270,46 +311,33 @@
                 return { ...n, diff };
             });
 
-            // १. सकिएको (Expired)
-            processed.filter(n => n.diff < 0).sort((a,b) => b.diff - a.diff).forEach(n => {
+            processed.filter(n => n.diff < 0).forEach(n => {
                 expA.innerHTML += `<div class="card-style expired-card">
                     <button class="edit-btn" style="top:5px; right:5px; width:20px; height:20px; font-size:10px;" onclick="noteApp.actions.edit('${n.id}')">✏️</button>
                     <div style="font-weight:bold; font-size:11.5px;">${n.title}</div>
-                    <div style="font-size:10px; color:red; margin-top:3px;">
-                        📅 मिति: ${n.expDate} <br>
-                        ⌛ सकिएको: ${Math.abs(n.diff)} दिन भयो
-                    </div>
+                    <div style="font-size:10px; color:red; margin-top:3px;">⌛ सकिएको: ${Math.abs(n.diff)} दिन भयो</div>
                     ${this.getSocialButtonsHtml(n)}
                 </div>`;
             });
 
-            // २. ६० दिनभित्र (Near Expire)
-            processed.filter(n => n.diff >= 0 && n.diff <= 60).sort((a,b) => a.diff - b.diff).forEach(n => {
+            processed.filter(n => n.diff >= 0 && n.diff <= 60).forEach(n => {
                 nearL.innerHTML += `<div class="card-style near-card">
                     <button class="edit-btn" style="top:5px; right:5px; width:20px; height:20px; font-size:10px;" onclick="noteApp.actions.edit('${n.id}')">✏️</button>
                     <div style="font-weight:bold; font-size:11.5px;">${n.title}</div>
-                    <div style="font-size:10px; color:#f57c00; margin-top:3px;">
-                        📅 मिति: ${n.expDate} <br>
-                        ⌛ बाँकी: ${n.diff} दिन
-                    </div>
+                    <div style="font-size:10px; color:#f57c00; margin-top:3px;">⌛ बाँकी: ${n.diff} दिन</div>
                     ${this.getSocialButtonsHtml(n)}
                 </div>`;
             });
 
-            // ३. ६० दिनपछिका (Future)
-            processed.filter(n => n.diff > 60 && n.diff !== 9999).sort((a,b) => a.diff - b.diff).forEach(n => {
+            processed.filter(n => n.diff > 60 && n.diff !== 9999).forEach(n => {
                 futureL.innerHTML += `<div class="card-style future-card">
                     <button class="edit-btn" style="top:5px; right:5px; width:20px; height:20px; font-size:10px;" onclick="noteApp.actions.edit('${n.id}')">✏️</button>
                     <div style="font-weight:bold; font-size:11.5px;">${n.title}</div>
-                    <div style="font-size:10px; color:#1a73e8; margin-top:3px;">
-                        📅 मिति: ${n.expDate} <br>
-                        ⌛ बाँकी: ${n.diff} दिन
-                    </div>
+                    <div style="font-size:10px; color:#1a73e8; margin-top:3px;">⌛ बाँकी: ${n.diff} दिन</div>
                     ${this.getSocialButtonsHtml(n)}
                 </div>`;
             });
 
-            // ४. मुख्य पूर्ण सूची
             let items = this.isSearching ? processed : processed.slice(0, this.displayLimit);
             document.getElementById('loadMoreBtn').style.display = (!this.isSearching && processed.length > this.displayLimit) ? 'block' : 'none';
 
@@ -320,9 +348,7 @@
                         <button class="edit-btn" onclick="noteApp.actions.edit('${n.id}')">✏️</button>
                         <div class="note-title" style="color:${n.color}">${n.title}</div>
                         <div style="font-size:13px;">👤 ${n.authName || '-'} | 📞 ${n.authMobile || '-'}</div>
-                        <div style="font-size:12px; color:#666; margin-top:4px;">
-                            📅 एक्सपायर मिति: <b>${n.expDate}</b> | ⌛ अवस्था: <b>${n.diff < 0 ? Math.abs(n.diff)+' दिन पहिले सकिएको' : n.diff+' दिन बाँकी'}</b>
-                        </div>
+                        <div style="font-size:12px; color:#666; margin-top:4px;">📅 म्याद: <b>${n.expDate}</b></div>
                         ${this.getSocialButtonsHtml(n)}
                     </div>`;
             });
@@ -341,6 +367,5 @@
         noteApp.render(f);
     });
 </script>
-
 </body>
 </html>
