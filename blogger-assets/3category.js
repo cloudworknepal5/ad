@@ -1,28 +1,27 @@
 /**
  * File: news-portal-widget.js
- * Description: Multi-column News Grid using Tailwind CSS
- * No changes made to the original logic, only CSS and JS merged.
+ * Description: 3-Column News Grid using Tailwind CSS
+ * Fixed: Displaying boxes side-by-side in 3 columns
  */
 
 (function() {
-    // १. समाचार रेन्डर गर्ने मुख्य फंक्सन (अपरिवर्तित लजिक)
+    // १. समाचार रेन्डर गर्ने मुख्य फंक्सन
     window.mainNewsRender = function(json, targetId) {
         var posts = json.feed.entry || [];
         var target = document.getElementById(targetId);
 
         if (!posts || posts.length === 0) {
-            if(target) target.innerHTML = "<div class='p-4 text-gray-500'>समाचार भेटिएन।</div>";
+            if(target) target.innerHTML = "<div class='p-4 text-gray-400'>समाचार भेटिएन।</div>";
             return;
         }
 
-        // फिडबाट लेबलको नाम प्राप्त गर्ने
         var labelName = json.feed.title.$t.split(": ").pop();
 
-        // Tailwind CSS मार्फत डिजाइन संरचना
+        // बक्स भित्रको आन्तरिक डिजाइन
         var html = `
-            <div class="flex-1 min-w-[320px] bg-white p-2 font-['Mukta',sans-serif]">
+            <div class="bg-white p-2 h-full font-['Mukta',sans-serif]">
                 <div class="flex border-b-2 border-[#cc0000] mb-4">
-                    <div class="bg-[#cc0000] text-white px-4 py-1 text-lg font-bold uppercase tracking-wide">
+                    <div class="bg-[#cc0000] text-white px-4 py-1 text-lg font-bold uppercase">
                         ${labelName}
                     </div>
                 </div>
@@ -33,29 +32,26 @@
             var title = entry.title.$t;
             var link = entry.link.find(l => l.rel === 'alternate').href;
             
-            // थम्बनेल साइज लजिक
             var thumbSize = (i === 0) ? 's640' : 's400';
             var thumb = entry.media$thumbnail ? entry.media$thumbnail.url.replace('s72-c', thumbSize) : 'https://via.placeholder.com/400x250';
 
             if (i === 0) {
-                // पहिलो ठूलो समाचार (Span 2)
                 html += `
-                    <div class="col-span-2 border-b border-gray-100 pb-3 mb-2 flex flex-col">
-                        <a href="${link}" class="group overflow-hidden rounded-md shadow-sm">
-                            <img src="${thumb}" alt="${title}" class="w-full h-[220px] object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="col-span-2 border-b border-gray-100 pb-3 mb-2">
+                        <a href="${link}" class="group block overflow-hidden rounded-md">
+                            <img src="${thumb}" alt="${title}" class="w-full h-[200px] object-cover transition-transform duration-500 group-hover:scale-105">
                         </a>
-                        <a href="${link}" class="text-[22px] font-bold text-gray-900 leading-tight mt-3 hover:text-[#cc0000] transition-colors">
+                        <a href="${link}" class="text-[20px] font-bold text-gray-900 leading-tight mt-2 block hover:text-[#cc0000]">
                             ${title}
                         </a>
                     </div>`;
             } else {
-                // बाँकी २ साना समाचारहरू
                 html += `
                     <div class="flex flex-col">
-                        <a href="${link}" class="group overflow-hidden rounded-md shadow-sm">
-                            <img src="${thumb}" alt="${title}" class="w-full h-[110px] object-cover transition-transform duration-500 group-hover:scale-105">
+                        <a href="${link}" class="group block overflow-hidden rounded-md">
+                            <img src="${thumb}" alt="${title}" class="w-full h-[100px] object-cover transition-transform duration-500 group-hover:scale-105">
                         </a>
-                        <a href="${link}" class="text-[17px] font-bold text-gray-800 leading-snug mt-2 line-clamp-2 hover:text-[#cc0000] transition-colors">
+                        <a href="${link}" class="text-[16px] font-bold text-gray-800 leading-snug mt-2 line-clamp-2 hover:text-[#cc0000]">
                             ${title}
                         </a>
                     </div>`;
@@ -65,14 +61,11 @@
         target.innerHTML = html;
     };
 
-    // २. JSON Callbacks
     window.mainNewsCB1 = j => mainNewsRender(j, "main-box-1");
     window.mainNewsCB2 = j => mainNewsRender(j, "main-box-2");
     window.mainNewsCB3 = j => mainNewsRender(j, "main-box-3");
 
-    // ३. फिड कनेक्ट गर्ने फंक्सन (अपरिवर्तित)
     window.mainNewsInit = function(c1, c2, c3, n) {
-        // फन्ट लोड गर्ने
         if (!document.getElementById('mukta-font')) {
             var f = document.createElement('link');
             f.id = 'mukta-font';
