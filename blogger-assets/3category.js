@@ -30,7 +30,7 @@
 
         var html = `
             <div class="flex flex-col h-full font-['Mukta']">
-                <!-- HTML बाट पठाइएको कस्टम टाइटल यहाँ देखिन्छ -->
+                <!-- नेपाली टाइटल यहाँ देखिन्छ -->
                 <div class="flex items-center border-b-2 border-red-700 mb-4">
                     <span class="bg-red-700 text-white px-4 py-1 text-lg font-extrabold uppercase tracking-tight">
                         ${customTitle}
@@ -76,23 +76,28 @@
     };
 
     // क्यालब्याकहरू
-    window.mainNewsCB1 = j => mainNewsRender(j, "main-box-1", window.label1);
-    window.mainNewsCB2 = j => mainNewsRender(j, "main-box-2", window.label2);
-    window.mainNewsCB3 = j => mainNewsRender(j, "main-box-3", window.label3);
+    window.mainNewsCB1 = j => mainNewsRender(j, "main-box-1", window.title1);
+    window.mainNewsCB2 = j => mainNewsRender(j, "main-box-2", window.title2);
+    window.mainNewsCB3 = j => mainNewsRender(j, "main-box-3", window.title3);
 
-    window.mainNewsInit = function(l1, l2, l3, n) {
-        // यहाँ जे नाम लेख्नुहुन्छ, त्यही टाइटल बन्छ
-        window.label1 = l1; window.label2 = l2; window.label3 = l3;
+    /**
+     * नयाँ इनिट फङ्सन
+     * l1, l2, l3: अंग्रेजी लेबलहरू (Blogger Labels)
+     * t1, t2, t3: नेपाली टाइटलहरू (HTML Display Titles)
+     * n: समाचार संख्या
+     */
+    window.mainNewsInit = function(l1, t1, l2, t2, l3, t3, n) {
+        window.title1 = t1; window.title2 = t2; window.title3 = t3;
 
-        var cats = [l1, l2, l3];
+        var labels = [l1, l2, l3];
         var cbs = ['mainNewsCB1', 'mainNewsCB2', 'mainNewsCB3'];
         
-        cats.forEach((cat, i) => {
-            if (cat) {
+        labels.forEach((label, i) => {
+            if (label) {
                 var s = document.createElement('script');
-                s.src = "/feeds/posts/default/-/" + encodeURIComponent(cat.trim()) + "?alt=json-in-script&callback=" + cbs[i] + "&max-results=" + n;
+                s.src = "/feeds/posts/default/-/" + encodeURIComponent(label.trim()) + "?alt=json-in-script&callback=" + cbs[i] + "&max-results=" + n;
                 document.head.appendChild(s);
             }
         });
-    };
+    }; 
 })();
