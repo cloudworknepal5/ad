@@ -1,93 +1,149 @@
 /**
- * File: newspaper-fix-final.js
- * Description: 4-Column Layout with Guaranteed Text Visibility in Columns 2 & 3
+ * File: mag-balanced-newspaper.js
+ * Features: 4-Column Balanced Layout, Headline 70px, Text-Splitting Fix
  */
 (function() {
-    const container = document.querySelector('[data-label]'); 
-    if (!container) return;
+    // १. CSS र फन्ट इन्जेक्सन
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;900&display=swap');
+        
+        .mag-fixed-wrapper {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            font-family: 'Mukta', sans-serif;
+            color: #000;
+        }
 
-    const SETTINGS = {
-        id: container.id || 'newspaper-layout-dynamic',
-        label: container.getAttribute('data-label') || 'Article',
-        imgHeight: container.getAttribute('data-img-height') || '380px'
-    };
+        .mag-top-label-wrap { text-align: center; margin-bottom: 15px; }
+        .mag-top-label {
+            background: #000; color: #fff;
+            padding: 5px 20px; font-size: 14px;
+            font-weight: 700; border-radius: 50px;
+            display: inline-block; text-transform: uppercase;
+        }
 
+        .mag-final-title {
+            text-align: center;
+            font-size: clamp(32px, 8vw, 70px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 0 0 30px 0;
+            letter-spacing: -1px;
+        }
+        .mag-final-title a { color: #000; text-decoration: none; transition: 0.3s; }
+        .mag-final-title a:hover { color: #bc1d22; }
+
+        /* ४ कोलम ग्रिड सेटअप */
+        .mag-grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            text-align: justify;
+            line-height: 1.6;
+            font-size: 18px;
+        }
+
+        .mag-col { border-right: 1px solid #ddd; padding-right: 15px; }
+        .mag-col:last-child { border-right: none; padding-right: 0; }
+
+        .mag-img-box {
+            grid-column: span 2; /* इमेजलाई २ कोलम बराबरको ठाउँ दिने */
+            margin-bottom: 10px;
+        }
+        .mag-img-box img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border: 1px solid #000;
+            padding: 3px;
+        }
+
+        .mag-bold-start {
+            font-weight: 900;
+            font-size: 22px;
+            color: #bc1d22;
+        }
+
+        @media (max-width: 900px) {
+            .mag-grid-container { grid-template-columns: repeat(2, 1fr); }
+            .mag-img-box { grid-column: span 2; }
+            .mag-col:nth-child(2n) { border-right: none; }
+        }
+        
+        @media (max-width: 600px) {
+            .mag-grid-container { grid-template-columns: 1fr; }
+            .mag-img-box { grid-column: span 1; }
+            .mag-col { border-right: none; padding-right: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // २. सहयोगी फङ्सनहरू
     const utils = {
         toText: (html) => {
             let tmp = document.createElement("div");
             tmp.innerHTML = html;
-            // अनावश्यक स्पेस र ट्याग हटाउने
-            return (tmp.textContent || tmp.innerText || "").replace(/\s+/g, ' ').trim();
+            return (tmp.textContent || tmp.innerText || "").trim().replace(/\s+/g, ' ');
         },
         fixImg: (thumb) => thumb ? thumb.url.replace('s72-c', 's1600') : 'https://via.placeholder.com/1200x600'
     };
 
-    window.renderLayout = function(json) {
-        const entry = json.feed.entry ? json.feed.entry[0] : null;
-        if (!entry) return;
+    // ३. मुख्य रेन्डर फङ्सन
+    window.renderBalancedLayout = function(label, targetId) {
+        var feedUrl = "/feeds/posts/default/-/" + encodeURIComponent(label) + "?alt=json&max-results=1";
 
-        const title = entry.title.$t;
-        const postLink = entry.link.find(l => l.rel === 'alternate').href;
-        const imgUrl = utils.fixImg(entry.media$thumbnail);
-        const fullText = utils.toText(entry.content ? entry.content.$t : entry.summary.$t);
+        fetch(feedUrl)
+        .then(res => res.json())
+        .then(data => {
+            var entry = data.feed.entry ? data.feed.entry[0] : null;
+            if (!entry) return;
 
-        // टेक्स्टलाई ४ भागमा सुरक्षित बाँड्ने
-        const partSize = Math.floor(fullText.length / 4);
-        const c1 = fullText.slice(0, partSize);
-        const c2 = fullText.slice(partSize, partSize * 2);
-        const c3 = fullText.slice(partSize * 2, partSize * 3);
-        const c4 = fullText.slice(partSize * 3);
+            var title = entry.title.$t;
+            var link = entry.link.find(l => l.rel === 'alternate').href;
+            var thumb = entry.media$thumbnail ? utils.fixImg(entry.media$thumbnail) : '';
+            var cleanSnippet = utils.toText(entry.content ? entry.content.$t : entry.summary.$t);
 
-        const html = `
-            <div class="max-w-[1250px] mx-auto bg-white p-4 md:p-8 font-['Mukta'] text-black border border-gray-200 shadow-md mt-10 overflow-hidden">
-                
-                <div class="text-center border-b-[5px] border-black pb-4 mb-8">
-                    <a href="${postLink}" class="no-underline text-black hover:text-red-700 transition-colors">
-                        <h1 class="text-3xl md:text-[72px] font-[900] leading-[0.9] tracking-tighter uppercase m-0">${title}</h1>
-                    </a>
-                </div>
+            var words = cleanSnippet.split(' ');
+            var firstTwo = words.slice(0, 2).join(' ');
+            
+            // कोलमहरूमा डेटा बाँड्ने (बराबर देखाउन)
+            var c1 = words.slice(2, 80).join(' ');
+            var c2 = words.slice(80, 160).join(' ');
+            var c3 = words.slice(160, 240).join(' ');
+            var c4 = words.slice(240, 350).join(' ');
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    
-                    <div class="hidden md:block text-justify text-[17px] leading-relaxed border-r border-gray-100 pr-4">
-                        <p>${c1}...</p>
+            var html = `
+                <div class="mag-fixed-wrapper">
+                    <div class="mag-top-label-wrap">
+                        <span class="mag-top-label">${label}</span>
                     </div>
+                    <h1 class="mag-final-title"><a href="${link}">${title}</a></h1>
                     
-                    <div class="md:col-span-2 flex flex-col gap-6">
-                        <a href="${postLink}" class="block overflow-hidden border-2 border-gray-100 group">
-                            <img src="${imgUrl}" class="w-full h-auto object-cover max-h-[${SETTINGS.imgHeight}] transition-transform duration-700 group-hover:scale-105">
-                        </a>
-                        
-                        <div class="grid grid-cols-2 gap-8 text-justify text-[16px] leading-snug text-gray-800 italic border-t-2 border-black pt-4">
-                            <div class="border-r border-gray-100 pr-4">
-                                ${c2.substring(0, 450)}...
-                            </div>
-                            <div>
-                                ${c3.substring(0, 450)}...
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-col border-l border-gray-100 pl-4">
-                        <div class="md:hidden block text-xl mb-4 font-bold border-b-2 border-red-600 pb-2">
-                            ${c1.substring(0, 250)}...
-                        </div>
-                        <div class="hidden md:block text-justify text-[17px] leading-relaxed">
-                            <p>${c4.substring(0, 800)}...</p>
-                        </div>
-                        
-                        <a href="${postLink}" class="mt-auto inline-block bg-red-700 text-white text-center py-3 px-6 rounded-md font-black hover:bg-black transition-all no-underline shadow-lg">
-                            थप पढ्नुहोस् ➔
-                        </a>
-                    </div>
-                    
-                </div>
-            </div>`;
+                    <div class="mag-grid-container">
+                        ${thumb ? `
+                        <div class="mag-img-box">
+                            <a href="${link}"><img src="${thumb}"/></a>
+                        </div>` : ''}
 
-        document.getElementById(SETTINGS.id).innerHTML = html;
+                        <div class="mag-col"><span class="mag-bold-start">${firstTwo}</span> — ${c1}...</div>
+                        <div class="mag-col">${c2}...</div>
+                        <div class="mag-col">${c3}...</div>
+                        <div class="mag-col">${c4}...</div>
+                    </div>
+
+                    <div style="text-align:right; margin-top:20px; border-top:1px solid #eee; pt-10px;">
+                        <a href="${link}" style="color:#bc1d22; font-weight:900; font-size:18px; text-decoration:none;">पूरा पढ्नुहोस् »</a>
+                    </div>
+                </div>`;
+            
+            document.getElementById(targetId).innerHTML = html;
+        })
+        .catch(e => console.error("Error:", e));
     };
 
-    const script = document.createElement('script');
-    script.src = `/feeds/posts/default/-/${encodeURIComponent(SETTINGS.label)}?alt=json-in-script&callback=renderLayout&max-results=1`;
-    document.body.appendChild(script);
+    // फङ्सन कल
+    window.renderBalancedLayout('Article', 'mag-article-balanced');
 })();
