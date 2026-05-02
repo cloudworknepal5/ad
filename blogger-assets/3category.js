@@ -1,75 +1,98 @@
 (function() {
-    // १. स्टाइल र फन्ट लोड
-    if (!document.getElementById('news-final-style')) {
+    // स्टाइल र फन्ट
+    if (!document.getElementById('news-core-style')) {
         var style = document.createElement('style');
-        style.id = 'news-final-style';
+        style.id = 'news-core-style';
         style.innerHTML = `
             @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;800&display=swap');
-            .clamp-2 {
+            .clamp-2-lines {
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
+                text-overflow: ellipsis;
             }
         `;
         document.head.appendChild(style);
     }
 
-    // २. न्यूज रेन्डर गर्ने फङ्सन
-    window.renderGrid = function(json, targetId, displayTitle) {
+    // मुख्य रेन्डर फङ्सन
+    window.mainNewsRender = function(json, targetId, customTitle) {
         var target = document.getElementById(targetId);
         if (!target) return;
-        var posts = json.feed.entry || [];
         
-        var html = `
-            <div class="font-['Mukta']">
-                <!-- विजेट टाइटल: रातो बक्स -->
-                <div class="flex items-center border-b-2 border-red-700 mb-4">
-                    <span class="bg-red-700 text-white px-4 py-1 text-lg font-extrabold uppercase">${displayTitle}</span>
-                </div>
-                <div class="grid grid-cols-2 gap-4">`;
+        var posts = json.feed.entry || [];
 
         if (posts.length === 0) {
-            target.innerHTML = html + `<p class="col-span-2 text-gray-500 py-6 text-center italic border border-dashed border-gray-300 rounded-lg">"${displayTitle}" मा पोस्ट भेटिएन।</p></div>`;
+            target.innerHTML = `<div class="p-4 text-gray-500 text-center font-['Mukta'] italic border rounded-lg border-dashed">"${customTitle}" मा समाचार फेला परेन।</div>`;
             return;
         }
 
+        var html = `
+            <div class="flex flex-col h-full font-['Mukta']">
+                <!-- HTML बाट पठाइएको कस्टम टाइटल यहाँ देखिन्छ -->
+                <div class="flex items-center border-b-2 border-red-700 mb-4">
+                    <span class="bg-red-700 text-white px-4 py-1 text-lg font-extrabold uppercase tracking-tight">
+                        ${customTitle}
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">`;
+
         posts.forEach((entry, i) => {
-            if (i >= 3) return;
+            if (i >= 3) return; 
             var title = entry.title.$t;
             var link = entry.link.find(l => l.rel === 'alternate').href;
-            var thumb = entry.media$thumbnail ? entry.media$thumbnail.url.replace('s72-c', 's600') : 'https://via.placeholder.com/600x400';
-            
-            // टाइटल क्लास: लाइट मोडमा कालो, डार्क मोडमा सेतो, २ लाइन मात्र
-            var titleClass = "text-black dark:text-white hover:text-red-700 font-bold leading-tight clamp-2 no-underline transition-colors";
+            var thumbSize = (i === 0) ? 's640' : 's400';
+            var thumb = entry.media$thumbnail ? entry.media$thumbnail.url.replace('s72-c', thumbSize) : 'https://via.placeholder.com/600x400';
+
+            var titleBase = "text-black dark:text-white hover:text-red-700 transition-colors duration-200 no-underline block clamp-2-lines font-bold leading-tight";
 
             if (i === 0) {
                 html += `
                     <div class="col-span-2 border-b border-gray-100 dark:border-gray-800 pb-4 mb-2">
-                        <a href="${link}" class="group block overflow-hidden rounded-xl bg-gray-100 shadow-sm">
-                            <img src="${thumb}" class="w-full h-[200px] md:h-[240px] object-cover transition-transform duration-500 group-hover:scale-105">
+                        <a href="${link}" class="group block overflow-hidden rounded-xl shadow-sm bg-gray-100">
+                            <img src="${thumb}" alt="${title}" class="w-full h-[200px] md:h-[240px] object-cover transition-transform duration-500 group-hover:scale-105">
                         </a>
-                        <a href="${link}" class="${titleClass} text-2xl md:text-3xl font-extrabold mt-3 block">${title}</a>
+                        <a href="${link}" class="${titleBase} mt-3 text-2xl md:text-3xl font-extrabold">
+                            ${title}
+                        </a>
                     </div>`;
             } else {
                 html += `
                     <div class="flex flex-col">
-                        <a href="${link}" class="group block overflow-hidden rounded-lg bg-gray-100 shadow-sm">
-                            <img src="${thumb}" class="w-full h-[100px] md:h-[130px] object-cover transition-transform duration-500 group-hover:scale-105">
+                        <a href="${link}" class="group block overflow-hidden rounded-lg shadow-sm bg-gray-100">
+                            <img src="${thumb}" alt="${title}" class="w-full h-[100px] md:h-[130px] object-cover transition-transform duration-500 group-hover:scale-105">
                         </a>
-                        <a href="${link}" class="${titleClass} text-base md:text-lg mt-2 block">${title}</a>
+                        <a href="${link}" class="${titleBase} mt-2 text-base md:text-lg">
+                            ${title}
+                        </a>
                     </div>`;
             }
         });
-        target.innerHTML = html + `</div></div>`;
+
+        html += `</div></div>`;
+        target.innerHTML = html;
     };
 
-    // ३. फिड लोड गर्ने फङ्सन (नेपाली युनिकोड सपोर्ट)
-    window.loadNews = function(targetId, labelName, displayTitle, count) {
-        var script = document.createElement('script');
-        var blogUrl = window.location.origin;
-        script.src = blogUrl + "/feeds/posts/default/-/" + encodeURIComponent(labelName.trim()) + "?alt=json-in-script&callback=cb_" + targetId + "&max-results=" + count;
-        window["cb_" + targetId] = function(json) { renderGrid(json, targetId, displayTitle); };
-        document.head.appendChild(script);
+    // क्यालब्याकहरू
+    window.mainNewsCB1 = j => mainNewsRender(j, "main-box-1", window.label1);
+    window.mainNewsCB2 = j => mainNewsRender(j, "main-box-2", window.label2);
+    window.mainNewsCB3 = j => mainNewsRender(j, "main-box-3", window.label3);
+
+    window.mainNewsInit = function(l1, l2, l3, n) {
+        // यहाँ जे नाम लेख्नुहुन्छ, त्यही टाइटल बन्छ
+        window.label1 = l1; window.label2 = l2; window.label3 = l3;
+
+        var cats = [l1, l2, l3];
+        var cbs = ['mainNewsCB1', 'mainNewsCB2', 'mainNewsCB3'];
+        
+        cats.forEach((cat, i) => {
+            if (cat) {
+                var s = document.createElement('script');
+                s.src = "/feeds/posts/default/-/" + encodeURIComponent(cat.trim()) + "?alt=json-in-script&callback=" + cbs[i] + "&max-results=" + n;
+                document.head.appendChild(s);
+            }
+        });
     };
 })();
