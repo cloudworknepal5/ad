@@ -1,18 +1,17 @@
 (function() {
-    // १. फन्ट र डार्क मोड स्टाइल इन्जेक्सन
+    // १. स्टाइल र डार्क मोड फिक्स
     if (!document.getElementById('news-widget-styles')) {
         var style = document.createElement('style');
         style.id = 'news-widget-styles';
         style.innerHTML = `
             @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;800&display=swap');
             
-            /* डार्क मोड सपोर्ट - यदि बडीमा 'dark' क्लास छ भने */
-            .dark .news-title-text, 
+            /* डार्क मोडमा टाइटल सेतो बनाउने */
             @media (prefers-color-scheme: dark) {
                 .news-title-text { color: #ffffff !important; }
             }
-            
-            /* लाइन क्ल्याम्प (२ लाइन मात्र देखाउन) */
+            .dark .news-title-text { color: #ffffff !important; }
+
             .line-clamp-2 {
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
@@ -23,7 +22,7 @@
         document.head.appendChild(style);
     }
 
-    // २. मुख्य रेन्डर फङ्सन
+    // २. मुख्य रेन्डर फङ्सन (१ ठूलो + २ साना ग्रिड)
     window.mainNewsRender = function(json, targetId) {
         var target = document.getElementById(targetId);
         if (!target) return;
@@ -32,21 +31,20 @@
         var labelDisplay = json.feed.title.$t.split(": ").pop();
 
         if (posts.length === 0) {
-            target.innerHTML = `<div class="p-4 text-gray-400 text-center">समाचार फेला परेन।</div>`;
+            target.innerHTML = `<div class="p-4 text-gray-500 text-center">समाचार भेटिएन।</div>`;
             return;
         }
 
-        // लेआउट संरचना: मोबाइल र डेस्कटप दुवैमा १ ठूलो र २ सानो
         var html = `
             <div class="flex flex-col bg-transparent h-full font-['Mukta']">
-                <!-- लेबल हेडलाइन -->
+                <!-- हेडलाइन -->
                 <div class="flex items-center border-b-2 border-red-700 mb-4">
-                    <span class="bg-red-700 text-white px-4 py-1 text-lg font-extrabold uppercase tracking-tight">
+                    <span class="bg-red-700 text-white px-4 py-1 text-lg font-extrabold uppercase">
                         ${labelDisplay}
                     </span>
                 </div>
                 
-                <!-- न्यूज ग्रिड: मोबाइलमा पनि २ कोलम कायम राख्ने -->
+                <!-- न्यूज ग्रिड (मोबाइल र डेस्कटप दुवैमा २ कोलम ग्रिड) -->
                 <div class="grid grid-cols-2 gap-3">`;
 
         posts.forEach((entry, i) => {
@@ -58,7 +56,7 @@
             var thumb = entry.media$thumbnail ? entry.media$thumbnail.url.replace('s72-c', thumbSize) : 'https://via.placeholder.com/400x250';
 
             if (i === 0) {
-                // १. पहिलो ठूलो पोष्ट (Full Width)
+                // ठूलो पोष्ट
                 html += `
                     <div class="col-span-2 border-b border-gray-100 dark:border-gray-800 pb-3 mb-1">
                         <a href="${link}" class="group block overflow-hidden rounded-lg shadow-sm">
@@ -69,7 +67,7 @@
                         </a>
                     </div>`;
             } else {
-                // २. साना दुई पोष्टहरु (Side by Side)
+                // साना दुई पोष्टहरु
                 html += `
                     <div class="flex flex-col">
                         <a href="${link}" class="group block overflow-hidden rounded-md shadow-sm">
@@ -86,7 +84,6 @@
         target.innerHTML = html;
     };
 
-    // ३. क्यालब्याक र इनिसियलाइजेसन
     window.mainNewsCB1 = j => mainNewsRender(j, "main-box-1");
     window.mainNewsCB2 = j => mainNewsRender(j, "main-box-2");
     window.mainNewsCB3 = j => mainNewsRender(j, "main-box-3");
