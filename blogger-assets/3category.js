@@ -1,15 +1,22 @@
 (function() {
-    // १. स्टाइल र डार्क मोड फिक्स
+    // १. स्टाइल र डार्क/लाइट मोड फिक्स
     if (!document.getElementById('news-widget-styles')) {
         var style = document.createElement('style');
         style.id = 'news-widget-styles';
         style.innerHTML = `
             @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;800&display=swap');
             
-            /* डार्क मोडमा टाइटल सेतो बनाउने */
+            /* लाइट मोडमा कालो कलर (डिफल्ट) */
+            .news-title-text { 
+                color: #111827 !important; /* Slate 900 */
+            }
+
+            /* डार्क मोडमा सेतो कलर */
             @media (prefers-color-scheme: dark) {
                 .news-title-text { color: #ffffff !important; }
             }
+            
+            /* यदि ब्लग थिममा .dark क्लास प्रयोग हुन्छ भने */
             .dark .news-title-text { color: #ffffff !important; }
 
             .line-clamp-2 {
@@ -28,6 +35,7 @@
         if (!target) return;
         
         var posts = json.feed.entry || [];
+        // फिड टाइटलबाट लेबलको नाम निकाल्ने
         var labelDisplay = json.feed.title.$t.split(": ").pop();
 
         if (posts.length === 0) {
@@ -44,8 +52,8 @@
                     </span>
                 </div>
                 
-                <!-- न्यूज ग्रिड (मोबाइल र डेस्कटप दुवैमा २ कोलम ग्रिड) -->
-                <div class="grid grid-cols-2 gap-3">`;
+                <!-- न्यूज ग्रिड -->
+                <div class="grid grid-cols-2 gap-4">`;
 
         posts.forEach((entry, i) => {
             if (i >= 3) return; 
@@ -56,24 +64,24 @@
             var thumb = entry.media$thumbnail ? entry.media$thumbnail.url.replace('s72-c', thumbSize) : 'https://via.placeholder.com/400x250';
 
             if (i === 0) {
-                // ठूलो पोष्ट
+                // ठूलो पोष्ट (Full Width inside box)
                 html += `
                     <div class="col-span-2 border-b border-gray-100 dark:border-gray-800 pb-3 mb-1">
-                        <a href="${link}" class="group block overflow-hidden rounded-lg shadow-sm">
-                            <img src="${thumb}" alt="${title}" class="w-full h-[200px] md:h-[220px] object-cover transition-transform duration-500 group-hover:scale-105">
+                        <a href="${link}" class="group block overflow-hidden rounded-lg shadow-sm bg-gray-100">
+                            <img src="${thumb}" alt="${title}" class="w-full h-[210px] md:h-[230px] object-cover transition-transform duration-500 group-hover:scale-105">
                         </a>
-                        <a href="${link}" class="news-title-text text-[20px] md:text-[22px] font-extrabold text-gray-900 leading-tight mt-3 block hover:text-red-600 transition-colors">
+                        <a href="${link}" class="news-title-text text-[21px] md:text-[23px] font-extrabold leading-tight mt-3 block hover:text-red-700 transition-colors">
                             ${title}
                         </a>
                     </div>`;
             } else {
-                // साना दुई पोष्टहरु
+                // साना दुई पोष्टहरु (Left and Right)
                 html += `
                     <div class="flex flex-col">
-                        <a href="${link}" class="group block overflow-hidden rounded-md shadow-sm">
-                            <img src="${thumb}" alt="${title}" class="w-full h-[100px] md:h-[120px] object-cover transition-transform duration-500 group-hover:scale-105">
+                        <a href="${link}" class="group block overflow-hidden rounded-md shadow-sm bg-gray-100">
+                            <img src="${thumb}" alt="${title}" class="w-full h-[105px] md:h-[125px] object-cover transition-transform duration-500 group-hover:scale-105">
                         </a>
-                        <a href="${link}" class="news-title-text text-[15px] md:text-[17px] font-bold text-gray-800 leading-snug mt-2 line-clamp-2 hover:text-red-600 transition-colors">
+                        <a href="${link}" class="news-title-text text-[15px] md:text-[17px] font-bold leading-snug mt-2 line-clamp-2 hover:text-red-700 transition-colors">
                             ${title}
                         </a>
                     </div>`;
