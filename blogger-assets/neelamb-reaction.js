@@ -1,6 +1,6 @@
 /**
- * Neelamb News Minimal Reaction Plugin - V3 (Color Optimized)
- * Features: High-contrast text for Dark/Light modes, Center aligned, Large emojis.
+ * Neelamb News Minimal Reaction Plugin - V4
+ * Status: Zero starting counts, High-contrast text.
  */
 
 (function() {
@@ -10,64 +10,37 @@
         style.id = 'neelamb-feedback-styles';
         style.textContent = `
             .neelamb-feedback-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                margin: 20px auto;
-                padding: 0;
-                background: transparent;
-                font-family: 'Mukta', sans-serif;
-                width: 100%;
+                display: flex; justify-content: center; align-items: center;
+                margin: 20px auto; padding: 0; background: transparent;
+                font-family: 'Mukta', sans-serif; width: 100%;
             }
-            .feedback-grid {
-                display: flex; 
-                justify-content: center; 
-                gap: 15px;
-                flex-wrap: wrap;
-            }
+            .feedback-grid { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
             .feedback-item {
-                display: flex; 
-                flex-direction: column;
-                align-items: center; 
-                gap: 2px;
-                cursor: pointer; 
-                transition: transform 0.2s;
-                background: none;
-                border: none;
-                /* यो लाइनले लाइट मोडमा अक्षरलाई डिफल्ट डार्क र डार्क मोडमा लाइट बनाउँछ */
-                color: inherit; 
+                display: flex; flex-direction: column; align-items: center; 
+                gap: 2px; cursor: pointer; transition: transform 0.2s;
+                background: none; border: none;
             }
             .feedback-item:hover { transform: scale(1.2); }
             
-            .fb-emoji { 
-                font-size: 30px; 
-                line-height: 1;
-            }
+            .fb-emoji { font-size: 30px; line-height: 1; }
             
+            /* लाइट मोडमा अक्षरहरू प्रस्ट देखिने बनाउन डिफल्ट कलर */
             .fb-count { 
-                font-size: 14px; 
-                font-weight: 800;
-                /* फिक्स्ड कलरको सट्टा ओपासिटी चलाउँदा दुवै मोडमा स्पष्ट देखिन्छ */
-                color: #333; 
+                font-size: 14px; font-weight: 800; 
+                color: #222 !important; /* स्पष्ट कालो/गाढा रङ्ग */
             }
 
-            /* डार्क मोडका लागि विशेष कन्डिसन */
+            /* डार्क मोडका लागि अक्षर सेतो बनाउने */
             @media (prefers-color-scheme: dark) {
                 .fb-count { color: #f1f1f1 !important; }
             }
+            .dark .fb-count, [data-theme='dark'] .fb-count { color: #ffffff !important; }
 
-            /* यदि तपाईंको ब्लगरमा 'dark' क्लास प्रयोग हुन्छ भने */
-            .dark .fb-count, [data-theme='dark'] .fb-count {
-                color: #ffffff !important;
+            /* लाइक वा अन्य रियाक्सन गरेपछि मात्र निलो हुने */
+            .feedback-item.voted .fb-count, 
+            .feedback-item.voted .fb-emoji { 
+                color: #1877F2 !important; 
             }
-            
-            /* लाइट मोडमा अक्षर अझ गाढा बनाउन */
-            .light .fb-count, [data-theme='light'] .fb-count {
-                color: #222222 !important;
-            }
-
-            .feedback-item.voted { color: #1877F2 !important; }
-            .feedback-item.voted .fb-count { color: #1877F2 !important; }
 
             @media (max-width: 480px) {
                 .feedback-grid { gap: 12px; }
@@ -78,18 +51,18 @@
     };
 
     const getFeedbackData = (url) => {
-        const key = 'nb_fb_v3_' + btoa(url).substring(0, 16);
+        const key = 'nb_fb_final_' + btoa(url).substring(0, 16);
         let data = JSON.parse(localStorage.getItem(key));
         if (!data) {
-            // सुरुवाती डमी डेटा
-            data = { like: 10, dislike: 0, happy: 4, love: 6, sad: 0, angry: 0, userVoted: null };
+            // सबै काउन्ट ० बाट सुरु हुन्छ
+            data = { like: 0, dislike: 0, happy: 0, love: 0, sad: 0, angry: 0, userVoted: null };
             localStorage.setItem(key, JSON.stringify(data));
         }
         return data;
     };
 
     const handleFeedback = (url, type) => {
-        const key = 'nb_fb_v3_' + btoa(url).substring(0, 16);
+        const key = 'nb_fb_final_' + btoa(url).substring(0, 16);
         let data = getFeedbackData(url);
         if (data.userVoted) return;
 
@@ -139,9 +112,7 @@
     };
 
     injectStyles();
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', renderFeedback);
-    } else {
-        renderFeedback();
-    }
+    // Multi-function: लोड हुँदा र विन्डो इभेन्टमा पनि रेन्डर गर्ने
+    window.addEventListener('load', renderFeedback);
+    if (document.readyState !== 'loading') renderFeedback();
 })();
