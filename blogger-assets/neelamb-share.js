@@ -13,16 +13,15 @@
                 display: flex;
                 flex-wrap: nowrap;
                 overflow-x: auto;
-                gap: 10px;
+                gap: 12px;
                 margin: 15px auto;
-                padding: 10px 0;
-                border-top: 1px solid #eee;
-                border-bottom: 1px solid #eee;
+                padding: 12px 0;
                 font-family: 'Mukta', sans-serif;
                 align-items: center;
-                /* बीचमा राख्नका लागि थपिएको */
                 justify-content: center; 
                 width: 100%;
+                min-height: 55px; /* बटन नकाटिन यो अनिवार्य छ */
+                overflow: visible !important;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
             }
@@ -40,21 +39,21 @@
             .neelamb-num { font-size: 18px; font-weight: 900; color: #d32f2f; line-height: 1; }
             .neelamb-label { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; }
 
-            /* डार्क मोडमा नम्बर प्रस्ट देखिने बनाउन */
             @media (prefers-color-scheme: dark) {
                 .neelamb-num { color: #ff5252; }
+                .neelamb-count-inline { border-right-color: #444; }
             }
 
             .neelamb-btn-round {
-                width: 36px; height: 36px;
+                width: 38px; height: 38px;
                 border-radius: 50%; display: flex;
                 flex-shrink: 0;
                 align-items: center; justify-content: center; color: #fff !important;
                 text-decoration: none !important; transition: all 0.3s ease;
-                font-size: 16px; border: none; cursor: pointer;
+                font-size: 18px; border: none; cursor: pointer;
             }
             
-            .neelamb-btn-round:hover { transform: translateY(-2px); }
+            .neelamb-btn-round:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
             
             .bg-fb { background: #1877F2; }
             .bg-wa { background: #25D366; }
@@ -63,15 +62,14 @@
             .bg-gm { background: #EA4335; }
             .bg-copy { background: #64748b; }
             .bg-success { background: #059669 !important; }
-
-            .bg-tw svg { fill: white; width: 16px; height: 16px; }
+            .bg-tw svg { fill: white; width: 18px; height: 18px; }
 
             @media (max-width: 480px) {
                 .neelamb-share-plugin { 
-                    justify-content: flex-start; /* मोबाइलमा धेरै आइकन भएमा बायाँबाट सुरु हुन्छ */
-                    padding-left: 10px;
+                    justify-content: flex-start; /* मोबाइलमा धेरै आइकन भएमा स्लाइड गर्न मिल्ने */
+                    padding-left: 15px;
                 }
-                .neelamb-btn-round { width: 34px; height: 34px; }
+                .neelamb-btn-round { width: 36px; height: 36px; font-size: 16px; }
             }
         `;
         document.head.appendChild(style);
@@ -81,7 +79,7 @@
         const key = 'neelamb_share_v5_' + btoa(url).substring(0, 16);
         let count = localStorage.getItem(key);
         if (!count) {
-            count = 0; // ० देखि सुरु हुने बनाइएको
+            count = 0; 
             localStorage.setItem(key, count);
         }
         return count;
