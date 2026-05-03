@@ -1,6 +1,6 @@
 /**
  * Neelamb Multi-Site Share Plugin - Optimized Version 2.0
- * Features: Starts from 0, Center-aligned, Multi-function.
+ * Features: Responsive, Starts from 0, Flex-scrolling.
  */
 
 (function() {
@@ -10,34 +10,35 @@
         style.id = 'neelamb-styles';
         style.textContent = `
             .neelamb-share-plugin {
-                display: flex;
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                gap: 12px;
-                margin: 15px auto;
-                padding: 12px 0;
+                display: flex !important;
+                flex-wrap: nowrap !important; /* मोबाइलमा नटुक्रियोस् भन्नका लागि */
+                overflow-x: auto !important;  /* स्क्रिन बाहिर जाँदा स्लाइड हुने बनाउन */
+                gap: 8px;
+                margin: 5px 0;
+                padding: 5px 0;
                 font-family: 'Mukta', sans-serif;
                 align-items: center;
-                justify-content: center; 
+                justify-content: flex-start; /* सुरुबाट मिलाउन */
                 width: 100%;
-                min-height: 55px; /* बटन नकाटिन यो अनिवार्य छ */
-                overflow: visible !important;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
+                min-height: 45px;
+                overflow-y: visible !important;
+                -webkit-overflow-scrolling: touch; /* मोबाइलमा स्मूथ स्क्रोलका लागि */
+                scrollbar-width: none; /* फायरफक्समा स्क्रोलबार लुकाउन */
             }
-            .neelamb-share-plugin::-webkit-scrollbar { display: none; }
+            .neelamb-share-plugin::-webkit-scrollbar { display: none; } /* क्रोममा स्क्रोलबार लुकाउन */
 
             .neelamb-count-inline {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                padding-right: 12px;
-                border-right: 2px solid #ddd;
-                min-width: 55px;
-                flex-shrink: 0;
+                padding-right: 10px;
+                margin-right: 5px;
+                border-right: 1.5px solid #ddd;
+                min-width: 45px;
+                flex-shrink: 0; /* यो नथिचियोस् भन्नका लागि */
             }
-            .neelamb-num { font-size: 18px; font-weight: 900; color: #d32f2f; line-height: 1; }
-            .neelamb-label { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; }
+            .neelamb-num { font-size: 16px; font-weight: 900; color: #d32f2f; line-height: 1; }
+            .neelamb-label { font-size: 8px; font-weight: 700; color: #888; text-transform: uppercase; }
 
             @media (prefers-color-scheme: dark) {
                 .neelamb-num { color: #ff5252; }
@@ -45,15 +46,15 @@
             }
 
             .neelamb-btn-round {
-                width: 38px; height: 38px;
+                width: 32px; height: 32px; /* मोबाइलमा फिट हुने साइज */
                 border-radius: 50%; display: flex;
-                flex-shrink: 0;
+                flex-shrink: 0; /* बटनहरू चेप्टो हुन नदिन अनिवार्य */
                 align-items: center; justify-content: center; color: #fff !important;
                 text-decoration: none !important; transition: all 0.3s ease;
-                font-size: 18px; border: none; cursor: pointer;
+                font-size: 14px; border: none; cursor: pointer;
             }
             
-            .neelamb-btn-round:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+            .neelamb-btn-round:hover { transform: translateY(-2px); }
             
             .bg-fb { background: #1877F2; }
             .bg-wa { background: #25D366; }
@@ -62,13 +63,11 @@
             .bg-gm { background: #EA4335; }
             .bg-copy { background: #64748b; }
             .bg-success { background: #059669 !important; }
-            .bg-tw svg { fill: white; width: 18px; height: 18px; }
+            .bg-tw svg { fill: white; width: 14px; height: 14px; }
 
-            @media (max-width: 480px) {
-                .neelamb-share-plugin { 
-                    justify-content: flex-start; /* मोबाइलमा धेरै आइकन भएमा स्लाइड गर्न मिल्ने */
-                    padding-left: 15px;
-                }
+            /* ठूलो स्क्रिनका लागि अटो सेन्टर */
+            @media (min-width: 768px) {
+                .neelamb-share-plugin { justify-content: center; gap: 12px; }
                 .neelamb-btn-round { width: 36px; height: 36px; font-size: 16px; }
             }
         `;
@@ -104,7 +103,7 @@
 
         containers.forEach(container => {
             container.innerHTML = `
-                <div class="neelamb-share-plugin">
+                <div class="neelamb-share-plugin no-scrollbar">
                     <div class="neelamb-count-inline">
                         <span class="neelamb-num">${count}</span>
                         <span class="neelamb-label">Shares</span>
