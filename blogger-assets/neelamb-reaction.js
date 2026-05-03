@@ -1,6 +1,6 @@
 /**
- * Neelamb News Minimal Reaction Plugin
- * Features: Zero-background, Compact spacing, Individual counters.
+ * Neelamb News Minimal Reaction Plugin - V2
+ * Features: Larger emojis, Center aligned, Dark/Light mode optimized.
  */
 
 (function() {
@@ -10,51 +10,66 @@
         style.id = 'neelamb-feedback-styles';
         style.textContent = `
             .neelamb-feedback-container {
-                text-align: left; /* बायाँ साइडमा मिलाइएको */
-                margin: 10px 0;
-                padding: 0; /* सबै प्याडिङ हटाइयो */
-                background: transparent; /* ब्याकग्राउन्ड हटाइयो */
+                display: flex;
+                justify-content: center; /* सेन्टरमा राख्न */
+                align-items: center;
+                margin: 20px auto;
+                padding: 0;
+                background: transparent;
                 font-family: 'Mukta', sans-serif;
-            }
-            .feedback-title { 
-                font-size: 14px; 
-                font-weight: 700; 
-                color: #555; 
-                margin-bottom: 8px; 
+                width: 100%;
             }
             .feedback-grid {
                 display: flex; 
-                justify-content: flex-start; 
-                gap: 8px; /* आइकनहरू बीचको न्यून ग्याप */
+                justify-content: center; 
+                gap: 15px; /* आइकनहरू बीचको ग्याप बढाइएको */
                 flex-wrap: wrap;
             }
             .feedback-item {
                 display: flex; 
+                flex-direction: column; /* इमोजी माथि र नम्बर तल */
                 align-items: center; 
-                gap: 4px; /* इमोजी र नम्बर बीचको ग्याप */
+                gap: 2px;
                 cursor: pointer; 
                 transition: transform 0.2s;
-                padding: 2px 0;
                 background: none;
                 border: none;
             }
-            .feedback-item:hover { transform: scale(1.1); }
-            .feedback-item.voted { color: #1877F2; }
+            .feedback-item:hover { transform: scale(1.2); }
             
-            .fb-emoji { font-size: 20px; }
-            .fb-count { font-size: 13px; font-weight: 800; color: #333; }
-            .fb-label { display: none; /* नाम हटाएर डिजाइन अझ सानो बनाइएको */ }
+            /* लाइट र डार्क मोडमा स्पष्ट देखिने गरी */
+            .feedback-item.voted .fb-emoji { filter: grayscale(0%); }
+            .fb-emoji { 
+                font-size: 28px; /* इमोजीको साइज ठूलो पारिएको */
+                line-height: 1;
+            }
+            
+            .fb-count { 
+                font-size: 14px; 
+                font-weight: 800; 
+                /* डार्क र लाइट मोड दुवैमा देखिने कलर */
+                color: currentColor; 
+                opacity: 0.9;
+            }
+
+            /* डार्क मोड सपोर्ट (यदि थिममा dark क्लास छ भने) */
+            @media (prefers-color-scheme: dark) {
+                .fb-count { color: #e5e7eb; }
+            }
+            
+            /* भोट गरेपछि देखिने रङ्ग */
+            .feedback-item.voted { color: #1877F2 !important; }
 
             @media (max-width: 480px) {
-                .feedback-grid { gap: 6px; }
-                .fb-emoji { font-size: 18px; }
+                .feedback-grid { gap: 10px; }
+                .fb-emoji { font-size: 24px; }
             }
         `;
         document.head.appendChild(style);
     };
 
     const getFeedbackData = (url) => {
-        const key = 'nb_fb_compact_' + btoa(url).substring(0, 16);
+        const key = 'nb_fb_v2_' + btoa(url).substring(0, 16);
         let data = JSON.parse(localStorage.getItem(key));
         if (!data) {
             data = { like: 10, dislike: 0, happy: 4, love: 6, sad: 0, angry: 0, userVoted: null };
@@ -64,7 +79,7 @@
     };
 
     const handleFeedback = (url, type) => {
-        const key = 'nb_fb_compact_' + btoa(url).substring(0, 16);
+        const key = 'nb_fb_v2_' + btoa(url).substring(0, 16);
         let data = getFeedbackData(url);
         if (data.userVoted) return;
 
@@ -92,7 +107,6 @@
 
         const html = `
             <div class="neelamb-feedback-container">
-                <div class="feedback-title">प्रतिक्रिया:</div>
                 <div class="feedback-grid">
                     ${items.map(item => `
                         <div class="feedback-item ${data.userVoted === item.id ? 'voted' : ''}" data-type="${item.id}">
