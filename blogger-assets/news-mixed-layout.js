@@ -69,7 +69,7 @@
                         <div class="flex-shrink-0 w-28 h-20 overflow-hidden rounded bg-gray-100">
                             <img src="${post.media$thumbnail.url.replace('s72-c','s300')}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
                         </div>
-                        <a href="${post.link.find(l=>l.rel==='alternate').href}" class="text-lg font-bold leading-snug text-black dark:text-white no-underline clamp-3 hover:text-red-700">${post.title.$t}</a>
+                        <a href="${post.link.find(l=>l.rel==='alternate').href}" class="text-[15px] font-bold leading-snug text-black dark:text-white no-underline clamp-3 hover:text-red-700">${post.title.$t}</a>
                     </div>
                 `).join('')}
             </div>`;
