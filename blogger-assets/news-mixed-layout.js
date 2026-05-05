@@ -87,7 +87,7 @@
             var cbName = "mixedCB" + i;
             window[cbName] = function(json) { renderMixedLayout(json, "mixed-box-" + i, titles[i], types[i]); };
             var s = document.createElement('script');
-            s.src = "/feeds/posts/default/-/" + encodeURIComponent(label.trim()) + "?alt=json-in-script&callback=" + cbName + "&max-results=8";
+            s.src = "/feeds/posts/default/-/" + encodeURIComponent(label.trim()) + "?alt=json-in-script&callback=" + cbName + "&max-results=10";
             document.head.appendChild(s);
         });
     };
