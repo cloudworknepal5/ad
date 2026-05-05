@@ -51,7 +51,7 @@
                 </div>
                 <!-- दायाँ सूची भाग -->
                 <div class="flex flex-col gap-4 border-l pl-0 md:pl-6">
-                    ${posts.slice(3, 10).map(post => `
+                    ${posts.slice(3, 8).map(post => `
                         <div class="flex gap-3 items-center group">
                             <div class="flex-shrink-0 w-24 h-16 overflow-hidden rounded bg-gray-100">
                                 <img src="${post.media$thumbnail.url.replace('s72-c','s200')}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
