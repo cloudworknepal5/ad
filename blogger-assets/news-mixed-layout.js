@@ -49,7 +49,7 @@
         } else {
             // अन्य कोलमहरू (५ समाचार)
             html += '<div class="flex flex-col gap-4">';
-            for (var j = 0; j < 5; j++) {
+            for (var j = 0; j < 6; j++) {
                 if (posts[j]) {
                     html += '<div class="flex gap-3 items-center group border-b border-gray-50 pb-2 last:border-0">';
                     html += '<div class="flex-shrink-0 w-20 h-14 overflow-hidden rounded bg-gray-100">';
@@ -68,7 +68,7 @@
             var cbName = "cb_" + ids[i].replace(/-/g, '_');
             window[cbName] = function(json) { renderParallelLayout(json, ids[i], titles[i], i === 0); };
             var s = document.createElement('script');
-            s.src = "/feeds/posts/default/-/" + encodeURIComponent(label.trim()) + "?alt=json-in-script&callback=" + cbName + "&max-results=5";
+            s.src = "/feeds/posts/default/-/" + encodeURIComponent(label.trim()) + "?alt=json-in-script&callback=" + cbName + "&max-results=6";
             document.head.appendChild(s);
         });
     };
