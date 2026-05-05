@@ -66,7 +66,7 @@
             var cbName = "cb_" + ids[i].replace(/-/g, '_');
             window[cbName] = function(json) { renderParallelLayout(json, ids[i], titles[i], i === 0); };
             var s = document.createElement('script');
-            s.src = "/feeds/posts/default/-/" + encodeURIComponent(label.trim()) + "?alt=json-in-script&callback=" + cbName + "&max-results=5";
+            s.src = "/feeds/posts/default/-/" + encodeURIComponent(label.trim()) + "?alt=json-in-script&callback=" + cbName + "&max-results=6";
             document.head.appendChild(s);
         });
     };
