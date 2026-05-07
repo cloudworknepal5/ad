@@ -94,7 +94,7 @@
 
         // डेटा लोड गर्ने (Feed URL यहाँ सिधै हाल्न सकिन्छ)
         const s = document.createElement('script');
-        s.src = `https://www.adnp.neelamb.com/feeds/pages/default?alt=json-in-script&callback=${cb}`;
+        s.src = `https://adnp.neelamb.com/feeds/pages/default?alt=json-in-script&callback=${cb}`;
         document.body.appendChild(s);
     };
 })();
