@@ -29,7 +29,7 @@
         fetch(cloudURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
     };
 
-    // Multi-function 3: Popup Rendering (Responsive Mobile & Desktop)
+    // Multi-function 3: Popup Rendering (Responsive Mobile & Desktop - Fixed Button Alignment)
     const showPopupAd = (src, link, pageId) => {
         const overlay = document.createElement('div');
         overlay.id = 'adnp-popup-overlay';
@@ -37,7 +37,7 @@
 
         const adWrapper = document.createElement('div');
         adWrapper.className = 'adnp-wrapper';
-        adWrapper.style = "position:relative; width:100%; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
+        adWrapper.style = "position:relative; width:100%; display:flex; justify-content:center; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; line-height:0;";
 
         const style = document.createElement('style');
         style.innerHTML = `
@@ -48,21 +48,31 @@
             /* Desktop View: Max 550px */
             .adnp-wrapper { max-width: 550px; }
             
-            /* Mobile View: Max 300px as requested */
+            /* भित्री बक्स जसले इमेजको वास्तविक चौडाइ मात्र ओगट्छ */
+            .adnp-inner-content {
+                position: relative;
+                display: inline-block;
+                max-width: 100%;
+            }
+            
+            /* Mobile View: Max 300px */
             @media (max-width: 600px) {
                 .adnp-wrapper { max-width: 300px !important; }
             }
         `;
         document.head.appendChild(style);
 
+        // यहाँ बटनहरूलाई .adnp-inner-content भित्र सारिएको छ ताकि ती सधैं इमेजको कुनामा बसुन्
         adWrapper.innerHTML = `
-            <div onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; top:-12px; right:-12px; background:#fff; color:#000; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; font-family:sans-serif; z-index:1002; box-shadow:0 4px 12px rgba(0,0,0,0.5); font-weight:bold; border:1px solid #000; line-height:1;">&times;</div>
+            <div class="adnp-inner-content">
+                <div onclick="document.getElementById('adnp-popup-overlay').remove()" style="position:absolute; top:-12px; right:-12px; background:#fff; color:#000; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; font-family:sans-serif; z-index:1002; box-shadow:0 4px 12px rgba(0,0,0,0.5); font-weight:bold; border:1px solid #000; line-height:1;">&times;</div>
 
-            <a href="${adnpLink}" target="_blank" style="position:absolute; bottom:-7px; right:-7px; background:#000; color:#fff; width:13px; height:13px; border-radius:50%; font-size:9px; display:flex; align-items:center; justify-content:center; font-family:sans-serif; text-decoration:none; z-index:1001; border:1px solid #fff; line-height:1; font-weight:bold;">A</a>
-            
-            <a href="${link}" target="_blank" onclick="trackAd('CLICK', {id:'${pageId}', src:'${src}', link:'${link}'})" style="display:block;">
-                <img src="${src}" style="width:100%; max-height:80vh; object-fit:contain; border-radius:12px; display:block; box-shadow:0 15px 50px rgba(0,0,0,0.8);">
-            </a>
+                <a href="${adnpLink}" target="_blank" style="position:absolute; bottom:-7px; right:-7px; background:#000; color:#fff; width:13px; height:13px; border-radius:50%; font-size:9px; display:flex; align-items:center; justify-content:center; font-family:sans-serif; text-decoration:none; z-index:1001; border:1px solid #fff; line-height:1; font-weight:bold;">A</a>
+                
+                <a href="${link}" target="_blank" onclick="trackAd('CLICK', {id:'${pageId}', src:'${src}', link:'${link}'})" style="display:block;">
+                    <img src="${src}" style="width:100%; max-height:80vh; object-fit:contain; border-radius:12px; display:block; box-shadow:0 15px 50px rgba(0,0,0,0.8);">
+                </a>
+            </div>
         `;
 
         overlay.appendChild(adWrapper);
@@ -81,7 +91,7 @@
         trackAd('VIEW', { id: pageId, src: src, link: link });
     };
 
-    // Multi-function 4: Main Data Loader (Modified to Randomize/Offset Images from Same Post)
+    // Multi-function 4: Main Data Loader
     window.renderAdGrid = function(cfg) {
         const cb = 'cb_' + cfg.containerId.replace(/-/g, '_');
         window[cb] = function(json) {
@@ -89,11 +99,9 @@
             if (!entry) return;
 
             const doc = new DOMParser().parseFromString(entry.content.$t, 'text/html');
-            // पोस्ट भित्र भएका सबै इमेजेज (img tags) हरूलाई एरेमा तान्ने
             const imgs = Array.from(doc.querySelectorAll('img'));
             
             if (imgs.length > 0) {
-                // हरेक पटक लोड हुँदा एउटा र्‍यान्डम इमेज इन्डेक्स छनोट गर्ने (Offset logic)
                 const randomIndex = Math.floor(Math.random() * imgs.length);
                 const selectedImg = imgs[randomIndex];
 
