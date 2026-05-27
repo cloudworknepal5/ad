@@ -12,7 +12,7 @@ const CONFIG = {
 let nextPageToken = '';
 
 /**
- * २. परिमार्जित CSS (Tailwind र डार्क मोड अनुकूलित)
+ * २. परिमार्जित CSS (स्मार्ट स्टिकी र डार्क मोड अनुकूलित)
  */
 function injectStyles() {
     const css = `
@@ -25,7 +25,16 @@ function injectStyles() {
             align-items: start;
         }
         
-        .main-player-area { order: 1; position: sticky; top: 20px; }
+        /* 🚀 मुख्य प्लेयर क्षेत्र: स्क्रोल गर्दा स्वतः तल झर्ने (Sticky) बनाइएको */
+        .main-player-area { 
+            order: 1; 
+            position: -webkit-sticky;
+            position: sticky; 
+            top: 90px; /* तपाईंको हेडर मेनुभन्दा सुरक्षित तल बस्नका लागि */
+            z-index: 40;
+            transition: all 0.3s ease;
+        }
+        
         .sidebar-wrapper { order: 2; display: flex; flex-direction: column; }
         .sidebar-list { display: flex; flex-direction: column; gap: 12px; }
 
@@ -54,10 +63,11 @@ function injectStyles() {
             border-color: transparent transparent transparent white; margin-left: 1px;
         }
 
+        /* मोबाइल र साना स्क्रिनका लागि रेस्पोन्सिभ फिक्स */
         @media (max-width: 991px) {
             #${CONFIG.containerId} { grid-template-columns: 1fr; }
             .main-player-area { position: relative; top: 0; }
-            .video-item-main iframe { height: 280px; }
+            .video-item-main iframe { height: 250px; }
         }
     `;
     const styleSheet = document.createElement("style");
@@ -66,7 +76,7 @@ function injectStyles() {
 }
 
 /**
- * ३. मल्टि-फङ्सन: भिडियो प्ले र स्मुथ स्क्रोलिङ
+ * ३. मल्टि-फङ्सन: भिडियो प्ले र स्वतः माथि स्क्रोल हुने लजिक
  */
 function playVideo(vId, vTitle) {
     const mainArea = document.querySelector('.main-player-area');
@@ -74,23 +84,23 @@ function playVideo(vId, vTitle) {
     const titleDiv = mainArea.querySelector('.main-title-text');
 
     if (iframe) {
+        // भिडियो चेन्ज गर्ने र अटोप्ले अन गर्ने
         iframe.src = `https://www.youtube.com/embed/${vId}?autoplay=1&rel=0`;
         if (titleDiv) titleDiv.innerText = decodeURIComponent(vTitle);
-        if (window.innerWidth <= 991) {
-            mainArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        
+        // 🚀 नयाँ फिचर: जतिसुकै तल भए पनि क्लिक गर्नासाथ स्मुथ स्क्रोल भएर मुख्य प्लेयरमा लैजाने
+        mainArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
 
 /**
- * ४. कार्ड जेनेरेटर (Tailwind Class थपिएको)
+ * ४. कार्ड जेनेरेटर (Tailwind Class)
  */
 function getCardHtml(item) {
     if(!item) return '';
     const vId = item.id.videoId;
     const cleanTitle = encodeURIComponent(item.snippet.title).replace(/'/g, "%27");
     
-    // कार्ड र टेक्स्टमा Tailwind CSS डार्क मोड क्लासहरू जोडिएको छ
     return `
         <div class="video-card flex gap-3 cursor-pointer bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700/60 p-2 rounded-xl shadow-sm hover:border-red-600 dark:hover:border-red-500 transition duration-300" onclick="playVideo('${vId}', '${cleanTitle}')">
             <div class="thumb-box overflow-hidden rounded-lg">
