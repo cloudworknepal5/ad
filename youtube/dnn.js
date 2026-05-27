@@ -12,7 +12,7 @@ const CONFIG = {
 let nextPageToken = '';
 
 /**
- * २. परिमार्जित CSS (समानान्तर अलाइनमेन्ट र स्मार्ट स्टिकी फिक्स)
+ * २. परिमार्जित CSS (पिक्सेल-परफेक्ट टप स्पेस र स्मार्ट स्टिकी फिक्स)
  */
 function injectStyles() {
     const css = `
@@ -21,8 +21,8 @@ function injectStyles() {
             grid-template-columns: 1.8fr 1.2fr;
             grid-gap: 24px;
             max-width: 1300px;
-            margin: 0 auto; /* 🎯 अलाइनमेन्ट फिक्स: माथिको २० पिक्सल ग्याप हटाएर समानान्तर बनाइयो */
-            padding-top: 0px; /* 🎯 दायाँपट्टिको पहिलो पोष्टको बोर्डरसँग ठ्याक्कै लेभल मिलाउन */
+            margin: 0 auto;
+            padding-top: 0px; /* 🎯 टप स्पेस पूर्ण रूपमा बराबर बनाउन 0px गरिएको */
             align-items: start;
         }
         
@@ -33,11 +33,19 @@ function injectStyles() {
             position: sticky; 
             top: 100px; /* डिएनएनको मेनू बारभन्दा सुरक्षित तल बस्नका लागि */
             z-index: 40;
+            margin-top: 0px; /* 🎯 बाहिरी मार्जिन जिरो गरेर दायाँको पहिलो पोष्टसँग ठ्याक्कै लेभल मिलाइयो */
             transition: all 0.3s ease;
         }
         
         .sidebar-wrapper { order: 2; display: flex; flex-direction: column; }
-        .sidebar-list { display: flex; flex-direction: column; gap: 12px; }
+        
+        /* 🎯 दायाँपट्टीको पहिलो पोष्टको टप मार्जिन हटाएर दुवै भागलाई समानान्तर बनाउन */
+        .sidebar-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            margin-top: 0px; 
+        }
 
         .video-item-main iframe { 
             width: 100%; 
@@ -94,7 +102,7 @@ function playVideo(vId, vTitle) {
 }
 
 /**
- * ४. कार्ड जेनेरेटर (Tailwind Style)
+ * ४. कार्ड जेनेरेटर (Tailwind Class - डार्क मोड सहित)
  */
 function getCardHtml(item) {
     if(!item) return '';
