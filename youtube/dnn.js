@@ -49,7 +49,7 @@ function injectStyles() {
 
         .video-item-main iframe { 
             width: 100%; 
-            height: 430px; 
+            height: 450px; 
             background: #000; 
             border: none; 
             border-radius: 12px;
