@@ -5,113 +5,59 @@ const CONFIG = {
     apiKey: 'AIzaSyAh5DKuOvbRcLEF3IFdq_XjeFGseKy5LWk',
     channelId: 'UCJSiL78mYysppPTGVrk0Vfw',
     results: 6, 
-    containerId: 'video-container-2', // नयाँ आइडी
+    containerId: 'video-container-2',
     buttonId: 'btn-load-more-2'
 };
 
 let nextPageToken = '';
 
 /**
- * २. परिमार्जित CSS
+ * २. परिमार्जित CSS (Tailwind र डार्क मोड अनुकूलित)
  */
 function injectStyles() {
     const css = `
         #${CONFIG.containerId} {
             display: grid;
             grid-template-columns: 1.8fr 1.2fr;
-            grid-gap: 20px;
-            max-width: 1200px;
+            grid-gap: 24px;
+            max-width: 1300px;
             margin: 20px auto;
-            padding: 10px;
             align-items: start;
         }
         
-        .main-player-area { order: 1; position: sticky; top: 10px; }
-        
-        .sidebar-wrapper { 
-            order: 2; 
-            display: flex; 
-            flex-direction: column; 
-        }
-
-        .sidebar-list { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-        }
+        .main-player-area { order: 1; position: sticky; top: 20px; }
+        .sidebar-wrapper { order: 2; display: flex; flex-direction: column; }
+        .sidebar-list { display: flex; flex-direction: column; gap: 12px; }
 
         .video-item-main iframe { 
             width: 100%; 
-            height: 380px; 
+            height: 420px; 
             background: #000; 
             border: none; 
-            border-radius: 4px;
-        }
-        
-        .main-title { 
-            padding: 10px 0; 
-            font-weight: bold; 
-            font-size: 18px; 
-            color: #222;
+            border-radius: 12px;
         }
 
-        .video-card { 
-            display: flex; 
-            gap: 10px; 
-            cursor: pointer; 
-            background: #fff; 
-            border: 1px solid #f0f0f0; 
-            padding: 6px;
-            align-items: center;
-        }
-        
         .thumb-box { 
             position: relative; 
-            width: 110px; 
+            width: 120px; 
             aspect-ratio: 16/9; 
             flex-shrink: 0; 
         }
-        .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
         
         .play-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 22px; height: 22px; background: rgba(255, 0, 0, 0.8); border-radius: 50%;
+            width: 26px; height: 26px; background: rgba(220, 38, 38, 0.9); border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
         }
         .play-overlay::after {
-            content: ''; border-style: solid; border-width: 3px 0 3px 6px;
+            content: ''; border-style: solid; border-width: 4px 0 4px 7px;
             border-color: transparent transparent transparent white; margin-left: 1px;
         }
 
-        .title-box { 
-            font-size: 12px; 
-            font-weight: 600; 
-            color: #333; 
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* लोड मोर बटन स्टायल */
-        .load-more-container { margin-top: 15px; text-align: center; }
-        #${CONFIG.buttonId} {
-            width: 100%;
-            padding: 10px;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            background: #f8f8f8;
-            font-size: 13px;
-            font-weight: bold;
-            border-radius: 4px;
-            transition: 0.2s;
-        }
-        #${CONFIG.buttonId}:hover { background: #eee; }
-
-        @media (max-width: 850px) {
+        @media (max-width: 991px) {
             #${CONFIG.containerId} { grid-template-columns: 1fr; }
-            .main-player-area { position: relative; }
+            .main-player-area { position: relative; top: 0; }
+            .video-item-main iframe { height: 280px; }
         }
     `;
     const styleSheet = document.createElement("style");
@@ -120,41 +66,45 @@ function injectStyles() {
 }
 
 /**
- * ३. मल्टि-फङ्सन: भिडियो प्ले र स्क्रोलिङ
+ * ३. मल्टि-फङ्सन: भिडियो प्ले र स्मुथ स्क्रोलिङ
  */
 function playVideo(vId, vTitle) {
     const mainArea = document.querySelector('.main-player-area');
     const iframe = mainArea.querySelector('iframe');
-    const titleDiv = mainArea.querySelector('.main-title');
+    const titleDiv = mainArea.querySelector('.main-title-text');
 
     if (iframe) {
         iframe.src = `https://www.youtube.com/embed/${vId}?autoplay=1&rel=0`;
         if (titleDiv) titleDiv.innerText = decodeURIComponent(vTitle);
-        if (window.innerWidth <= 850) {
+        if (window.innerWidth <= 991) {
             mainArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 }
 
 /**
- * ४. कार्ड जेनेरेटर
+ * ४. कार्ड जेनेरेटर (Tailwind Class थपिएको)
  */
 function getCardHtml(item) {
     if(!item) return '';
     const vId = item.id.videoId;
     const cleanTitle = encodeURIComponent(item.snippet.title).replace(/'/g, "%27");
+    
+    // कार्ड र टेक्स्टमा Tailwind CSS डार्क मोड क्लासहरू जोडिएको छ
     return `
-        <div class="video-card" onclick="playVideo('${vId}', '${cleanTitle}')">
-            <div class="thumb-box">
-                <div class="play-overlay"></div>
-                <img src="${item.snippet.thumbnails.medium.url}">
+        <div class="video-card flex gap-3 cursor-pointer bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700/60 p-2 rounded-xl shadow-sm hover:border-red-600 dark:hover:border-red-500 transition duration-300" onclick="playVideo('${vId}', '${cleanTitle}')">
+            <div class="thumb-box overflow-hidden rounded-lg">
+                <div class="play-overlay shadow-sm"></div>
+                <img src="${item.snippet.thumbnails.medium.url}" class="w-full h-full object-cover">
             </div>
-            <div class="title-box">${item.snippet.title}</div>
+            <div class="title-box text-[14px] font-bold text-gray-800 dark:text-slate-200 leading-snug line-clamp-2 pr-1 font-['Mukta']">
+                ${item.snippet.title}
+            </div>
         </div>`;
 }
 
 /**
- * ५. मुख्य फेच फङ्सन (Load More Logic Included)
+ * ५. मुख्य फेच फङ्सन
  */
 async function loadYouTubeContent() {
     let container = document.getElementById(CONFIG.containerId);
@@ -173,13 +123,15 @@ async function loadYouTubeContent() {
             nextPageToken = data.nextPageToken || '';
             const v = data.items;
             
-            // पहिलो पटक लोड हुँदा (Initial Load)
+            // पहिलो पटक लोड हुँदा
             if (!document.querySelector('.sidebar-list')) {
                 let playerHtml = `
-                    <div class="main-player-area">
+                    <div class="main-player-area bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700/60">
                         <div class="video-item-main">
-                            <iframe src="https://www.youtube.com/embed/${v[0].id.videoId}?rel=0" allowfullscreen></iframe>
-                            <div class="main-title">${v[0].snippet.title}</div>
+                            <iframe src="https://www.youtube.com/embed/${v[0].id.videoId}?rel=0" allowfullscreen class="shadow-md"></iframe>
+                            <div class="main-title-text mt-4 text-[18px] md:text-[22px] font-[900] text-gray-900 dark:text-white leading-tight font-['Mukta']">
+                                ${v[0].snippet.title}
+                            </div>
                         </div>
                     </div>`;
 
@@ -188,14 +140,16 @@ async function loadYouTubeContent() {
                         <div class="sidebar-list">
                             ${v.slice(1).map(item => getCardHtml(item)).join('')}
                         </div>
-                        <div class="load-more-container">
-                            <button id="${CONFIG.buttonId}" onclick="loadYouTubeContent()">थप लोड गर्नुहोस्</button>
+                        <div class="load-more-container mt-4 text-center">
+                            <button id="${CONFIG.buttonId}" onclick="loadYouTubeContent()" class="w-full py-3 bg-gray-100 dark:bg-slate-800 hover:bg-red-700 hover:text-white dark:hover:bg-red-650 text-gray-800 dark:text-slate-200 text-sm font-bold rounded-xl transition duration-300 shadow-sm font-['Mukta']">
+                                थप लोड गर्नुहोस्
+                            </button>
                         </div>
                     </div>`;
 
                 container.innerHTML = playerHtml + sidebarHtml;
             } else {
-                // लोड मोर थिच्दा लिष्टमा मात्र थप्ने
+                // लोड मोर थिच्दा लिष्टमा थप्ने
                 const list = document.querySelector('.sidebar-list');
                 v.forEach(item => {
                     const div = document.createElement('div');
@@ -206,7 +160,6 @@ async function loadYouTubeContent() {
                 if (btn) btn.innerText = 'थप लोड गर्नुहोस्';
             }
 
-            // यदि थप भिडियो छैन भने बटन हटाउने
             if (!nextPageToken && btn) btn.parentElement.remove();
         }
     } catch (err) {
@@ -218,13 +171,9 @@ async function loadYouTubeContent() {
 // कार्यान्वयन
 (function init() {
     injectStyles();
-    // सुनिश्चित गर्ने कि कन्टेनर उपलब्ध छ
-    window.addEventListener('DOMContentLoaded', () => {
-        if (!document.getElementById(CONFIG.containerId)) {
-            const div = document.createElement('div');
-            div.id = CONFIG.containerId;
-            document.body.appendChild(div);
-        }
+    if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', loadYouTubeContent);
+    } else {
         loadYouTubeContent();
-    });
+    }
 })();
