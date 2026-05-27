@@ -32,7 +32,7 @@ function injectStyles() {
             position: -webkit-sticky;
             position: sticky; 
             top: 100px; /* डिएनएनको मेनू बारभन्दा सुरक्षित तल बस्नका लागि */
-            z-index: 40;
+            z-index: 10;
             margin-top: 0px; /* 🎯 बाहिरी मार्जिन जिरो गरेर दायाँको पहिलो पोष्टसँग ठ्याक्कै लेभल मिलाइयो */
             transition: all 0.3s ease;
         }
