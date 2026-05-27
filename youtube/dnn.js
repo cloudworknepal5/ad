@@ -12,7 +12,7 @@ const CONFIG = {
 let nextPageToken = '';
 
 /**
- * २. परिमार्जित CSS (स्मार्ट स्टिकी र डार्क मोड अनुकूलित)
+ * २. परिमार्जित CSS (समानान्तर अलाइनमेन्ट र स्मार्ट स्टिकी फिक्स)
  */
 function injectStyles() {
     const css = `
@@ -21,16 +21,17 @@ function injectStyles() {
             grid-template-columns: 1.8fr 1.2fr;
             grid-gap: 24px;
             max-width: 1300px;
-            margin: 20px auto;
+            margin: 0 auto; /* 🎯 अलाइनमेन्ट फिक्स: माथिको २० पिक्सल ग्याप हटाएर समानान्तर बनाइयो */
+            padding-top: 4px; /* 🎯 दायाँपट्टिको पहिलो पोष्टको बोर्डरसँग ठ्याक्कै लेभल मिलाउन */
             align-items: start;
         }
         
-        /* 🚀 मुख्य प्लेयर क्षेत्र: स्क्रोल गर्दा स्वतः तल झर्ने (Sticky) बनाइएको */
+        /* 🚀 स्मार्ट स्टिकी प्लेयर: दायाँपट्टिको पोष्टसरह स्वतः तल-माथि बग्ने */
         .main-player-area { 
             order: 1; 
             position: -webkit-sticky;
             position: sticky; 
-            top: 90px; /* तपाईंको हेडर मेनुभन्दा सुरक्षित तल बस्नका लागि */
+            top: 100px; /* डिएनएनको मेनू बारभन्दा सुरक्षित तल बस्नका लागि */
             z-index: 40;
             transition: all 0.3s ease;
         }
@@ -40,7 +41,7 @@ function injectStyles() {
 
         .video-item-main iframe { 
             width: 100%; 
-            height: 420px; 
+            height: 410px; 
             background: #000; 
             border: none; 
             border-radius: 12px;
@@ -63,11 +64,11 @@ function injectStyles() {
             border-color: transparent transparent transparent white; margin-left: 1px;
         }
 
-        /* मोबाइल र साना स्क्रिनका लागि रेस्पोन्सिभ फिक्स */
+        /* मोबाइल र ट्याब्लेटका लागि रेस्पोन्सिभ फिक्स */
         @media (max-width: 991px) {
-            #${CONFIG.containerId} { grid-template-columns: 1fr; }
+            #${CONFIG.containerId} { grid-template-columns: 1fr; margin-top: 15px; }
             .main-player-area { position: relative; top: 0; }
-            .video-item-main iframe { height: 250px; }
+            .video-item-main iframe { height: 240px; }
         }
     `;
     const styleSheet = document.createElement("style");
@@ -76,7 +77,7 @@ function injectStyles() {
 }
 
 /**
- * ३. मल्टि-फङ्सन: भिडियो प्ले र स्वतः माथि स्क्रोल हुने लजिक
+ * ३. मल्टि-फङ्सन: भिडियो प्ले र स्मार्ट स्क्रोलिङ
  */
 function playVideo(vId, vTitle) {
     const mainArea = document.querySelector('.main-player-area');
@@ -84,17 +85,16 @@ function playVideo(vId, vTitle) {
     const titleDiv = mainArea.querySelector('.main-title-text');
 
     if (iframe) {
-        // भिडियो चेन्ज गर्ने र अटोप्ले अन गर्ने
         iframe.src = `https://www.youtube.com/embed/${vId}?autoplay=1&rel=0`;
         if (titleDiv) titleDiv.innerText = decodeURIComponent(vTitle);
         
-        // 🚀 नयाँ फिचर: जतिसुकै तल भए पनि क्लिक गर्नासाथ स्मुथ स्क्रोल भएर मुख्य प्लेयरमा लैजाने
+        // 🚀 थप लोड गर्दा धेरै तल पुगे पनि प्ले थिच्दा सिधै स्क्रिन स्मुथ भएर प्लेयर देखिने ठाउँमा आउँछ
         mainArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
 
 /**
- * ४. कार्ड जेनेरेटर (Tailwind Class)
+ * ४. कार्ड जेनेरेटर (Tailwind Style)
  */
 function getCardHtml(item) {
     if(!item) return '';
@@ -159,7 +159,7 @@ async function loadYouTubeContent() {
 
                 container.innerHTML = playerHtml + sidebarHtml;
             } else {
-                // लोड मोर थिच्दा लिष्टमा थप्ने
+                // लोड मोर थिच्दा लिष्टमा थप्ने र स्मार्ट स्टिकी कायम राख्ने
                 const list = document.querySelector('.sidebar-list');
                 v.forEach(item => {
                     const div = document.createElement('div');
