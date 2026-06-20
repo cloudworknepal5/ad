@@ -1,28 +1,65 @@
-<script type='text/javascript'>
-// <![CDATA[
-function getNepaliDate(dateString) {
-    if (!dateString) return '';
-    var d = new Date(dateString);
-    if (isNaN(d.getTime())) return dateString;
+/**
+ * Blogger Toolbox - English to Nepali Date Converter Only
+ * Features: English to Nepali Date Conversion
+ */
+const BloggerDateTool = {
+    config: {
+        numMap: {'0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९'},
+        weekdays: ['आइतबार', 'सोमबार', 'मंगलबार', 'बुधबार', 'बिहीबार', 'शुक्रबार', 'शनिबार'],
+        monthData: {
+            'January': { m: 'माघ', offset: 56, start: 15, prevDays: 16 },
+            'February': { m: 'फागुन', offset: 56, start: 13, prevDays: 17 },
+            'March': { m: 'चैत', offset: 56, start: 15, prevDays: 14 },
+            'April': { m: 'वैशाख', offset: 57, start: 14, prevDays: 17 },
+            'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
+            'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
+            'July': { m: 'साउन', offset: 57, start: 17, prevDays: 16 },
+            'August': { m: 'भदौ', offset: 57, start: 17, prevDays: 16 },
+            'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
+            'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
+            'November': { m: 'मंसिर', offset: 57, start: 17, prevDays: 14 },
+            'December': { m: 'पुस', offset: 57, start: 16, prevDays: 15 }
+        }
+    },
 
-    var nepaliMonths = ["वैशाख", "जेठ", "असार", "साउन", "भदौ", "असोज", "कात्तिक", "मंसिर", "पुष", "माघ", "फागुन", "चैत"];
-    var nepaliDigits = ['०','१','२','३','४','५','६','७','८','९'];
+    // नम्बरलाई नेपालीमा बदल्ने फङ्सन
+    toNep: function(n) {
+        if (n === undefined || n === null) return '';
+        return n.toString().split('').map(c => this.config.numMap[c] || c).join('');
+    },
 
-    var toNep = function(n) {
-        return n.toString().split('').map(function(num) {
-            return nepaliDigits[num] || num;
-        }).join('');
-    };
+    // मिति कन्भर्ट गर्ने मुख्य फङ्सन
+    initDateTool: function() {
+        const el = document.querySelector(".location-date");
+        if (!el) return;
 
-    // ५६ वर्ष ८ महिना १५ दिनको औसत हिसाब
-    var year = d.getFullYear() + 56;
-    var month = d.getMonth() + 9;
-    var day = d.getDate() + 15;
+        const match = el.innerText.trim().match(/([a-zA-Z]+)\s(\d+),\s(\d+)/);
+        if (match) {
+            const [_, eM, eD, eY] = match;
+            const data = this.config.monthData[eM];
+            if (!data) return; 
 
-    if (day > 30) { day -= 30; month++; }
-    if (month > 12) { month -= 12; year++; }
+            const dInt = parseInt(eD);
+            const yInt = parseInt(eY);
 
-    return toNep(day) + " " + nepaliMonths[month-1] + " " + toNep(year);
-}
-// ]]>
-</script>
+            let bsDay, bsMonth = data.m;
+            if (dInt >= data.start) {
+                bsDay = (dInt - data.start) + 1;
+            } else {
+                const months = ['पुस','माघ','फागुन','चैत','वैशाख','जेठ','असार','साउन','भदौ','असोज','कात्तिक','मंसिर'];
+                let idx = months.indexOf(data.m);
+                bsMonth = idx === 0 ? months[11] : months[idx - 1];
+                bsDay = data.prevDays + dInt;
+            }
+            const bsYear = (eM === 'April' && dInt < 14) ? yInt + 56 : yInt + data.offset;
+            const dayName = this.config.weekdays[new Date(`${eM} ${eD}, ${eY}`).getDay()];
+            
+            el.innerText = `${dayName}, ${bsMonth} ${this.toNep(bsDay)}, ${this.toNep(bsYear)}`;
+        }
+    }
+};
+
+// पेज लोड पूरा भएपछि मिति कन्भर्टर रन गर्ने
+window.addEventListener('load', () => {
+    BloggerDateTool.initDateTool();
+});
