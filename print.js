@@ -1,6 +1,6 @@
 /**
- * Ultimate Desktop-View Full-Page PNG Toolkit (Image & Lazy-Load Fixed)
- * ब्लगरको लेजी-लोड इमेज र विज्ञापनहरू १००% फोटोमा देखाउने प्रणाली।
+ * Ultimate Desktop Full-Page PNG Toolkit (Lazy-Load & Image Fixed)
+ * ब्लगरको लेजी-लोड इमेज र विज्ञापनहरूलाई तस्विरमा १००% देखाउने प्रणाली।
  */
 (function() {
     // १. html2canvas लाइब्रेरी सुरक्षित रूपमा लोड गर्ने
@@ -39,7 +39,6 @@
                 .btn-info { background: #007bff; color: white; }
                 .btn-danger { background: #dc3545; color: white; }
                 
-                /* डेस्कटप साइज सिम्युलेटर */
                 #print-area-wrapper { 
                     background: #f8f9fa; padding: 10px; border: 1px solid #ddd; 
                     width: 1280px !important; max-width: 1280px !important; min-width: 1280px !important;
@@ -50,7 +49,7 @@
             document.head.appendChild(style);
         }
 
-        // ३. दुईवटा मात्र बटन भएको मोडल
+        // ३. दुईवटा मात्र बटन भएको पप-अप विन्डो
         createModal() {
             if (document.getElementById('printCropModal')) return;
             const modal = document.createElement('div');
@@ -79,39 +78,34 @@
             }
         }
 
-        // ४. इमेजहरूको लेजी-लोड बाईपास गरी वास्तविक फोटो तान्ने कोर प्रणाली
+        // ४. इमेज र विज्ञापनहरूलाई कपी गर्नु अगाडि लोड गराउने प्रणाली
         preparePrintContent() {
             const mainContent = document.querySelector('#page-wrapper') || document.querySelector('.site-wrapper') || document.body;
-            const printWrapper = document.getElementById('print-area-wrapper');
             
-            // ओरिजिनल पेज कपी गर्ने
-            const clone = mainContent.cloneNode(true);
-            
-            // मोडल र अतिरिक्त बटनहरू फाल्ने
-            const nestedModal = clone.querySelector('#printCropModal');
-            if (nestedModal) nestedModal.remove();
-            clone.querySelectorAll('.custom-print-btn').forEach(btn => btn.remove());
-
-            // ⚠️ ब्लगर लेजी-लोड फिक्स: ब्ल्याक इमेजहरूलाई वास्तविक इमेजमा बदल्ने ⚠️
+            // कपी गर्नु अघि नै मुख्य पेजका सबै इमेजको लेजी-लोड हटाएर ओरिजिनल यूआरएल सेट गर्ने
             const originalImages = mainContent.querySelectorAll('img');
-            const clonedImages = clone.querySelectorAll('img');
-
-            clonedImages.forEach((img, index) => {
-                const origImg = originalImages[index];
-                if (origImg) {
-                    // यदि इमेजमा lazy-load डेटा यूआरएल लुकेको छ भने त्यसलाई मुख्य src मा ल्याउने
-                    const realSrc = origImg.getAttribute('data-src') || origImg.getAttribute('data-original-src') || origImg.currentSrc || origImg.src;
-                    
-                    img.setAttribute('crossorigin', 'anonymous');
+            originalImages.forEach(img => {
+                const realSrc = img.getAttribute('data-src') || img.getAttribute('data-original-src') || img.currentSrc || img.src;
+                if (realSrc && img.src !== realSrc) {
                     img.src = realSrc;
-                    img.removeAttribute('loading'); // लेजी लोडिङ बन्द गर्ने
                 }
+                img.setAttribute('crossorigin', 'anonymous');
+                img.removeAttribute('loading');
             });
 
-            printWrapper.innerHTML = '';
-            printWrapper.appendChild(clone);
+            // १00 मिलिसेकेन्ड रोकिने ताकि तस्विरहरू पूर्ण रूपमा रि-बाइन्ड होउन्
+            setTimeout(() => {
+                const printWrapper = document.getElementById('print-area-wrapper');
+                const clone = mainContent.cloneNode(true);
+                
+                const nestedModal = clone.querySelector('#printCropModal');
+                if (nestedModal) nestedModal.remove();
+                clone.querySelectorAll('.custom-print-btn').forEach(btn => btn.remove());
 
-            this.toggleModal(true);
+                printWrapper.innerHTML = '';
+                printWrapper.appendChild(clone);
+                this.toggleModal(true);
+            }, 100);
         }
 
         // ५. विज्ञापन र फोटोसहित PNG डाउनलोड गर्ने मुख्य फङ्क्सन
@@ -126,30 +120,35 @@
             downloadBtn.innerText = "📸 स्क्रिनशट लिँदै, कृपया पर्खनुहोस्...";
             downloadBtn.disabled = true;
 
-            // इमेज लोड सुनिश्चित गर्न १०० मिलिसेकेन्ड होल्ड गरेर क्यानभास बनाउने
-            setTimeout(() => {
-                html2canvas(printWrapper, {
-                    useCORS: true,
-                    allowTaint: false,
-                    scale: 1.5,
-                    width: 1280,
-                    windowWidth: 1280,
-                    scrollY: -window.scrollY
-                }).then(canvas => {
-                    const image = canvas.toDataURL("image/png");
-                    const link = document.createElement('a');
-                    link.download = `Desktop-FullPage-${Date.now()}.png`;
-                    link.href = image;
-                    link.click();
-                    
-                    downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
-                    downloadBtn.disabled = false;
-                }).catch(err => {
-                    console.error(err);
-                    downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
-                    downloadBtn.disabled = false;
-                });
-            }, 100);
+            // इमेज र बाह्य विज्ञापन फिक्सका लागि CORS र एम्बेड कन्फिगरेसन
+            html2canvas(printWrapper, {
+                useCORS: true,
+                allowTaint: true,
+                scale: 1.2, 
+                width: 1280,
+                windowWidth: 1280,
+                scrollY: -window.scrollY,
+                onclone: (clonedDoc) => {
+                    // कपी गरिएको डकुमेन्ट भित्रका इमेजहरूलाई पुनः चेक गर्ने
+                    const imgs = clonedDoc.querySelectorAll('img');
+                    imgs.forEach(img => {
+                        img.setAttribute('crossorigin', 'anonymous');
+                    });
+                }
+            }).then(canvas => {
+                const image = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.download = `Desktop-FullPage-${Date.now()}.png`;
+                link.href = image;
+                link.click();
+                
+                downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
+                downloadBtn.disabled = false;
+            }).catch(err => {
+                console.error(err);
+                downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
+                downloadBtn.disabled = false;
+            });
         }
 
         // ६. बटन रेन्डर फङ्क्सन
