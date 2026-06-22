@@ -1,59 +1,60 @@
 /**
- * Advanced Multi-functional Print, Crop & A4 Layout Toolkit
- * विशेष क्लास र आईडी पहिचान प्रणाली सहित
+ * Universal Ultimate Multi-functional Print, Crop & A4 Layout Toolkit
+ * यो कोड ब्लगर, वर्डप्रेस, र जुनसुकै वेबसाइटमा पनि स्वतः चल्छ।
  */
-class FixedWebPrintToolkit {
+class UniversalPrintToolkit {
     constructor() {
-        // १. तपाईंले थिममा थप्नुभएको निश्चित आईडी र मुख्य कन्टेन्ट बस्ने क्लास
-        this.buttonContainerId = 'fanda-print-container';
+        // १. तपाईंको कस्टम आईडी र वेबसाइटका अन्य सम्भावित कन्टेन्ट एरियाहरू
+        this.customContainerId = 'fanda-print-container';
+        
         this.contentSelectors = [
-            '.post-body', 'article', '#main-content', '.entry-content'
+            '.post-body', 'article', '#main-content', '.entry-content', '.site-main', '.post', '#content'
+        ];
+        
+        this.targetSelectors = [
+            '.post-timestamp', '.entry-date', '.author-line', '.post-meta', 
+            '#post-meta', '.tg-post-date', '.meta-wrapper'
         ];
         
         this.init();
     }
 
-    // २. CSS स्टाइल इन्जेक्ट गर्ने
+    // २. CSS स्टाइलहरू हेडमा इन्जेक्ट गर्ने (A4 Layout र UI)
     injectStyles() {
-        if (document.getElementById('toolkit-styles')) return;
+        if (document.getElementById('universal-toolkit-styles')) return;
         
         const style = document.createElement('style');
-        style.id = 'toolkit-styles';
+        style.id = 'universal-toolkit-styles';
         style.innerHTML = `
             @media print {
                 body * { visibility: hidden !important; }
                 #print-area-wrapper, #print-area-wrapper * { visibility: visible !important; }
                 #print-area-wrapper { 
                     position: absolute !important; 
-                    left: 0 !important; 
-                    top: 0 !important; 
+                    left: 0 !important; top: 0 !important; 
                     width: 210mm !important; 
                 }
                 .page-break { 
                     page-break-after: always !important; 
                     break-after: page !important; 
-                    display: block !important;
-                    height: 0 !important;
+                    display: block !important; height: 0 !important;
                 }
                 .crop-modal, .btn-group, .custom-print-btn { display: none !important; }
             }
 
             .custom-print-btn {
-                background-color: #28a745; 
-                color: white !important; 
-                border: none; 
-                padding: 4px 8px;
-                font-size: 12px; 
-                font-weight: bold; 
-                cursor: pointer; 
-                border-radius: 4px;
-                display: inline-flex; 
-                align-items: center; 
-                margin-left: 8px; 
-                vertical-align: middle;
+                background-color: #28a745; color: white !important; border: none; 
+                padding: 5px 10px; font-size: 13px; font-weight: bold; cursor: pointer; 
+                border-radius: 4px; display: inline-flex; align-items: center; 
+                margin: 5px; vertical-align: middle; z-index: 9999;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             }
             .custom-print-btn:hover { background-color: #218838; }
             
+            .universal-top-bar {
+                position: fixed; top: 15px; right: 15px; z-index: 999999;
+            }
+
             .crop-modal { 
                 display: none; position: fixed; top: 0; left: 0; 
                 width: 100%; height: 100%; background: rgba(0,0,0,0.85); 
@@ -72,7 +73,7 @@ class FixedWebPrintToolkit {
         document.head.appendChild(style);
     }
 
-    // ३. पप-अप विन्डो (Modal) ढाँचा बनाउने
+    // ३. पप-अप विन्डो (Modal) बनाउने
     createModal() {
         if (document.getElementById('printCropModal')) return;
 
@@ -81,9 +82,9 @@ class FixedWebPrintToolkit {
         modal.id = 'printCropModal';
         modal.innerHTML = `
             <div class="crop-box">
-                <h3>🖨️ विज्ञापन स्क्रिनशट र A4 प्रिन्ट टुल</h3>
+                <h3>🖨️ विज्ञापन स्क्रिनशट र A4 प्रिन्ट टुलकिट</h3>
                 <div class="btn-group">
-                    <button class="btn-action btn-success" id="startPrintAction">🖨️ A4 मा सेभ/प्रिन्ट गर्नुहोस्</button>
+                    <button class="btn-action btn-success" id="startPrintAction">🖨️ A4 साइजमा सेभ/प्रिन्ट गर्नुहोस्</button>
                     <button class="btn-action btn-danger" id="closeModalAction">बन्द गर्नुहोस्</button>
                 </div>
                 <div id="print-area-wrapper"></div>
@@ -103,7 +104,7 @@ class FixedWebPrintToolkit {
         }
     }
 
-    // ४. मुख्य पोष्टलाई मल्टि-पेज A4 मा मिलाउने
+    // ४. मुख्य पोष्टलाई मात्र छानेर मल्टि-पेज A4 मा कन्भर्ट गर्ने
     preparePrintContent() {
         let mainContent = null;
         for (let selector of this.contentSelectors) {
@@ -116,7 +117,7 @@ class FixedWebPrintToolkit {
         const printWrapper = document.getElementById('print-area-wrapper');
         printWrapper.innerHTML = mainContent.innerHTML;
 
-        // स्वतः अर्को पाना (Page Break) थप्ने मल्टि-फङ्सन
+        // स्वतः अर्को पाना (Page Break) थप्ने मल्टि-फङ्क्सनल प्रणाली
         setTimeout(() => {
             const children = printWrapper.children;
             let currentHeight = 0;
@@ -135,27 +136,44 @@ class FixedWebPrintToolkit {
         }, 100);
     }
 
-    // ५. तपाईंले राख्नुभएको नयाँ आईडी (ID) भित्र बटन राख्ने फङ्क्सन
+    // ५. युनिभर्सल बटन रेन्डर प्रणाली (प्राथमिकताको आधारमा)
     renderButton() {
         if (document.getElementById('instant-print-btn')) return;
 
-        // हामीले थिममा थपेको निश्चित ठाउँ खोज्ने
-        const targetContainer = document.getElementById(this.buttonContainerId);
-        
-        if (targetContainer) {
-            const printBtn = document.createElement('button');
-            printBtn.id = 'instant-print-btn';
-            printBtn.className = 'custom-print-btn';
-            printBtn.innerHTML = '🖨️ A4 प्रिन्ट';
-            
-            printBtn.onclick = () => this.preparePrintContent();
-            
-            // बटनलाई आईडी भएको खाली ठाउँमा इम्बेड (Embed) गर्ने
-            targetContainer.appendChild(printBtn);
-            console.log("✅ प्रिन्ट बटन सफलतापूर्वक थपियो।");
-        } else {
-            console.log("⚠️ थिममा 'fanda-print-container' आईडी भेटिएन। कृपया HTML चेक गर्नुहोस्।");
+        const printBtn = document.createElement('button');
+        printBtn.id = 'instant-print-btn';
+        printBtn.className = 'custom-print-btn';
+        printBtn.innerHTML = '🖨️ A4 प्रिन्ट / क्रप';
+        printBtn.onclick = () => this.preparePrintContent();
+
+        // क) प्राथमिकता १: तपाईंले थिममा राख्नुभएको निश्चित आईडी (#fanda-print-container) चेक गर्ने
+        const customContainer = document.getElementById(this.customContainerId);
+        if (customContainer) {
+            customContainer.appendChild(printBtn);
+            console.log("✅ निश्चित HTML ID भित्र प्रिन्ट बटन थपियो।");
+            return;
         }
+
+        // ख) प्राथमिकता २: यदि आईडी फेला परेन भने थिमको मिति वा सेयर क्लास स्वतः खोज्ने
+        let targetLocation = null;
+        for (let selector of this.targetSelectors) {
+            targetLocation = document.querySelector(selector);
+            if (targetLocation) break;
+        }
+
+        if (targetLocation) {
+            targetLocation.style.display = 'inline-block';
+            targetLocation.parentNode.insertBefore(printBtn, targetLocation.nextSibling);
+            console.log("✅ थिमको क्लास पहिचान गरी बटन थपियो।");
+            return;
+        }
+
+        // ग) प्राथमिकता ३: यदि केही पनि भेटिएन भने स्क्रिनको दायाँ कुनामा Floating बटन राख्ने (Universal Fallback)
+        const topBar = document.createElement('div');
+        topBar.className = 'universal-top-bar';
+        topBar.appendChild(printBtn);
+        document.body.appendChild(topBar);
+        console.log("✅ युनिभर्सल फ्लोटिङ बारमा प्रिन्ट बटन थपियो।");
     }
 
     init() {
@@ -165,10 +183,9 @@ class FixedWebPrintToolkit {
     }
 }
 
-// पेज लोड भएपछि चलाउने
+// वेबसाइट पूर्ण रूपमा लोड भएपछि रन गर्ने
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new FixedWebPrintToolkit());
+    document.addEventListener('DOMContentLoaded', () => new UniversalPrintToolkit());
 } else {
-    // ब्लगर डायनामिक लोडको लागि थोरै समय पर्खने
-    setTimeout(() => { new FixedWebPrintToolkit(); }, 500);
+    setTimeout(() => { new UniversalPrintToolkit(); }, 500);
 }
