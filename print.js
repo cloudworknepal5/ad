@@ -1,9 +1,9 @@
 /**
- * Ultimate Desktop Full-Page PNG Toolkit (Lazy-Load & Image Fixed)
- * ब्लगरको लेजी-लोड इमेज र विज्ञापनहरूलाई तस्विरमा १००% देखाउने प्रणाली।
+ * Ultimate Desktop-View Full-Page PNG Toolkit (Weserv CORS Proxy & Image Fixed)
+ * इमेज र विज्ञापन दुरुस्त देखिने र सिधै PNG डाउनलोड मात्र हुने प्रणाली।
  */
 (function() {
-    // १. html2canvas लाइब्रेरी सुरक्षित रूपमा लोड गर्ने
+    // १. html2canvas लाइब्रेरी स्वतः लोड गर्ने
     if (!window.html2canvas) {
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
@@ -33,12 +33,13 @@
                 .custom-print-btn:hover { background-color: #218838 !important; }
                 
                 .crop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999999; overflow: auto; padding: 20px; font-family: sans-serif; }
-                .crop-box { max-width: 1320px; margin: 10px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+                .crop-box { max-width: 1340px; margin: 10px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
                 .btn-group { display: flex; gap: 12px; margin-bottom: 20px; position: sticky; top: 0; background: rgba(255,255,255,0.95); padding: 10px 0; z-index: 10; border-bottom: 1px solid #eee; }
                 .btn-action { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
                 .btn-info { background: #007bff; color: white; }
                 .btn-danger { background: #dc3545; color: white; }
                 
+                /* डेस्कटप कम्प्युटर मोड जस्तै साइज सिम्युलेटर */
                 #print-area-wrapper { 
                     background: #f8f9fa; padding: 10px; border: 1px solid #ddd; 
                     width: 1280px !important; max-width: 1280px !important; min-width: 1280px !important;
@@ -49,7 +50,7 @@
             document.head.appendChild(style);
         }
 
-        // ३. दुईवटा मात्र बटन भएको पप-अप विन्डो
+        // ३. पप-अप विन्डो (मात्र दुईवटा बटन)
         createModal() {
             if (document.getElementById('printCropModal')) return;
             const modal = document.createElement('div');
@@ -78,37 +79,41 @@
             }
         }
 
-        // ४. इमेज र विज्ञापनहरूलाई कपी गर्नु अगाडि लोड गराउने प्रणाली
+        // ४. Weserv Proxy र लेजी-लोड बाईपास गरी इमेजहरूको कपी तयार गर्ने
         preparePrintContent() {
             const mainContent = document.querySelector('#page-wrapper') || document.querySelector('.site-wrapper') || document.body;
+            const printWrapper = document.getElementById('print-area-wrapper');
             
-            // कपी गर्नु अघि नै मुख्य पेजका सबै इमेजको लेजी-लोड हटाएर ओरिजिनल यूआरएल सेट गर्ने
-            const originalImages = mainContent.querySelectorAll('img');
-            originalImages.forEach(img => {
-                const realSrc = img.getAttribute('data-src') || img.getAttribute('data-original-src') || img.currentSrc || img.src;
-                if (realSrc && img.src !== realSrc) {
-                    img.src = realSrc;
+            // पुरै बडी कपी गर्ने
+            const clone = mainContent.cloneNode(true);
+            
+            // हाम्रो आफ्नै टुलकिटको पप-अप र बटनहरू कपी हुन नदिने
+            const nestedModal = clone.querySelector('#printCropModal');
+            if (nestedModal) nestedModal.remove();
+            clone.querySelectorAll('.custom-print-btn').forEach(btn => btn.remove());
+
+            // ⚠️ मुख्य सुधार: Weserv Proxy प्रविधि प्रयोग गरेर इमेज कपी फिक्स ⚠️
+            const clonedImages = clone.querySelectorAll('img');
+            clonedImages.forEach(img => {
+                // इमेजको वास्तविक लिङ्क पत्ता लगाउने
+                let realSrc = img.getAttribute('data-src') || img.getAttribute('data-original-src') || img.src;
+                
+                if (realSrc && realSrc.indexOf('data:image') === -1) {
+                    // https:// हटाएर Weserv Proxy को लिङ्क भित्र घुसार्ने
+                    const cleanUrl = realSrc.replace(/^https?:\/\//, '');
+                    img.src = `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}`;
+                    img.setAttribute('src', img.src);
                 }
                 img.setAttribute('crossorigin', 'anonymous');
                 img.removeAttribute('loading');
             });
 
-            // १00 मिलिसेकेन्ड रोकिने ताकि तस्विरहरू पूर्ण रूपमा रि-बाइन्ड होउन्
-            setTimeout(() => {
-                const printWrapper = document.getElementById('print-area-wrapper');
-                const clone = mainContent.cloneNode(true);
-                
-                const nestedModal = clone.querySelector('#printCropModal');
-                if (nestedModal) nestedModal.remove();
-                clone.querySelectorAll('.custom-print-btn').forEach(btn => btn.remove());
-
-                printWrapper.innerHTML = '';
-                printWrapper.appendChild(clone);
-                this.toggleModal(true);
-            }, 100);
+            printWrapper.innerHTML = '';
+            printWrapper.appendChild(clone);
+            this.toggleModal(true);
         }
 
-        // ५. विज्ञापन र फोटोसहित PNG डाउनलोड गर्ने मुख्य फङ्क्सन
+        // ५. पूरै स्क्रोल हुने पेजको इमेज र विज्ञापनसहित PNG डाउनलोड गर्ने
         downloadAsPNG() {
             const printWrapper = document.getElementById('print-area-wrapper');
             if (!window.html2canvas) {
@@ -120,21 +125,14 @@
             downloadBtn.innerText = "📸 स्क्रिनशट लिँदै, कृपया पर्खनुहोस्...";
             downloadBtn.disabled = true;
 
-            // इमेज र बाह्य विज्ञापन फिक्सका लागि CORS र एम्बेड कन्फिगरेसन
+            // प्रिमियम क्वालिटी क्याप्चर
             html2canvas(printWrapper, {
                 useCORS: true,
                 allowTaint: true,
-                scale: 1.2, 
+                scale: 1.5,
                 width: 1280,
                 windowWidth: 1280,
-                scrollY: -window.scrollY,
-                onclone: (clonedDoc) => {
-                    // कपी गरिएको डकुमेन्ट भित्रका इमेजहरूलाई पुनः चेक गर्ने
-                    const imgs = clonedDoc.querySelectorAll('img');
-                    imgs.forEach(img => {
-                        img.setAttribute('crossorigin', 'anonymous');
-                    });
-                }
+                scrollY: -window.scrollY
             }).then(canvas => {
                 const image = canvas.toDataURL("image/png");
                 const link = document.createElement('a');
@@ -151,7 +149,7 @@
             });
         }
 
-        // ६. बटन रेन्डर फङ्क्सन
+        // ६. बटन राख्ने फङ्क्सन
         renderButton() {
             if (document.getElementById('instant-print-btn')) return;
 
