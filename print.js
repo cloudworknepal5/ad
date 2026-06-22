@@ -1,6 +1,6 @@
 /**
- * Ultimate Desktop-View Full-Page PNG Toolkit
- * इमेज र विज्ञापन फिक्स गरिएको तथा डाउनलोड र क्लोज बटन मात्र भएको मल्टि-फङ्क्सनल क्लास।
+ * Ultimate Desktop-View Full-Page PNG Toolkit (Image & Lazy-Load Fixed)
+ * ब्लगरको लेजी-लोड इमेज र विज्ञापनहरू १००% फोटोमा देखाउने प्रणाली।
  */
 (function() {
     // १. html2canvas लाइब्रेरी सुरक्षित रूपमा लोड गर्ने
@@ -15,7 +15,7 @@
             this.init();
         }
 
-        // २. CSS स्टाइलहरू (PNG प्रिव्यु र बटन लेआउट)
+        // २. CSS स्टाइलहरू
         injectStyles() {
             if (document.getElementById('ultimate-toolkit-styles')) return;
             
@@ -23,23 +23,12 @@
             style.id = 'ultimate-toolkit-styles';
             style.innerHTML = `
                 .custom-print-btn {
-                    background-color: #28a745 !important; 
-                    color: white !important; 
-                    border: none !important; 
-                    padding: 2px 8px !important; 
-                    font-size: 11px !important; 
-                    font-weight: bold !important; 
-                    cursor: pointer !important; 
-                    border-radius: 4px !important; 
-                    display: inline-flex !important; 
-                    align-items: center !important; 
-                    margin-left: 10px !important;
-                    z-index: 99999 !important; 
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.15) !important;
-                    font-family: sans-serif !important;
-                    height: 22px !important;
-                    line-height: 22px !important;
-                    white-space: nowrap !important;
+                    background-color: #28a745 !important; color: white !important; border: none !important; 
+                    padding: 2px 8px !important; font-size: 11px !important; font-weight: bold !important; 
+                    cursor: pointer !important; border-radius: 4px !important; display: inline-flex !important; 
+                    align-items: center !important; margin-left: 10px !important; z-index: 99999 !important; 
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.15) !important; font-family: sans-serif !important;
+                    height: 22px !important; line-height: 22px !important; white-space: nowrap !important;
                 }
                 .custom-print-btn:hover { background-color: #218838 !important; }
                 
@@ -53,18 +42,15 @@
                 /* डेस्कटप साइज सिम्युलेटर */
                 #print-area-wrapper { 
                     background: #f8f9fa; padding: 10px; border: 1px solid #ddd; 
-                    width: 1280px !important; max-width: 1280px !important;
-                    min-width: 1280px !important;
-                    box-sizing: border-box;
-                    margin: 0 auto;
-                    overflow: hidden !important;
+                    width: 1280px !important; max-width: 1280px !important; min-width: 1280px !important;
+                    box-sizing: border-box; margin: 0 auto; overflow: hidden !important;
                 }
                 #print-area-wrapper .wrapper, #print-area-wrapper .container { width: 100% !important; max-width: 100% !important; }
             `;
             document.head.appendChild(style);
         }
 
-        // ३. दुईवटा मात्र बटन भएको पप-अप विन्डो (Modal UI)
+        // ३. दुईवटा मात्र बटन भएको मोडल
         createModal() {
             if (document.getElementById('printCropModal')) return;
             const modal = document.createElement('div');
@@ -93,27 +79,32 @@
             }
         }
 
-        // ४. इमेजहरूलाई CORS समस्याबाट बचाउन र कपी गर्न मल्टि-फङ्क्सनल प्रोसेसर
+        // ४. इमेजहरूको लेजी-लोड बाईपास गरी वास्तविक फोटो तान्ने कोर प्रणाली
         preparePrintContent() {
             const mainContent = document.querySelector('#page-wrapper') || document.querySelector('.site-wrapper') || document.body;
             const printWrapper = document.getElementById('print-area-wrapper');
             
+            // ओरिजिनल पेज कपी गर्ने
             const clone = mainContent.cloneNode(true);
+            
+            // मोडल र अतिरिक्त बटनहरू फाल्ने
             const nestedModal = clone.querySelector('#printCropModal');
             if (nestedModal) nestedModal.remove();
-            
-            // कपी गरिएका ठाउँबाट प्रिन्ट बटनहरू हटाउने
-            const clonedButtons = clone.querySelectorAll('.custom-print-btn');
-            clonedButtons.forEach(btn => btn.remove());
+            clone.querySelectorAll('.custom-print-btn').forEach(btn => btn.remove());
 
-            // इमेज लोड फिक्स: इमेज ट्यागहरूमा 'crossOrigin' एट्रीब्युट थप्ने र बलियो बनाउने
-            const images = clone.querySelectorAll('img');
-            images.forEach(img => {
-                if (img.src) {
-                    // इमेजहरू ब्याकग्राउन्डमा पुनः रि-लोड गराएर क्याप्चर सुरक्षित गर्ने
-                    const originalSrc = img.src;
+            // ⚠️ ब्लगर लेजी-लोड फिक्स: ब्ल्याक इमेजहरूलाई वास्तविक इमेजमा बदल्ने ⚠️
+            const originalImages = mainContent.querySelectorAll('img');
+            const clonedImages = clone.querySelectorAll('img');
+
+            clonedImages.forEach((img, index) => {
+                const origImg = originalImages[index];
+                if (origImg) {
+                    // यदि इमेजमा lazy-load डेटा यूआरएल लुकेको छ भने त्यसलाई मुख्य src मा ल्याउने
+                    const realSrc = origImg.getAttribute('data-src') || origImg.getAttribute('data-original-src') || origImg.currentSrc || origImg.src;
+                    
                     img.setAttribute('crossorigin', 'anonymous');
-                    img.src = originalSrc;
+                    img.src = realSrc;
+                    img.removeAttribute('loading'); // लेजी लोडिङ बन्द गर्ने
                 }
             });
 
@@ -123,7 +114,7 @@
             this.toggleModal(true);
         }
 
-        // ५. इमेज र विज्ञापनसहित डेस्कटप मोडको PNG डाउनलोड गर्ने फङ्क्सन
+        // ५. विज्ञापन र फोटोसहित PNG डाउनलोड गर्ने मुख्य फङ्क्सन
         downloadAsPNG() {
             const printWrapper = document.getElementById('print-area-wrapper');
             if (!window.html2canvas) {
@@ -135,32 +126,33 @@
             downloadBtn.innerText = "📸 स्क्रिनशट लिँदै, कृपया पर्खनुहोस्...";
             downloadBtn.disabled = true;
 
-            // इमेज र विज्ञापन देखिनका लागि 'useCORS: true' र 'logging: true' अन गरिएको छ
-            html2canvas(printWrapper, {
-                useCORS: true,
-                allowTaint: false,
-                foreignObjectRendering: false,
-                scale: 1.5, // उच्च गुणस्तरको फोटोका लागि
-                width: 1280,
-                windowWidth: 1280,
-                scrollY: -window.scrollY
-            }).then(canvas => {
-                const image = canvas.toDataURL("image/png");
-                const link = document.createElement('a');
-                link.download = `Desktop-FullPage-${Date.now()}.png`;
-                link.href = image;
-                link.click();
-                
-                downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
-                downloadBtn.disabled = false;
-            }).catch(err => {
-                console.error("PNG सेभ गर्दा त्रुटि आयो:", err);
-                downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
-                downloadBtn.disabled = false;
-            });
+            // इमेज लोड सुनिश्चित गर्न १०० मिलिसेकेन्ड होल्ड गरेर क्यानभास बनाउने
+            setTimeout(() => {
+                html2canvas(printWrapper, {
+                    useCORS: true,
+                    allowTaint: false,
+                    scale: 1.5,
+                    width: 1280,
+                    windowWidth: 1280,
+                    scrollY: -window.scrollY
+                }).then(canvas => {
+                    const image = canvas.toDataURL("image/png");
+                    const link = document.createElement('a');
+                    link.download = `Desktop-FullPage-${Date.now()}.png`;
+                    link.href = image;
+                    link.click();
+                    
+                    downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
+                    downloadBtn.disabled = false;
+                }).catch(err => {
+                    console.error(err);
+                    downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
+                    downloadBtn.disabled = false;
+                });
+            }, 100);
         }
 
-        // ६. बटन राख्ने फङ्क्सन
+        // ६. बटन रेन्डर फङ्क्सन
         renderButton() {
             if (document.getElementById('instant-print-btn')) return;
 
