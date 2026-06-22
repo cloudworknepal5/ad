@@ -1,15 +1,15 @@
 /**
- * Ultimate Multi-functional Print & Crop Toolkit for Blogger/WordPress
- * कुनै पनि क्लास वा आईडी थपिरहनु पर्दैन, स्वतः आइकन देखाउँछ।
+ * Universal Multi-functional Print & Crop Toolkit
+ * विशेष गरी 'location-date' क्लासलाई लक्षित गरी बनाइएको कोड।
  */
 class UltimatePrintToolkit {
     constructor() {
-        // ब्लगर र वर्डप्रेसका स्थापित क्लास नेमहरू
+        // १. तपाईंको थिममा भएको 'location-date' क्लासलाई पहिलो प्राथमिकतामा राख्ने
         this.targetSelectors = [
-            '.post-share-buttons', 
-            '.post-timestamp', 
-            '.entry-date', 
-            '.post-meta'
+            '.location-date', 
+            '.post-timestamp',
+            '.post-share-buttons',
+            '.entry-date'
         ];
         
         this.contentSelectors = [
@@ -19,6 +19,7 @@ class UltimatePrintToolkit {
         this.init();
     }
 
+    // २. CSS स्टाइलहरू (A4 र बटन लेआउट)
     injectStyles() {
         if (document.getElementById('ultimate-toolkit-styles')) return;
         
@@ -34,10 +35,11 @@ class UltimatePrintToolkit {
             }
             .custom-print-btn {
                 background-color: #28a745 !important; color: white !important; border: none !important; 
-                padding: 5px 10px !important; font-size: 13px !important; font-weight: bold !important; 
+                padding: 3px 8px !important; font-size: 11px !important; font-weight: bold !important; 
                 cursor: pointer !important; border-radius: 4px !important; display: inline-flex !important; 
-                align-items: center !important; margin: 5px !important; vertical-align: middle !important;
-                z-index: 99999 !important; box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+                align-items: center !important; margin-left: 8px !important; vertical-align: middle !important;
+                z-index: 99999 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.15) !important;
+                font-family: sans-serif !important;
             }
             .custom-print-btn:hover { background-color: #218838 !important; }
             .universal-floating-bar { position: fixed !important; top: 20px !important; right: 20px !important; z-index: 999999 !important; }
@@ -52,6 +54,7 @@ class UltimatePrintToolkit {
         document.head.appendChild(style);
     }
 
+    // ३. पप-अप विन्डो (Modal) बनाउने
     createModal() {
         if (document.getElementById('printCropModal')) return;
         const modal = document.createElement('div');
@@ -80,6 +83,7 @@ class UltimatePrintToolkit {
         }
     }
 
+    // ४. मुख्य पोष्ट संकलन र मल्टि-पेज (A4 Page Break) विभाजन
     preparePrintContent() {
         let mainContent = null;
         for (let selector of this.contentSelectors) {
@@ -108,6 +112,7 @@ class UltimatePrintToolkit {
         }, 150);
     }
 
+    // ५. 'location-date' को ठीक दायाँ इनलाइन बटन राख्ने
     renderButton() {
         if (document.getElementById('instant-print-btn')) return;
 
@@ -117,21 +122,21 @@ class UltimatePrintToolkit {
         printBtn.innerHTML = '🖨️ A4 प्रिन्ट';
         printBtn.onclick = () => this.preparePrintContent();
 
-        // पहिले थिमको सेयर बटन वा मितिको क्लास खोज्ने
+        // सूचीबाट क्लास नेमहरू खोज्ने (पहिले .location-date भेटिनेछ)
         let targetLocation = null;
         for (let selector of this.targetSelectors) {
             targetLocation = document.querySelector(selector);
             if (targetLocation) break;
         }
 
-        // यदि क्लास भेटियो भने त्यसको ठीक अगाडि बटन राख्ने
+        // यदि थिममा 'location-date' भेटियो भने त्यसको ठीक दायाँ (Next Sibling) बटन राख्ने
         if (targetLocation) {
-            targetLocation.parentNode.insertBefore(printBtn, targetLocation);
-            console.log("✅ थिम क्लास पहिचान गरी बटन राखियो।");
+            targetLocation.parentNode.insertBefore(printBtn, targetLocation.nextSibling);
+            console.log("✅ location-date को दायाँ छेउमा प्रिन्ट बटन थपियो।");
             return;
         }
 
-        // यदि थिममा कुनै क्लास फेला परेन भने स्क्रिनको दायाँ कुनामा राख्ने (Fallback)
+        // ब्याकअप: यदि थिममा क्लास फेला परेन भने स्क्रिनको दायाँ कुनामा राख्ने
         const floatingBar = document.createElement('div');
         floatingBar.className = 'universal-floating-bar';
         floatingBar.appendChild(printBtn);
@@ -145,11 +150,11 @@ class UltimatePrintToolkit {
     }
 }
 
-// ब्लगर लोड टाइमआउट व्यवस्थापन
+// ब्लगर थिममा एलिमेन्ट लोड हुन समय लाग्ने हुनाले टाइमआउट व्यवस्थापन
 const runToolkit = () => { new UltimatePrintToolkit(); };
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', runToolkit);
 } else {
     runToolkit();
 }
-setTimeout(runToolkit, 1200); // सेफ साइटका लागि १.२ सेकेन्डपछि पुनः रन गर्ने
+setTimeout(runToolkit, 1000); // सुरक्षित रहन १ सेकेन्डपछि पुनः जाँच्ने
