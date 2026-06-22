@@ -1,21 +1,21 @@
 /**
- * WordPress Newspaper Layout Fixer (Multi-Selector & Ads Fixed)
- * वर्डप्रेस थिममा '🖨️ A4 प्रिन्ट' बटन र लेआउट दुरुस्त देखाउने प्रणाली।
+ * Premium WordPress Layout Cloner (Sidebar & Grid Ads Fixed)
+ * वर्डप्रेसको साइडबार, मुख्य समाचार र सबै विज्ञापन ब्लकहरूलाई कम्प्युटर मोडमा दुरुस्त राख्ने मल्टि-फङ्क्सनल स्क्रिप्ट।
  */
 (function() {
-    // १. html2canvas लाइब्रेरी सुरक्षित रूपमा लोड गर्ने
+    // १. html2canvas लाइब्रेरी स्वतः लोड गर्ने
     if (!window.html2canvas) {
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
         document.head.appendChild(script);
     }
 
-    class WordPressPNGToolkit {
+    class WordPressFullPageToolkit {
         constructor() {
             this.init();
         }
 
-        // २. बटन र मोडलको प्रिमियम CSS स्टाइल
+        // २. प्रिमियम डेस्कटप लेआउट सिमुलेशन CSS
         injectStyles() {
             if (document.getElementById('wp-toolkit-styles')) return;
             
@@ -24,40 +24,55 @@
             style.innerHTML = `
                 .custom-print-btn {
                     background-color: #28a745 !important; color: white !important; border: none !important; 
-                    padding: 4px 12px !important; font-size: 13px !important; font-weight: bold !important; 
+                    padding: 5px 12px !important; font-size: 13px !important; font-weight: bold !important; 
                     cursor: pointer !important; border-radius: 4px !important; display: inline-flex !important; 
-                    align-items: center !important; gap: 5px !important; margin: 10px 5px !important; z-index: 99999 !important; 
+                    align-items: center !important; gap: 5px !important; margin: 10px 0 !important; z-index: 99999 !important; 
                     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important; font-family: 'Mukta', sans-serif !important;
-                    text-transform: none !important; line-height: 1.4 !important; height: auto !important;
                 }
                 .custom-print-btn:hover { background-color: #218838 !important; }
                 
                 .crop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999999; overflow: auto; padding: 20px; font-family: sans-serif; }
-                .crop-box { max-width: 1320px; margin: 10px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+                .crop-box { max-width: 1400px; margin: 10px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
                 .btn-group { display: flex; gap: 12px; margin-bottom: 20px; position: sticky; top: 0; background: rgba(255,255,255,0.95); padding: 10px 0; z-index: 10; border-bottom: 1px solid #eee; }
                 .btn-action { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
                 .btn-info { background: #007bff; color: white; }
                 .btn-danger { background: #dc3545; color: white; }
                 
-                /* वर्डप्रेस डेस्कटप कम्प्युटर मोड (1280px) सिम्युलेटर */
+                /* ⚠️ मुख्य फिक्स: पूरै स्क्रिन डेस्कटप (1340px) लेआउट फोर्स गर्ने प्रणाली ⚠️ */
                 #print-area-wrapper { 
-                    background: #f8f9fa; padding: 10px; border: 1px solid #ddd; 
-                    width: 1280px !important; max-width: 1280px !important; min-width: 1280px !important;
+                    background: #f8f9fa; padding: 15px; border: 1px solid #ddd; 
+                    width: 1340px !important; max-width: 1340px !important; min-width: 1340px !important;
                     box-sizing: border-box; margin: 0 auto; overflow: hidden !important;
-                    display: block !important; color: #333 !important;
+                    display: block !important;
                 }
-                /* साइडबार र मेन कन्टेन्टलाई दायाँ-बायाँ कम्प्युटर लुक दिने */
-                #print-area-wrapper .row, 
+                /* थिम भित्रको ग्रिड वा फ्लेक्सलाई कम्प्युटर मोडमा फर्काउने */
+                #print-area-wrapper .site-content,
+                #print-area-wrapper .main-container,
+                #print-area-wrapper .row,
+                #print-area-wrapper #content {
+                    display: flex !important; flex-direction: row !important;
+                    width: 100% !important; max-width: 100% !important; gap: 30px !important;
+                    align-items: flex-start !important;
+                }
+                /* मुख्य समाचारको भाग ७०% */
+                #print-area-wrapper main, 
                 #print-area-wrapper .content-area,
-                #print-area-wrapper .site-main { 
-                    display: flex !important; flex-direction: row !important; 
-                    width: 100% !important; max-width: 100% !important; gap: 25px !important;
+                #print-area-wrapper #primary { 
+                    width: 70% !important; min-width: 70% !important; max-width: 70% !important; display: block !important; 
+                }
+                /* साइडबारको भाग ३०% - लुकेको भए पनि बाहिर ल्याउने */
+                #print-area-wrapper sidebar,
+                #print-area-wrapper aside,
+                #print-area-wrapper .widget-area,
+                #print-area-wrapper #secondary { 
+                    width: 30% !important; min-width: 30% !important; max-width: 30% !important; 
+                    display: block !important; visibility: visible !important; opacity: 1 !important;
                 }
             `;
             document.head.appendChild(style);
         }
 
-        // ३. पप-अप मोडल विन्डो
+        // ३. पप-अप विन्डो UI
         createModal() {
             if (document.getElementById('printCropModal')) return;
             const modal = document.createElement('div');
@@ -86,26 +101,34 @@
             }
         }
 
-        // ४. इमेज र विज्ञापन फिक्ससहित क्लोन गर्ने इन्जिन
+        // ४. साइडबार र विज्ञापनसहितको पूरै बडी कपी गर्ने मुख्य इन्जिन
         preparePrintContent() {
-            // वर्डप्रेसको पुरै मुख्य बडी वा र्‍यापर समात्ने
-            const mainContent = document.querySelector('.site-content') || document.querySelector('#content') || document.querySelector('main') || document.body;
+            // सिधै मुख्य कन्टेनर वा पुरै बडीलाई कपी गर्ने ताकि साइडबार नछुटोस्
+            const pageContainer = document.querySelector('.site-content') || 
+                                  document.querySelector('#page') || 
+                                  document.querySelector('.site-wrapper') || 
+                                  document.body;
+                                  
             const printWrapper = document.getElementById('print-area-wrapper');
+            const clone = pageContainer.cloneNode(true);
             
-            const clone = mainContent.cloneNode(true);
-            
-            // मोडल र बटनहरू हटाउने
+            // कपी भित्रबाट पप-अप र पुराना बटनहरू सफा गर्ने
             const nestedModal = clone.querySelector('#printCropModal');
             if (nestedModal) nestedModal.remove();
             clone.querySelectorAll('.custom-print-btn').forEach(btn => btn.remove());
 
-            // इमेज र विज्ञापन इमेज फिक्स (Weserv Proxy)
+            // विज्ञापन र सामान्य फोटोहरू फिक्स (Weserv CORS PROXY)
             const clonedImages = clone.querySelectorAll('img');
             clonedImages.forEach(img => {
-                let realSrc = img.getAttribute('data-lazy-src') || img.getAttribute('data-src') || img.src;
+                let realSrc = img.getAttribute('data-lazy-src') || 
+                              img.getAttribute('data-src') || 
+                              img.getAttribute('src') || 
+                              img.src;
+                              
                 if (realSrc && realSrc.indexOf('data:image') === -1) {
                     const cleanUrl = realSrc.replace(/^https?:\/\//, '');
                     img.src = `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}`;
+                    img.setAttribute('src', img.src);
                 }
                 img.setAttribute('crossorigin', 'anonymous');
                 img.removeAttribute('loading');
@@ -116,11 +139,11 @@
             this.toggleModal(true);
         }
 
-        // ५. HD PNG डाउनलोड प्रोसेसिङ
+        // ५. HD PNG रेन्डर र डाउनलोड प्रक्रिया
         downloadAsPNG() {
             const printWrapper = document.getElementById('print-area-wrapper');
             if (!window.html2canvas) {
-                alert("लाइब्रेरी लोड हुँदैछ, कृपया पुनः प्रयास गर्नुहोस्।");
+                alert("कृपया १ सेकेन्ड पर्खनुहोस्, लाइब्रेरी लोड हुँदैछ।");
                 return;
             }
 
@@ -132,28 +155,28 @@
                 html2canvas(printWrapper, {
                     useCORS: true,
                     allowTaint: true,
-                    scale: 1.5,
-                    width: 1280,
-                    windowWidth: 1280,
+                    scale: 1.4,
+                    width: 1340,
+                    windowWidth: 1340,
                     scrollY: -window.scrollY
                 }).then(canvas => {
                     const image = canvas.toDataURL("image/png");
                     const link = document.createElement('a');
-                    link.download = `Sahara-Desktop-View-${Date.now()}.png`;
+                    link.download = `Full-Desktop-View-${Date.now()}.png`;
                     link.href = image;
                     link.click();
                     
                     downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
                     downloadBtn.disabled = false;
                 }).catch(err => {
-                    console.error(err);
+                    console.error("त्रुटि आयो:", err);
                     downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
                     downloadBtn.disabled = false;
                 });
-            }, 250);
+            }, 300);
         }
 
-        // ६. ⚠️ वर्डप्रेस थिम मल्टि-डिटेक्टर इन्जेक्सन प्रणाली ⚠️
+        // ६. सेयर बटन वा पोस्ट मेटाको मुनि प्रिन्ट बटन राख्ने
         renderButton() {
             if (document.getElementById('instant-print-btn')) return;
 
@@ -163,34 +186,28 @@
             printBtn.innerHTML = '🖨️ A4 प्रिन्ट';
             printBtn.onclick = () => this.preparePrintContent();
 
-            // तपाईंको वर्डप्रेस थिममा भएका सम्भावित क्लासहरू (शीर्षक, मिति वा सामाजिक बटनहरू)
+            // वर्डप्रेस थिमको सोसल सेयर वा टाइम-सेक्सन पत्ता लगाउने मल्टि-सेलेक्टर
             const selectors = [
-                '.single-post-meta',
-                '.post-meta',
-                '.entry-meta',
-                '.heateor_sss_sharing_container', // सेयर बटन र्‍यापर
+                '.heateor_sss_sharing_container',
                 '.social-share',
-                'h1.entry-title',
-                '.entry-header'
+                '.entry-meta',
+                '.post-meta',
+                'h1.entry-title'
             ];
 
             let injected = false;
             for (const selector of selectors) {
                 const target = document.querySelector(selector);
                 if (target) {
-                    // फेला परेको क्लासको ठीक तल बटन घुसाउने
                     target.parentNode.insertBefore(printBtn, target.nextSibling);
                     injected = true;
                     break;
                 }
             }
 
-            // यदि कुनै पनि क्लास फेला परेन भने मुख्य समाचारको शीर्षकमै राख्ने
             if (!injected) {
                 const h1Title = document.querySelector('h1');
-                if (h1Title) {
-                    h1Title.parentNode.insertBefore(printBtn, h1Title.nextSibling);
-                }
+                if (h1Title) h1Title.parentNode.insertBefore(printBtn, h1Title.nextSibling);
             }
         }
 
@@ -201,13 +218,13 @@
         }
     }
 
-    const runToolkit = () => { new WordPressPNGToolkit(); };
+    const runToolkit = () => { new WordPressFullPageToolkit(); };
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', runToolkit);
     } else {
         runToolkit();
     }
-    // वर्डप्रेसका विभिन्न प्लगइनहरू लोड भइसकेपछि चल्ने ब्याकअप टाइमिङ
+    // सुरक्षित लोड सुनिश्चित गर्न मल्टि-टिमर
     setTimeout(runToolkit, 1000);
     setTimeout(runToolkit, 2500);
 })();
