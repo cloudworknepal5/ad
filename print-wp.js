@@ -1,37 +1,29 @@
 /**
- * WordPress Inline Print Button Fix
- * मिति/भिजिटर काउन्टको छेउमा प्रिन्ट आइकन राख्ने सुरक्षित कोड
+ * Inline Print Button for Rastriya Sahara Daily
+ * मिति र भिजिटर काउन्टको छेउमा प्रिन्ट बटन राख्ने कोड।
  */
 (function() {
-    // १. बटन इन्जेक्सन फङ्क्सन
-    function renderPrintButton() {
+    function injectPrintButton() {
+        // बटन पहिले नै छ भने नथप्ने
         if (document.getElementById('instant-print-btn')) return;
 
-        // बटन सिर्जना
         const printBtn = document.createElement('button');
         printBtn.id = 'instant-print-btn';
-        printBtn.innerHTML = '🖨️'; // आइकन मात्र
-        printBtn.style.cssText = "margin-left: 8px; cursor: pointer; border: none; background: none; font-size: 14px; vertical-align: middle;";
+        printBtn.innerHTML = '🖨️ प्रिन्ट';
+        // इनलाइन स्टाइल - मितिको छेउमा बस्नको लागि
+        printBtn.style.cssText = "margin-left: 10px; cursor: pointer; border: 1px solid #ccc; background: #f4f4f4; padding: 2px 6px; font-size: 11px; border-radius: 3px; vertical-align: middle;";
         
-        printBtn.onclick = () => {
-            window.print(); // सिधै ब्राउजरको प्रिन्ट कमान्ड
-        };
+        printBtn.onclick = () => window.print();
 
-        // मिति/भिजिटर काउन्ट भएको कन्टेनर पत्ता लगाउने (अति-सटीक)
-        const metaContainer = document.querySelector('.post-meta-items') || 
-                              document.querySelector('.entry-meta') || 
-                              document.querySelector('.entry-date');
+        // तपाईँको साइटको मिति/भ्यु काउन्ट भएको र्‍यापर पत्ता लगाउने
+        // स्क्रिनसट अनुसार 'news-desk' वा मिति भएको ठाउँ
+        const metaContainer = document.querySelector('.leading-none'); 
 
         if (metaContainer) {
-            // मितिको छेउमा थप्ने
             metaContainer.appendChild(printBtn);
         }
     }
 
-    // २. साइट लोड भइसकेपछि चलाउने
-    if (document.readyState === 'complete') {
-        renderPrintButton();
-    } else {
-        window.addEventListener('load', renderPrintButton);
-    }
+    // साइट लोड भएपछि बटन थप्ने
+    window.addEventListener('load', injectPrintButton);
 })();
