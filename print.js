@@ -1,6 +1,6 @@
 /**
- * Ultimate Multi-functional Desktop-View Full-Page PNG & Print Toolkit
- * विशेष गरी ब्लगरको 'location-date' र 'flex' लेआउटमा १००% काम गर्ने गरी बनाइएको।
+ * Ultimate Desktop-View Full-Page PNG & Print Toolkit
+ * साइडबार, विज्ञापन र कम्प्युटर लेआउट जस्ताको त्यस्तै क्याप्चर गर्ने मल्टि-फङ्क्सनल क्लास।
  */
 (function() {
     // १. html2canvas लाइब्रेरी सुरक्षित रूपमा लोड गर्ने
@@ -12,13 +12,10 @@
 
     class UltimateDesktopPrintToolkit {
         constructor() {
-            this.contentSelectors = [
-                '.post-body', 'article', '#main-content', '.entry-content'
-            ];
             this.init();
         }
 
-        // २. CSS स्टाइलहरू (बटन र पप-अपको लागि)
+        // २. CSS स्टाइलहरू (डेस्कटप मोड र बटन लेआउट)
         injectStyles() {
             if (document.getElementById('ultimate-toolkit-styles')) return;
             
@@ -28,12 +25,11 @@
                 @media print {
                     body * { visibility: hidden !important; }
                     #print-area-wrapper, #print-area-wrapper * { visibility: visible !important; }
-                    #print-area-wrapper { position: absolute !important; left: 0 !important; top: 0 !important; width: 210mm !important; }
+                    #print-area-wrapper { position: absolute !important; left: 0 !important; top: 0 !important; width: 297mm !important; }
                     .page-break { page-break-after: always !important; break-after: page !important; display: block !important; height: 0 !important; }
                     .crop-modal, .btn-group, .custom-print-btn { display: none !important; }
                 }
                 
-                /* तपाईंको थिमको फ्लेक्स बक्ससँग मिल्ने गरी बनाइएको बटन स्टाइल */
                 .custom-print-btn {
                     background-color: #28a745 !important; 
                     color: white !important; 
@@ -55,26 +51,30 @@
                 }
                 .custom-print-btn:hover { background-color: #218838 !important; }
                 
-                /* फुल पेज स्क्रिनशट पप-अप विन्डो */
                 .crop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999999; overflow: auto; padding: 20px; font-family: sans-serif; }
-                .crop-box { max-width: 950px; margin: 30px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-                .btn-group { display: flex; gap: 12px; margin-bottom: 20px; }
+                .crop-box { max-width: 1320px; margin: 10px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+                .btn-group { display: flex; gap: 12px; margin-bottom: 20px; position: sticky; top: 0; background: rgba(255,255,255,0.95); padding: 10px 0; z-index: 10; border-bottom: 1px solid #eee; }
                 .btn-action { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
                 .btn-success { background: #28a745; color: white; }
                 .btn-info { background: #007bff; color: white; }
                 .btn-danger { background: #dc3545; color: white; }
                 
-                /* डेस्कटप मोड सिम्युलेटर साइज */
+                /* कम्प्युटर स्क्रिनको जस्तै (1280px Width) बनाउने प्रिव्यु बक्स */
                 #print-area-wrapper { 
-                    background: white; padding: 20px; border: 1px solid #ddd; 
-                    width: 1200px !important; max-width: 100% !important; 
-                    overflow-x: auto; box-sizing: border-box;
+                    background: #f8f9fa; padding: 10px; border: 1px solid #ddd; 
+                    width: 1280px !important; max-width: 1280px !important;
+                    min-width: 1280px !important;
+                    box-sizing: border-box;
+                    margin: 0 auto;
+                    overflow: hidden !important;
                 }
+                /* प्रिव्यु भित्रका सबै फ्याट एलिमेन्टलाई डेस्कटप लेआउटमा फोर्स गर्ने */
+                #print-area-wrapper .wrapper, #print-area-wrapper .container { width: 100% !important; max-width: 100% !important; }
             `;
             document.head.appendChild(style);
         }
 
-        // ३. पप-अप विन्डो तयार गर्ने
+        // ३. कम्प्युटर विन्डोज प्रिव्यु पप-अप (Modal UI)
         createModal() {
             if (document.getElementById('printCropModal')) return;
             const modal = document.createElement('div');
@@ -82,9 +82,8 @@
             modal.id = 'printCropModal';
             modal.innerHTML = `
                 <div class="crop-box">
-                    <h3>🖥️ डेस्कटप मोड फुल-पेज स्क्रिनशट टुलकिट</h3>
                     <div class="btn-group">
-                        <button class="btn-action btn-info" id="downloadPngAction">📸 सिधै PNG डाउनलोड गर्नुहोस्</button>
+                        <button class="btn-action btn-info" id="downloadPngAction">📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)</button>
                         <button class="btn-action btn-success" id="startPrintAction">🖨️ A4 मा प्रिन्ट/सेभ गर्नुहोस्</button>
                         <button class="btn-action btn-danger" id="closeModalAction">बन्द गर्नुहोस्</button>
                     </div>
@@ -106,36 +105,29 @@
             }
         }
 
-        // ४. डेस्कटप भ्यु कपी गर्ने र पाना ब्रेक मिलाउने
+        // ४. साइडबार र विज्ञापनसहितको पुरै पेजको डेस्कटप संरचना तान्ने
         preparePrintContent() {
-            let mainContent = null;
-            for (let selector of this.contentSelectors) {
-                mainContent = document.querySelector(selector);
-                if (mainContent) break;
-            }
-            if (!mainContent) mainContent = document.body;
-
+            // हामी पुरै बडी वा मुख्य र्‍यापरलाई नै कपी गर्छौँ जसले गर्दा साइडबार पनि आउँछ
+            const mainContent = document.querySelector('#page-wrapper') || document.querySelector('.site-wrapper') || document.body;
             const printWrapper = document.getElementById('print-area-wrapper');
-            printWrapper.innerHTML = mainContent.innerHTML;
+            
+            // मुख्य स्क्रिन कपी गर्ने तर हाम्रो मोडललाई भित्र पर्न नदिने
+            const clone = mainContent.cloneNode(true);
+            const nestedModal = clone.querySelector('#printCropModal');
+            if (nestedModal) nestedModal.remove();
+            
+            // कपी गरिएका एलिमेन्ट भित्रका प्रिन्ट बटनहरू हटाउने
+            const clonedButtons = clone.querySelectorAll('.custom-print-btn');
+            clonedButtons.forEach(btn => btn.remove());
 
-            setTimeout(() => {
-                const children = printWrapper.children;
-                let currentHeight = 0;
-                const maxPageHeight = 1100; 
-                for (let i = 0; i < children.length; i++) {
-                    currentHeight += children[i].offsetHeight || 0;
-                    if (currentHeight > maxPageHeight) {
-                        const breakDiv = document.createElement('div');
-                        breakDiv.className = 'page-break';
-                        children[i].parentNode.insertBefore(breakDiv, children[i]);
-                        currentHeight = 0; 
-                    }
-                }
-                this.toggleModal(true);
-            }, 200);
+            printWrapper.innerHTML = '';
+            printWrapper.appendChild(clone);
+
+            // पप-अप विन्डो खोल्ने
+            this.toggleModal(true);
         }
 
-        // ५. पूरै स्क्रोल हुने पेजको डेस्कटप मोडमा PNG डाउनलोड गर्ने प्रणाली
+        // ५. कम्प्युटर भ्युको पूरै स्क्रोल हुने पेजलाई सिधै PNG मा डाउनलोड गर्ने फङ्क्सन
         downloadAsPNG() {
             const printWrapper = document.getElementById('print-area-wrapper');
             if (!window.html2canvas) {
@@ -144,33 +136,34 @@
             }
 
             const downloadBtn = document.getElementById('downloadPngAction');
-            downloadBtn.innerText = "📸 स्क्रिनशट लिँदै...";
+            downloadBtn.innerText = "📸 स्क्रिनशट लिँदै, कृपया पर्खनुहोस्...";
             downloadBtn.disabled = true;
 
-            // ब्याकग्राउन्डमा डेस्कटप मोड साइज (1200px width) र पूरै हाइट सेट गर्ने
+            // ब्याकग्राउन्डमा १२८० पिक्सेल चौडाइ भएको डेस्कटप रेन्डरर सेट गर्ने
             html2canvas(printWrapper, {
                 useCORS: true,
                 allowTaint: true,
-                scale: 2, // क्लियर क्वालिटीको लागि
-                width: 1200,
-                windowWidth: 1200
+                scale: 1.5, // क्रिस्प र प्रष्ट फोटो क्वालिटीको लागि
+                width: 1280,
+                windowWidth: 1280,
+                scrollY: -window.scrollY // स्क्रोलिङ पोजिसन फिक्स गर्न
             }).then(canvas => {
                 const image = canvas.toDataURL("image/png");
                 const link = document.createElement('a');
-                link.download = `Full-Page-Desktop-${Date.now()}.png`;
+                link.download = `Desktop-FullPage-${Date.now()}.png`;
                 link.href = image;
                 link.click();
                 
-                downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस्";
+                downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
                 downloadBtn.disabled = false;
             }).catch(err => {
                 console.error(err);
-                downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस्";
+                downloadBtn.innerText = "📸 सिधै PNG डाउनलोड गर्नुहोस् (Desktop View)";
                 downloadBtn.disabled = false;
             });
         }
 
-        // ६. बटनलाई झुक्किन नदिई '.location-date' को ठीक बाहिर राख्ने परिमार्जित फङ्क्सन
+        // ६. बटनलाई मितिको ठीक बाहिर सुरक्षित रूपमा राख्ने फङ्क्सन
         renderButton() {
             if (document.getElementById('instant-print-btn')) return;
 
@@ -180,19 +173,13 @@
             printBtn.innerHTML = '🖨️ A4 प्रिन्ट';
             printBtn.onclick = () => this.preparePrintContent();
 
-            // थिमभित्रको वास्तविक location-date छान्ने
             const targetLocation = document.querySelector('.flex.items-center.gap-2.overflow-hidden .location-date');
 
             if (targetLocation) {
-                // टार्गेट डिभभित्र नघुसाई त्यसको ठीक बाहिर (Next Sibling) राख्ने ताकि फ्लेक्स लेआउट नबिग्रियोस्
                 targetLocation.parentNode.insertBefore(printBtn, targetLocation.nextSibling);
-                console.log("✅ सही ठाउँमा बटन राखियो।");
             } else {
-                // यदि क्लास भेटिएन भने ब्याकअपको रूपमा पहिलो location-date को बाहिर राख्ने
                 const fallback = document.querySelector('.location-date');
-                if (fallback) {
-                    fallback.parentNode.insertBefore(printBtn, fallback.nextSibling);
-                }
+                if (fallback) fallback.parentNode.insertBefore(printBtn, fallback.nextSibling);
             }
         }
 
@@ -209,5 +196,5 @@
     } else {
         runToolkit();
     }
-    setTimeout(runToolkit, 1200); // ब्लगरको ढिलो लोड हुने संरचनाको लागि
+    setTimeout(runToolkit, 1200);
 })();
