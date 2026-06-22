@@ -1,30 +1,30 @@
 /**
- * Universal Ultimate Multi-functional Print, Crop & A4 Layout Toolkit
- * यो कोड ब्लगर, वर्डप्रेस, र जुनसुकै वेबसाइटमा पनि स्वतः चल्छ।
+ * Ultimate Universal Web Page Print & A4 Layout Toolkit
+ * ब्लगर, वर्डप्रेस र जुनसुकै थिममा १००% बटन देखाउने र चल्ने क्लास।
  */
-class UniversalPrintToolkit {
+class UltimatePrintToolkit {
     constructor() {
-        // १. तपाईंको कस्टम आईडी र वेबसाइटका अन्य सम्भावित कन्टेन्ट एरियाहरू
+        // १. कन्फिगरेसन र क्लास/आईडीहरूको प्राथमिकता सूची
         this.customContainerId = 'fanda-print-container';
         
         this.contentSelectors = [
-            '.post-body', 'article', '#main-content', '.entry-content', '.site-main', '.post', '#content'
+            '.post-body', 'article', '#main-content', '.entry-content', '.site-main', '#content'
         ];
         
         this.targetSelectors = [
             '.post-timestamp', '.entry-date', '.author-line', '.post-meta', 
-            '#post-meta', '.tg-post-date', '.meta-wrapper'
+            '.tg-post-date', '.meta-wrapper', '.post-share-buttons'
         ];
         
         this.init();
     }
 
-    // २. CSS स्टाइलहरू हेडमा इन्जेक्ट गर्ने (A4 Layout र UI)
+    // २. CSS स्टाइल हेडमा राख्ने (A4 Multi-page प्रिन्ट लेआउट र बटन डिजाइन)
     injectStyles() {
-        if (document.getElementById('universal-toolkit-styles')) return;
+        if (document.getElementById('ultimate-toolkit-styles')) return;
         
         const style = document.createElement('style');
-        style.id = 'universal-toolkit-styles';
+        style.id = 'ultimate-toolkit-styles';
         style.innerHTML = `
             @media print {
                 body * { visibility: hidden !important; }
@@ -42,23 +42,36 @@ class UniversalPrintToolkit {
                 .crop-modal, .btn-group, .custom-print-btn { display: none !important; }
             }
 
+            /* प्रिन्ट बटनको स्टाइल */
             .custom-print-btn {
-                background-color: #28a745; color: white !important; border: none; 
-                padding: 5px 10px; font-size: 13px; font-weight: bold; cursor: pointer; 
-                border-radius: 4px; display: inline-flex; align-items: center; 
-                margin: 5px; vertical-align: middle; z-index: 9999;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                background-color: #28a745 !important; 
+                color: white !important; 
+                border: none !important; 
+                padding: 6px 12px !important; 
+                font-size: 13px !important; 
+                font-weight: bold !important; 
+                cursor: pointer !important; 
+                border-radius: 4px !important; 
+                display: inline-flex !important; 
+                align-items: center !important; 
+                margin: 5px !important; 
+                vertical-align: middle !important;
+                z-index: 99999 !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+                font-family: sans-serif !important;
             }
-            .custom-print-btn:hover { background-color: #218838; }
+            .custom-print-btn:hover { background-color: #218838 !important; }
             
-            .universal-top-bar {
-                position: fixed; top: 15px; right: 15px; z-index: 999999;
+            /* यदि कतै ठाउँ नभेटिएमा स्क्रिनको दायाँ देखिने फ्लोटिङ बार */
+            .universal-floating-bar {
+                position: fixed !important; top: 20px !important; right: 20px !important; z-index: 999999 !important;
             }
 
+            /* पप-अप विन्डो (Modal) */
             .crop-modal { 
                 display: none; position: fixed; top: 0; left: 0; 
                 width: 100%; height: 100%; background: rgba(0,0,0,0.85); 
-                z-index: 999999; overflow: auto; padding: 20px; font-family: sans-serif;
+                z-index: 9999999; overflow: auto; padding: 20px; font-family: sans-serif;
             }
             .crop-box { 
                 max-width: 850px; margin: 30px auto; background: white; 
@@ -73,7 +86,7 @@ class UniversalPrintToolkit {
         document.head.appendChild(style);
     }
 
-    // ३. पप-अप विन्डो (Modal) बनाउने
+    // ३. पप-अप मोडल बनाउने
     createModal() {
         if (document.getElementById('printCropModal')) return;
 
@@ -104,7 +117,7 @@ class UniversalPrintToolkit {
         }
     }
 
-    // ४. मुख्य पोष्टलाई मात्र छानेर मल्टि-पेज A4 मा कन्भर्ट गर्ने
+    // ४. ए४ मल्टि-पेज लेआउट तयार गर्ने मल्टि-फङ्क्सनल कोर
     preparePrintContent() {
         let mainContent = null;
         for (let selector of this.contentSelectors) {
@@ -117,11 +130,11 @@ class UniversalPrintToolkit {
         const printWrapper = document.getElementById('print-area-wrapper');
         printWrapper.innerHTML = mainContent.innerHTML;
 
-        // स्वतः अर्को पाना (Page Break) थप्ने मल्टि-फङ्क्सनल प्रणाली
+        // स्वचालित रूपमा पाना काट्ने (Page Break)
         setTimeout(() => {
             const children = printWrapper.children;
             let currentHeight = 0;
-            const maxPageHeight = 980; 
+            const maxPageHeight = 950; 
 
             for (let i = 0; i < children.length; i++) {
                 currentHeight += children[i].offsetHeight || 0;
@@ -133,10 +146,10 @@ class UniversalPrintToolkit {
                 }
             }
             this.toggleModal(true);
-        }, 100);
+        }, 150);
     }
 
-    // ५. युनिभर्सल बटन रेन्डर प्रणाली (प्राथमिकताको आधारमा)
+    // ५. ग्यारेन्टीका साथ बटन देखाउने एम्बेड प्रणाली
     renderButton() {
         if (document.getElementById('instant-print-btn')) return;
 
@@ -146,15 +159,14 @@ class UniversalPrintToolkit {
         printBtn.innerHTML = '🖨️ A4 प्रिन्ट / क्रप';
         printBtn.onclick = () => this.preparePrintContent();
 
-        // क) प्राथमिकता १: तपाईंले थिममा राख्नुभएको निश्चित आईडी (#fanda-print-container) चेक गर्ने
+        // क) पहिलो प्रयास: तपाईंको कस्टम आईडी चेक गर्ने
         const customContainer = document.getElementById(this.customContainerId);
         if (customContainer) {
             customContainer.appendChild(printBtn);
-            console.log("✅ निश्चित HTML ID भित्र प्रिन्ट बटन थपियो।");
             return;
         }
 
-        // ख) प्राथमिकता २: यदि आईडी फेला परेन भने थिमको मिति वा सेयर क्लास स्वतः खोज्ने
+        // ख) दोस्रो प्रयास: थिमको मिति वा सामाजिक सेयर क्लास खोज्ने
         let targetLocation = null;
         for (let selector of this.targetSelectors) {
             targetLocation = document.querySelector(selector);
@@ -162,18 +174,15 @@ class UniversalPrintToolkit {
         }
 
         if (targetLocation) {
-            targetLocation.style.display = 'inline-block';
             targetLocation.parentNode.insertBefore(printBtn, targetLocation.nextSibling);
-            console.log("✅ थिमको क्लास पहिचान गरी बटन थपियो।");
             return;
         }
 
-        // ग) प्राथमिकता ३: यदि केही पनि भेटिएन भने स्क्रिनको दायाँ कुनामा Floating बटन राख्ने (Universal Fallback)
-        const topBar = document.createElement('div');
-        topBar.className = 'universal-top-bar';
-        topBar.appendChild(printBtn);
-        document.body.appendChild(topBar);
-        console.log("✅ युनिभर्सल फ्लोटिङ बारमा प्रिन्ट बटन थपियो।");
+        // ग) तेस्रो प्रयास (Fallback): यदि केही भेटिएन भने स्क्रिनको दायाँ कुनामा Floating बटन राख्ने
+        const floatingBar = document.createElement('div');
+        floatingBar.className = 'universal-floating-bar';
+        floatingBar.appendChild(printBtn);
+        document.body.appendChild(floatingBar);
     }
 
     init() {
@@ -183,9 +192,13 @@ class UniversalPrintToolkit {
     }
 }
 
-// वेबसाइट पूर्ण रूपमा लोड भएपछि रन गर्ने
+// ब्लगरको ढिलो लोड हुने समस्या समाधान गर्न मल्टिपल चेकिङ लोड प्रणाली
+const startToolkit = () => { new UltimatePrintToolkit(); };
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new UniversalPrintToolkit());
+    document.addEventListener('DOMContentLoaded', startToolkit);
 } else {
-    setTimeout(() => { new UniversalPrintToolkit(); }, 500);
+    startToolkit();
 }
+// सेफ साइडका लागि १ सेकेन्डपछि फेरि चेक गर्ने (ब्लगर डायनामिक एलिमेन्ट्सको लागि)
+setTimeout(startToolkit, 1000);
