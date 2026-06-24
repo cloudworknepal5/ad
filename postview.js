@@ -1,5 +1,5 @@
 /**
- * Neelamb - Visitor Counter (Every Hit Edition)
+ * Rastriya Sahara Daily - Visitor Counter (Fixed Post ID & Every Hit)
  */
 const BloggerCounter = {
     config: {
@@ -11,12 +11,20 @@ const BloggerCounter = {
         return n.toString().split('').map(c => this.config.numMap[c] || c).join('');
     },
     initCounter: async function() {
-        // ID वा Class दुवै सर्च गर्ने
         const el = document.getElementById("visitor-count") || document.querySelector(".visitor-count");
         if (!el) return;
         
-        // बडी क्लासबाट पोष्ट आईडी लिने
-        const pId = document.body.className.match(/postid-(\d+)/) ? "post_" + document.body.className.match(/postid-(\d+)/)[1] : "home";
+        // वर्डप्रेस र ब्लगर दुवैको क्लास वा आईडीबाट पोष्ट नम्बर तान्ने (सुधारिएको)
+        let pId = "home";
+        const bodyClass = document.body.className;
+        const match = bodyClass.match(/postid-(\d+)/) || bodyClass.match(/item-id-(\d+)/);
+        
+        if (match && match[1]) {
+            pId = "post_" + match[1];
+        } else if (window.location.pathname !== "/") {
+            // यदि क्लास भेटिएन तर भित्री पेज हो भने लिङ्कको नामलाई नै आईडी बनाउने
+            pId = "page_" + window.location.pathname.replace(/[^a-zA-Z0-9]/g, "_");
+        }
         
         try {
             const url = `${this.config.databaseURL}/views/${pId}.json`;
@@ -25,13 +33,13 @@ const BloggerCounter = {
             let res = await fetch(url);
             let count = await res.json() || 0;
             
-            // २. प्रत्येक हिटमा बिना कुनै रोकावट १ अंक बढाउने (Session हटाएको)
+            // २. प्रत्येक हिटमा १ अंक बढाउने
             count++;
             
-            // ३. नयाँ काउन्ट डाटाबेसमा सेभ गर्ने
+            // ३. डाटाबेसमा सेभ गर्ने
             await fetch(url, { method: 'PUT', body: JSON.stringify(count) });
             
-            // ४. आइकन र नम्बर नेपालीमा देखाउने
+            // ४. नेपालीमा देखाउने
             const eyeIcon = `<svg style="width:16px;height:16px;margin-right:6px;fill:currentColor;vertical-align:middle;" viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg"><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4 142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.4 78.1-95.4 92.9-131.1 3.3-7.9 3.3-16.7 0-24.6C558.7 208 527.4 156 480.6 112.6 433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64a64 64 0 1 0 0 128 64 64 0 1 0 0-128z"/></svg>`;
             el.innerHTML = `${eyeIcon}<span style="font-weight:bold; vertical-align:middle;">${this.toNep(count)}</span>`;
         } catch (e) { 
