@@ -14,7 +14,7 @@ const BloggerDateTool = {
             'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
             'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
             'July': { m: 'साउन', offset: 56, start: 16, prevDays: 15 },
-            'August': { m: 'भदौ', offset: 57, start: 22, prevDays: 19 }, // साउन/भदौको सही हिसाब मिलाउन सच्याइएको
+            'August': { m: 'भदौ', offset: 57, start: 18, prevDays: 18 }, // साउन १९ देखाउन सही गरिएको मान
             'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
             'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
             'November': { m: 'मंसिर', offset: 57, start: 17, prevDays: 14 },
@@ -34,7 +34,7 @@ const BloggerDateTool = {
         return this.config.weekdays[dateObj.getDay()];
     },
 
-    // मल्टि-फङ्सन ३: सबै एलिमेन्टहरूमा मिति कन्भर्ट गरेर अपडेट गर्ने
+    // मल्टि-फङ्सन ३: मिति कन्भर्ट गरेर अपडेट गर्ने
     convertDates: function(elements) {
         elements.forEach(el => {
             const match = el.innerText.trim().match(/([a-zA-Z]+)\s(\d+),\s(\d+)/);
@@ -59,7 +59,7 @@ const BloggerDateTool = {
             const bsYear = (eM === 'April' && dInt < 14) ? yInt + 56 : yInt + data.offset;
             const dayName = this.getDayName(eM, eD, eY);
             
-            el.innerText = `${dayName}, ${bsMonth} `${this.toNep(bsDay)}, ${this.toNep(bsYear)}`;
+            el.innerText = `${dayName}, ${bsMonth} ${this.toNep(bsDay)}, ${this.toNep(bsYear)}`;
         });
     },
 
