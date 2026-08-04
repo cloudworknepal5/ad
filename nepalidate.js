@@ -13,8 +13,8 @@ const BloggerDateTool = {
             'April': { m: 'वैशाख', offset: 57, start: 14, prevDays: 17 },
             'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
             'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
-            'July': { m: 'साउन', offset: 57, start: 17, prevDays: 16 },
-            'August': { m: 'भदौ', offset: 57, start: 18, prevDays: 18 }, // साउन १९ देखाउन सच्याइएको
+            'July': { m: 'साउन', offset: 56, start: 16, prevDays: 15 },
+            'August': { m: 'भदौ', offset: 57, start: 22, prevDays: 19 }, // अगस्ट ४ तारिखलाई साउन १९ देखाउन सच्याइएको
             'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
             'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
             'November': { m: 'मंसिर', offset: 57, start: 17, prevDays: 14 },
@@ -22,21 +22,20 @@ const BloggerDateTool = {
         }
     },
 
-    // नम्बरलाई नेपालीमा बदल्ने मल्टि-फङ्सन १
+    // मल्टि-फङ्सन १: अङ्कलाई नेपालीमा रूपान्तरण गर्ने
     toNep: function(n) {
         if (n === undefined || n === null) return '';
         return n.toString().split('').map(c => this.config.numMap[c] || c).join('');
     },
 
-    // हप्ताको बार निकाल्ने मल्टि-फङ्सन २
+    // मल्टि-फङ्सन २: अंग्रेजी मितिबाट बार निकाल्ने
     getDayName: function(eM, eD, eY) {
         const dateObj = new Date(`${eM} ${eD}, ${eY}`);
         return this.config.weekdays[dateObj.getDay()];
     },
 
-    // मिति कन्भर्ट गर्ने मुख्य मल्टि-फङ्सन ३
-    initDateTool: function() {
-        const elements = document.querySelectorAll(".location-date");
+    // मल्टि-फङ्सन ३: सबै एलिमेन्टहरूमा मिति कन्भर्ट गरेर अपडेट गर्ने
+    convertDates: function(elements) {
         elements.forEach(el => {
             const match = el.innerText.trim().match(/([a-zA-Z]+)\s(\d+),\s(\d+)/);
             if (!match) return;
@@ -62,6 +61,14 @@ const BloggerDateTool = {
             
             el.innerText = `${dayName}, ${bsMonth} ${this.toNep(bsDay)}, ${this.toNep(bsYear)}`;
         });
+    },
+
+    // मुख्य इनिसिएलाइजेसन फङ्सन
+    initDateTool: function() {
+        const elements = document.querySelectorAll(".location-date");
+        if (elements.length > 0) {
+            this.convertDates(elements);
+        }
     }
 };
 
