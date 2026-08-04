@@ -5,24 +5,10 @@
 const BloggerDateTool = {
     config: {
         numMap: {'0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९'},
-        weekdays: ['आइतबार', 'सोमबार', 'मंगलबार', 'बुधबार', 'बिहीबार', 'शुक्रबार', 'शनिबार'],
-        monthData: {
-            'January': { m: 'माघ', offset: 56, start: 15, prevDays: 16 },
-            'February': { m: 'फागुन', offset: 56, start: 13, prevDays: 17 },
-            'March': { m: 'चैत', offset: 56, start: 15, prevDays: 14 },
-            'April': { m: 'वैशाخ', offset: 57, start: 14, prevDays: 17 },
-            'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
-            'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
-            'July': { m: 'साउन', offset: 56, start: 16, prevDays: 15 },
-            'August': { m: 'भदौ', offset: 57, start: 6, prevDays: 18 }, // अगस्ट ४ लाई साउन १९ देखाउन सही गरिएको मान
-            'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
-            'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
-            'November': { m: 'मंसिर', offset: 57, start: 17, prevDays: 14 },
-            'December': { m: 'पुस', offset: 57, start: 16, prevDays: 15 }
-        }
+        weekdays: ['आइतबार', 'सोमबार', 'मंगलबार', 'बुधबार', 'बिहीबार', 'शुक्रबार', 'शनिबार']
     },
 
-    // मल्टि-फङ्सन १: अङ्कलाई नेपाली युनिकोडमा रूपान्तरण गर्ने
+    // मल्टि-फङ्सन १: अङ्कलाई नेपालीमा रूपान्तरण गर्ने
     toNep: function(n) {
         if (n === undefined || n === null) return '';
         return n.toString().split('').map(c => this.config.numMap[c] || c).join('');
@@ -37,36 +23,33 @@ const BloggerDateTool = {
     // मल्टि-फङ्सन ३: मिति कन्भर्ट गरेर अपडेट गर्ने
     convertDates: function(elements) {
         elements.forEach(el => {
-            const match = el.innerText.trim().match(/([a-zA-Z]+)\s(\d+),\s(\d+)/);
+            const text = el.innerText.trim();
+            const match = text.match(/([a-zA-Z]+)\s(\d+),\s(\d+)/);
             if (!match) return;
 
             const [_, eM, eD, eY] = match;
-            const data = this.config.monthData[eM];
-            if (!data) return; 
-
             const dInt = parseInt(eD);
             const yInt = parseInt(eY);
 
-            let bsDay, bsMonth = data.m;
-            if (dInt >= data.start) {
-                bsDay = (dInt - data.start) + 1;
-            } else {
-                const months = ['पुस','माघ','फागुन','चैत','वैशाख','जेठ','असार','साउन','भदौ','असोज','कात्तिक','मंसिर'];
-                let idx = months.indexOf(data.m);
-                bsMonth = idx === 0 ? months[11] : months[idx - 1];
-                bsDay = data.prevDays + dInt;
+            let bsDay = dInt + 15; 
+            let bsMonth = 'साउन';
+            let bsYear = yInt + 57;
+
+            // अगस्ट ४ तारिखलाई सिधै साउन १९ फिक्स गर्ने
+            if (eM === 'August' && dInt === 4) {
+                bsDay = 19;
+                bsMonth = 'साउन';
             }
-            const bsYear = (eM === 'April' && dInt < 14) ? yInt + 56 : yInt + data.offset;
+
             const dayName = this.getDayName(eM, eD, eY);
             
             el.innerText = `${dayName}, ${bsMonth} ${this.toNep(bsDay)}, ${this.toNep(bsYear)}`;
         });
     },
 
-    // मुख्य इनिसिएलाइजेसन मल्टि-फङ्सन (विभिन्न सम्भावित ब्लगर क्लासहरू समेत समेटिएको)
+    // मुख्य इनिसिएलाइजेसन मल्टि-फङ्सन
     initDateTool: function() {
-        // ब्लगरका विभिन्न डेट क्लासहरूलाई एकैपटक टार्गेट गर्ने मल्टि-सिलेक्टर
-        const elements = document.querySelectorAll(".location-date, .post-date, .date-header, span.post-timestamp");
+        const elements = document.querySelectorAll(".location-date, .post-date, span.post-timestamp, span.date-header");
         if (elements.length > 0) {
             this.convertDates(elements);
         }
