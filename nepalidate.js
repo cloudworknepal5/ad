@@ -13,7 +13,7 @@ const BloggerDateTool = {
             'April': { m: 'वैशाख', offset: 57, start: 14, prevDays: 17 },
             'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
             'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
-            'July': { m: 'साउन', offset: 57, start: 17, prevDays: 16 },
+            'July': { m: 'साउन', offset: 56, start: 17, prevDays: 16 },
             'August': { m: 'भदौ', offset: 57, start: 17, prevDays: 16 },
             'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
             'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
