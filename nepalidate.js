@@ -14,7 +14,7 @@ const BloggerDateTool = {
             'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
             'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
             'July': { m: 'साउन', offset: 56, start: 16, prevDays: 15 },
-            'August': { m: 'भदौ', offset: 57, start: 18, prevDays: 18 }, // साउन १९ देखाउन सही गरिएको मान
+            'August': { m: 'भदौ', offset: 57, start: 22, prevDays: 19 },
             'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
             'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
             'November': { m: 'मंसिर', offset: 57, start: 17, prevDays: 14 },
