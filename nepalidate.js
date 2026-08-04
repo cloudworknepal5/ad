@@ -1,3 +1,7 @@
+/**
+ * Blogger Toolbox - English to Nepali Date Converter Only
+ * Features: English to Nepali Date Conversion, Multi-function support
+ */
 const BloggerDateTool = {
     config: {
         numMap: {'0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९'},
@@ -9,8 +13,8 @@ const BloggerDateTool = {
             'April': { m: 'वैशाख', offset: 57, start: 14, prevDays: 17 },
             'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
             'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
-            'July': { m: 'साउन', offset: 56, start: 17, prevDays: 15 }, // सच्याइएको
-            'August': { m: 'भदौ', offset: 57, start: 18, prevDays: 19 }, // सच्याइएको
+            'July': { m: 'साउन', offset: 56, start: 16, prevDays: 15 },
+            'August': { m: 'भदौ', offset: 57, start: 18, prevDays: 18 }, // साउन १९ देखाउन सच्याइएको
             'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
             'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
             'November': { m: 'मंसिर', offset: 57, start: 17, prevDays: 14 },
@@ -18,13 +22,19 @@ const BloggerDateTool = {
         }
     },
 
-    // नम्बरलाई नेपालीमा बदल्ने मल्टि-फङ्सन
+    // नम्बरलाई नेपालीमा बदल्ने मल्टि-फङ्सन १
     toNep: function(n) {
         if (n === undefined || n === null) return '';
         return n.toString().split('').map(c => this.config.numMap[c] || c).join('');
     },
 
-    // मिति कन्भर्ट गर्ने मुख्य मल्टि-फङ्सन
+    // हप्ताको बार निकाल्ने मल्टि-फङ्सन २
+    getDayName: function(eM, eD, eY) {
+        const dateObj = new Date(`${eM} ${eD}, ${eY}`);
+        return this.config.weekdays[dateObj.getDay()];
+    },
+
+    // मिति कन्भर्ट गर्ने मुख्य मल्टि-फङ्सन ३
     initDateTool: function() {
         const elements = document.querySelectorAll(".location-date");
         elements.forEach(el => {
@@ -48,14 +58,14 @@ const BloggerDateTool = {
                 bsDay = data.prevDays + dInt;
             }
             const bsYear = (eM === 'April' && dInt < 14) ? yInt + 56 : yInt + data.offset;
-            const dayName = this.config.weekdays[new Date(`${eM} ${eD}, ${eY}`).getDay()];
+            const dayName = this.getDayName(eM, eD, eY);
             
             el.innerText = `${dayName}, ${bsMonth} ${this.toNep(bsDay)}, ${this.toNep(bsYear)}`;
         });
     }
 };
 
-// पेज लोड भएपछि मल्टि-फङ्सन रन गर्ने
+// पेज लोड पूरा भएपछि मल्टि-फङ्सन रन गर्ने
 window.addEventListener('load', () => {
     BloggerDateTool.initDateTool();
 });
