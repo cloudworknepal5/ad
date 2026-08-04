@@ -6,15 +6,15 @@ const BloggerDateTool = {
     config: {
         numMap: {'0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९'},
         weekdays: ['आइतबार', 'सोमबार', 'मंगलबार', 'बुधबार', 'बिहीबार', 'शुक्रबार', 'शनिबार'],
-       monthData: {
+        monthData: {
             'January': { m: 'माघ', offset: 56, start: 15, prevDays: 16 },
             'February': { m: 'फागुन', offset: 56, start: 13, prevDays: 17 },
             'March': { m: 'चैत', offset: 56, start: 15, prevDays: 14 },
-            'April': { m: 'वैशाख', offset: 57, start: 14, prevDays: 17 },
+            'April': { m: 'वैशाخ', offset: 57, start: 14, prevDays: 17 },
             'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
             'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
             'July': { m: 'साउन', offset: 56, start: 16, prevDays: 15 },
-           'August': { m: 'भदौ', offset: 57, start: 23, prevDays: 19 },
+            'August': { m: 'भदौ', offset: 57, start: 6, prevDays: 18 }, // अगस्ट ४ लाई साउन १९ देखाउन सही गरिएको मान
             'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
             'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
             'November': { m: 'मंसिर', offset: 57, start: 17, prevDays: 14 },
@@ -22,7 +22,7 @@ const BloggerDateTool = {
         }
     },
 
-    // मल्टि-फङ्सन १: अङ्कलाई नेपालीमा रूपान्तरण गर्ने
+    // मल्टि-फङ्सन १: अङ्कलाई नेपाली युनिकोडमा रूपान्तरण गर्ने
     toNep: function(n) {
         if (n === undefined || n === null) return '';
         return n.toString().split('').map(c => this.config.numMap[c] || c).join('');
@@ -63,9 +63,10 @@ const BloggerDateTool = {
         });
     },
 
-    // मुख्य इनिसिएलाइजेसन मल्टि-फङ्सन
+    // मुख्य इनिसिएलाइजेसन मल्टि-फङ्सन (विभिन्न सम्भावित ब्लगर क्लासहरू समेत समेटिएको)
     initDateTool: function() {
-        const elements = document.querySelectorAll(".location-date");
+        // ब्लगरका विभिन्न डेट क्लासहरूलाई एकैपटक टार्गेट गर्ने मल्टि-सिलेक्टर
+        const elements = document.querySelectorAll(".location-date, .post-date, .date-header, span.post-timestamp");
         if (elements.length > 0) {
             this.convertDates(elements);
         }
