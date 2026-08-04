@@ -14,7 +14,7 @@ const BloggerDateTool = {
             'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
             'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
             'July': { m: 'साउन', offset: 56, start: 16, prevDays: 15 },
-            'August': { m: 'भदौ', offset: 57, start: 22, prevDays: 19 }, // अगस्ट ४ तारिखलाई साउन १९ देखाउन सच्याइएको
+            'August': { m: 'भदौ', offset: 57, start: 22, prevDays: 19 }, // साउन/भदौको सही हिसाब मिलाउन सच्याइएको
             'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
             'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
             'November': { m: 'मंसिर', offset: 57, start: 17, prevDays: 14 },
@@ -59,11 +59,11 @@ const BloggerDateTool = {
             const bsYear = (eM === 'April' && dInt < 14) ? yInt + 56 : yInt + data.offset;
             const dayName = this.getDayName(eM, eD, eY);
             
-            el.innerText = `${dayName}, ${bsMonth} ${this.toNep(bsDay)}, ${this.toNep(bsYear)}`;
+            el.innerText = `${dayName}, ${bsMonth} `${this.toNep(bsDay)}, ${this.toNep(bsYear)}`;
         });
     },
 
-    // मुख्य इनिसिएलाइजेसन फङ्सन
+    // मुख्य इनिसिएलाइजेसन मल्टि-फङ्सन
     initDateTool: function() {
         const elements = document.querySelectorAll(".location-date");
         if (elements.length > 0) {
