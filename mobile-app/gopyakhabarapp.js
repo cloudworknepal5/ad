@@ -1,5 +1,7 @@
 /**
  * Gopyakhabar - Universal PWA Manager (v2.1)
+ * Works on Blogger, WordPress, and Custom Sites.
+ * Functions: Dynamic Manifest, Advanced Service Worker, Offline Support, Auto-Install Prompt, and Multi-Function Utility.
  */
 
 const PWA_MANAGER = {
@@ -46,11 +48,27 @@ const PWA_MANAGER = {
         document.head.appendChild(appleIcon);
     },
 
-    // Function 2: Service Worker Registration (Using standard file path)
+    // Function 2: Advanced Service Worker Registration using Blob URL
     registerAdvancedSW: function() {
         if ('serviceWorker' in navigator) {
-            // नोट: स्व-तैयार sw.js फाइल रुट डाइरेक्टरीमा राख्नु पर्छ
-            navigator.serviceWorker.register('/sw.js').then(() => {
+            const swCode = `
+                const CACHE_NAME = 'birgunj-v2';
+                const OFFLINE_URL = '/'; 
+                self.addEventListener('install', (event) => {
+                    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.add(OFFLINE_URL)));
+                });
+                self.addEventListener('fetch', (event) => {
+                    if (event.request.mode === 'navigate') {
+                        event.respondWith(
+                            fetch(event.request).catch(() => caches.match(OFFLINE_URL))
+                        );
+                    }
+                });
+            `;
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+
+            navigator.serviceWorker.register(swUrl).then(() => {
                 console.log("PWA: Service Worker Active with Offline Support");
             }).catch((err) => {
                 console.error("SW registration failed: ", err);
@@ -61,7 +79,7 @@ const PWA_MANAGER = {
     // Function 3: Professional Install Prompt UI
     initInstallUI: function() {
         const bannerHTML = `
-            <div id="pwa-banner" style="display:none; position:fixed; bottom:20px; left:15px; right:15px; background:#fff; padding:15px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.2); z-index:999999; align-items:center; font-family:sans-serif; border:1px solid #eee;">
+            <div id="pware-banner" style="display:none; position:fixed; bottom:20px; left:15px; right:15px; background:#fff; padding:15px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.2); z-index:999999; align-items:center; font-family:sans-serif; border:1px solid #eee;">
                 <img src="${this.settings.icon}" style="width:48px; height:48px; border-radius:10px; margin-right:12px;" />
                 <div style="flex-grow:1;">
                     <div style="font-weight:bold; font-size:15px; color:#333;">${this.settings.name}</div>
@@ -72,7 +90,7 @@ const PWA_MANAGER = {
             </div>`;
         
         document.body.insertAdjacentHTML('beforeend', bannerHTML);
-        const banner = document.getElementById('pwa-banner');
+        const banner = document.getElementById('pware-banner') || document.getElementById('pwa-banner');
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
