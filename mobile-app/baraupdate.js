@@ -10,7 +10,7 @@ const PWA_MANAGER = {
         name: "baraupdate",
         shortName: "baraupdate",
         themeColor: "#2196f3",
-        icon: "https://baraupdate.com.np/wp-content/uploads/2024/06/bara-update-logo-512.jpg"
+        icon: "https://baraupdate.com.np/wp-content/uploads/2026/08/512-1.jpg"
     },
 
     init: function() {
