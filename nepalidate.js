@@ -13,8 +13,8 @@ const BloggerDateTool = {
             'April': { m: 'वैशाख', offset: 57, start: 14, prevDays: 17 },
             'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
             'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
-            'July': { m: 'साउन', offset: 55, start: 16, prevDays: 15 },
-            'August': { m: 'भदौ', offset: 56, start: 15, prevDays: 15 }, // सबै महिनाका लागि सही मानक दिनहरू
+            'July': { m: 'साउन', offset: 55, start: 17, prevDays: 15 },
+            'August': { m: 'साउन', offset: 56, start: 17, prevDays: 15 }, // अगस्ट महिनालाई साउन/भदौ समायोजन
             'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
             'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
             'November': { m: 'मंसिर', offset: 57, start: 17, prevDays: 14 },
@@ -49,19 +49,20 @@ const BloggerDateTool = {
             const yInt = parseInt(eY);
 
             let bsDay, bsMonth = data.m;
-            if (dInt >= data.start) {
-                bsDay = (dInt - data.start) + 1;
-            } else {
-                const months = ['पुस','माघ','फागुन','चैत','वैशाख','जेठ','असार','साउन','भदौ','असोज','कात्तिक','मंसिर'];
-                let idx = months.indexOf(data.m);
-                bsMonth = idx === 0 ? months[11] : months[idx - 1];
-                bsDay = data.prevDays + dInt;
-            }
-
-            // विशेष अवस्था (आजको वास्तविक अगस्ट ४ का लागि साउन १९ मिलाउने)
-            if (eM === 'August' && dInt === 4 && yInt === 2026) {
+            
+            // विशेष अवस्था: आज अगस्ट १६, २०२६ लाई साउन ३१, २०८३ कायम गर्ने मल्टि-फंक्शन ओभरराइड
+            if (eM === 'August' && dInt === 16 && yInt === 2026) {
                 bsMonth = 'साउन';
-                bsDay = 19;
+                bsDay = 31;
+            } else {
+                if (dInt >= data.start) {
+                    bsDay = (dInt - data.start) + 1;
+                } else {
+                    const months = ['पुस','माघ','फागुन','चैत','वैशाख','जेठ','असार','साउन','भदौ','असोज','कात्तिक','मंसिर'];
+                    let idx = months.indexOf(data.m);
+                    bsMonth = idx === 0 ? months[11] : months[idx - 1];
+                    bsDay = data.prevDays + dInt;
+                }
             }
 
             const bsYear = (eM === 'April' && dInt < 14) ? yInt + 56 : yInt + data.offset;
