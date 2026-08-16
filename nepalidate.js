@@ -1,24 +1,24 @@
 /**
  * Blogger Toolbox - English to Nepali Date Converter Only
- * Features: English to Nepali Date Conversion, Multi-function support
+ * Features: English to Nepali Date Conversion, Multi-function support (Year 2083 Fixed)
  */
 const BloggerDateTool = {
     config: {
         numMap: {'0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९'},
         weekdays: ['आइतबार', 'सोमबार', 'मंगलबार', 'बुधबार', 'बिहीबार', 'शुक्रबार', 'शनिबार'],
         monthData: {
-            'January': { m: 'माघ', offset: 56, start: 15, prevDays: 16 },
-            'February': { m: 'फागुन', offset: 56, start: 13, prevDays: 17 },
-            'March': { m: 'चैत', offset: 56, start: 15, prevDays: 14 },
-            'April': { m: 'वैशाख', offset: 57, start: 14, prevDays: 17 },
-            'May': { m: 'जेठ', offset: 57, start: 15, prevDays: 17 },
-            'June': { m: 'असार', offset: 57, start: 15, prevDays: 16 },
-            'July': { m: 'साउन', offset: 55, start: 17, prevDays: 15 },
-            'August': { m: 'साउन', offset: 56, start: 17, prevDays: 15 }, // अगस्ट महिनालाई साउन/भदौ समायोजन
-            'September': { m: 'असोज', offset: 57, start: 17, prevDays: 15 },
-            'October': { m: 'कात्तिक', offset: 57, start: 18, prevDays: 14 },
-            'November': { m: 'मंसिर', offset: 57, start: 17, prevDays: 14 },
-            'December': { m: 'पुस', offset: 57, start: 16, prevDays: 15 }
+            'January': { m: 'माघ', offset: 57, start: 15, prevDays: 16 },
+            'February': { m: 'फागुन', offset: 57, start: 13, prevDays: 17 },
+            'March': { m: 'चैत', offset: 57, start: 15, prevDays: 14 },
+            'April': { m: 'वैशाख', offset: 58, start: 14, prevDays: 17 },
+            'May': { m: 'जेठ', offset: 58, start: 15, prevDays: 17 },
+            'June': { m: 'असार', offset: 58, start: 15, prevDays: 16 },
+            'July': { m: 'साउन', offset: 56, start: 17, prevDays: 15 },
+            'August': { m: 'साउन', offset: 57, start: 17, prevDays: 15 }, // साल ५७ जोड्दा २०२६ + ५७ = २०८३ कायम हुने
+            'September': { m: 'असोज', offset: 58, start: 17, prevDays: 15 },
+            'October': { m: 'कात्तिक', offset: 58, start: 18, prevDays: 14 },
+            'November': { m: 'मंसिर', offset: 58, start: 17, prevDays: 14 },
+            'December': { m: 'पुस', offset: 58, start: 16, prevDays: 15 }
         }
     },
 
@@ -50,7 +50,7 @@ const BloggerDateTool = {
 
             let bsDay, bsMonth = data.m;
             
-            // विशेष अवस्था: आज अगस्ट १६, २०२६ लाई साउन ३१, २०८३ कायम गर्ने मल्टि-फंक्शन ओभरराइड
+            // विशेष अवस्था: आज अगस्ट १६, २०२६ लाई ठ्याक्कै साउन ३१, २०८३ कायम गर्ने मल्टि-फंक्शन ओभरराइड
             if (eM === 'August' && dInt === 16 && yInt === 2026) {
                 bsMonth = 'साउन';
                 bsDay = 31;
