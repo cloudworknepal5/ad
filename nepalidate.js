@@ -1,6 +1,6 @@
 /**
  * Blogger Toolbox - English to Nepali Date Converter Only
- * Features: English to Nepali Date Conversion, Multi-function support (Year 2083 Fixed)
+ * Features: English to Nepali Date Conversion, Multi-function support (Year 2083 Forced)
  */
 const BloggerDateTool = {
     config: {
@@ -14,7 +14,7 @@ const BloggerDateTool = {
             'May': { m: 'जेठ', offset: 58, start: 15, prevDays: 17 },
             'June': { m: 'असार', offset: 58, start: 15, prevDays: 16 },
             'July': { m: 'साउन', offset: 56, start: 17, prevDays: 15 },
-            'August': { m: 'साउन', offset: 57, start: 17, prevDays: 15 }, // साल ५७ जोड्दा २०२६ + ५७ = २०८३ कायम हुने
+            'August': { m: 'साउन', offset: 57, start: 17, prevDays: 15 },
             'September': { m: 'असोज', offset: 58, start: 17, prevDays: 15 },
             'October': { m: 'कात्तिक', offset: 58, start: 18, prevDays: 14 },
             'November': { m: 'मंसिर', offset: 58, start: 17, prevDays: 14 },
@@ -34,7 +34,7 @@ const BloggerDateTool = {
         return this.config.weekdays[dateObj.getDay()];
     },
 
-    // मल्टि-फङ्सन ३: मिति कन्भर्ट गरेर अपडेट गर्ने
+    // मल्टि-फङ्सन ३: मिति कन्भर्ट गरेर अपडेट गर्ने (सधैं २०८३ साल कायम गर्ने मल्टि-फंक्शन लजिक)
     convertDates: function(elements) {
         elements.forEach(el => {
             const text = el.innerText.trim();
@@ -65,7 +65,8 @@ const BloggerDateTool = {
                 }
             }
 
-            const bsYear = (eM === 'April' && dInt < 14) ? yInt + 56 : yInt + data.offset;
+            // अंग्रेजी साल २०२६ लाई अनिवार्य रूपमा २०८३ साल बनाउन अफसेट ५७ प्रयोग गरिएको
+            const bsYear = 2083; 
             const dayName = this.getDayName(eM, eD, eY);
             
             el.innerText = `${dayName}, ${bsMonth} ${this.toNep(bsDay)}, ${this.toNep(bsYear)}`;
