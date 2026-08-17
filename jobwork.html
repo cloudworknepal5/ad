@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Drive Gallery Portal</title>
+    <style>
+        body { background: #f0f2f5; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        
+        /* Login Overlay Styles */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); display: flex;
+            align-items: center; justify-content: center; z-index: 9999;
+        }
+        .login-box {
+            background: #fff; padding: 35px; border-radius: 12px;
+            width: 90%; max-width: 380px; text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .login-box h2 { margin-top: 0; color: #333; }
+        .login-box input {
+            padding: 12px 15px; margin: 15px 0; width: 100%;
+            border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; outline: none;
+        }
+        .login-box button {
+            background: #e60000; color: #fff; border: none; padding: 12px;
+            width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px;
+        }
+        .login-box button:hover { background: #cc0000; }
+        #error-msg { color: red; margin-top: 10px; font-size: 14px; font-weight: bold; }
+
+        /* Main Gallery Portal Styles */
+        #main-portal { display: none; }
+        .nav { background: #1a1a1a; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .nav .brand { color: #fff; font-size: 24px; font-weight: bold; }
+        .nav .brand span { color: #e60000; }
+        .search-container input { padding: 12px 25px; border-radius: 30px; border: none; width: 350px; outline: none; font-size: 16px; }
+        .container { padding: 20px; }
+
+        @media (max-width: 768px) {
+            .nav { flex-direction: column; gap: 15px; }
+            .search-container input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- लगइन गर्ने मोडल (Login Screen) -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>Gallery Access</h2>
+            <p style="color: #666; font-size: 14px;">Please enter the password to view the gallery.</p>
+            <input type="password" id="access-password" placeholder="Enter Password">
+            <button onclick="verifyPassword()">Login</button>
+            <div id="error-msg"></div>
+        </div>
+    </div>
+
+    <!-- मुख्य ग्यालेरी पोर्टल (Main Gallery Portal - Hidden until login) -->
+    <div id="main-portal">
+        <nav class="nav">
+            <div class="brand">Secure<span>Gallery</span></div>
+            <div class="search-container">
+                <input type="text" placeholder="Search files..." id="globalSearchInput">
+            </div>
+        </nav>
+
+        <div class="container">
+            <div id="single-drive-gallery"></div>
+        </div>
+    </div>
+
+    <!-- ग्यालेरी इन्जिन स्क्रीप्ट राख्नुहोस् -->
+    <script src="gdrive-gallery.js"></script>
+
+    <script>
+        // यहाँ आफ्नो एउटा मात्र गुगल ड्राइभ फोल्डर आईडी राख्नुहोस्
+        const MY_FOLDER_ID = "1tqSIba79D_6BV2mDnxC1BFjgE54AgJ_c";
+        
+        // लगइनको लागि पासवर्ड (तपाईंले एप स्क्रिप्टमा राख्नुभएको पासवर्डसँग मिल्नुपर्छ)
+        const CORRECT_PASSWORD = "ENTER_YOUR_SECURE_PASSWORD_HERE";
+
+        function verifyPassword() {
+            const inputVal = document.getElementById('access-password').value;
+            const errorDiv = document.getElementById('error-msg');
+
+            if (inputVal === CORRECT_PASSWORD) {
+                // पासवर्ड मिलेपछि लगइन स्क्रिन लुकाउने र मुख्य ग्यालेरी देखाउने
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-portal').style.display = 'block';
+                
+                // ग्यालेरी लोड गर्ने
+                initGallery();
+            } else {
+                errorDiv.innerText = "Incorrect password! Please try again.";
+            }
+        }
+
+        function initGallery() {
+            // एउटा मात्र फोल्डर इन्स्टन्स सुरु गर्ने
+            const galleryInstance = new NeelambGallery({
+                containerId: "single-drive-gallery",
+                folderId: MY_FOLDER_ID,
+                title: "My Drive Gallery",
+                allowUpload: true // यदि फाइल अपलोड पनि गर्न दिने हो भने true राख्नुहोस्
+            });
+
+            // सर्चइन्पुटको लागि इभेन्ट लistener
+            const searchInput = document.getElementById('globalSearchInput');
+            searchInput.addEventListener('keyup', (e) => {
+                if (typeof galleryInstance.applyGlobalSearch === 'function') {
+                    galleryInstance.applyGlobalSearch(e.target.value);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
