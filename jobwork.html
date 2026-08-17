@@ -45,7 +45,7 @@
 </head>
 <body>
 
-    <!-- लगइन गर्ने मोडल (Login Screen) -->
+    <!-- लगइन स्क्रिन -->
     <div id="login-overlay">
         <div class="login-box">
             <h2>Gallery Access</h2>
@@ -56,7 +56,7 @@
         </div>
     </div>
 
-    <!-- मुख्य ग्यालेरी पोर्टल (Main Gallery Portal - Hidden until login) -->
+    <!-- मुख्य ग्यालेरी पोर्टल -->
     <div id="main-portal">
         <nav class="nav">
             <div class="brand">Secure<span>Gallery</span></div>
@@ -70,42 +70,59 @@
         </div>
     </div>
 
-    <!-- ग्यालेरी इन्जिन स्क्रीप्ट राख्नुहोस् -->
+    <!-- ग्यालेरी इन्जिन स्क्रीप्ट -->
     <script src="gdrive-gallery.js"></script>
 
     <script>
-        // यहाँ आफ्नो एउटा मात्र गुगल ड्राइभ फोल्डर आईडी राख्नुहोस्
+        // यहाँ आफ्नो गुगल ड्राइभ फोल्डर आईडी र एप स्क्रिप्टको वेब एप यूआरएल राख्नुहोस्
         const MY_FOLDER_ID = "1tqSIba79D_6BV2mDnxC1BFjgE54AgJ_c";
-        
-        // लगइनको लागि पासवर्ड (तपाईंले एप स्क्रिप्टमा राख्नुभएको पासवर्डसँग मिल्नुपर्छ)
-        const CORRECT_PASSWORD = "ENTER_YOUR_SECURE_PASSWORD_HERE";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDCWB3g5OYNtji0BhyzuCcx_c50AMTcQg9VWLvOqkTEoGLGzd_myeiLyACNb3eq8MFRQ/exec";
 
-        function verifyPassword() {
-            const inputVal = document.getElementById('access-password').value;
+        async function verifyPassword() {
+            const password = document.getElementById('access-password').value;
             const errorDiv = document.getElementById('error-msg');
+            const btn = document.querySelector('.login-box button');
 
-            if (inputVal === CORRECT_PASSWORD) {
-                // पासवर्ड मिलेपछि लगइन स्क्रिन लुकाउने र मुख्य ग्यालेरी देखाउने
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('main-portal').style.display = 'block';
-                
-                // ग्यालेरी लोड गर्ने
-                initGallery();
-            } else {
-                errorDiv.innerText = "Incorrect password! Please try again.";
+            if (!password) {
+                errorDiv.innerText = "Please enter a password!";
+                return;
+            }
+
+            btn.disabled = true;
+            errorDiv.style.color = "#333";
+            errorDiv.innerText = "Verifying password...";
+
+            try {
+                // सर्भर-साइडमा पासवर्ड प्रमाणीकरण गर्ने (URL मार्फत)
+                const res = await fetch(`${SCRIPT_URL}?id=${MY_FOLDER_ID}&pass=${encodeURIComponent(password)}`);
+                const data = await res.json();
+
+                if (data.error) {
+                    errorDiv.style.color = "red";
+                    errorDiv.innerText = "Incorrect password! Please try again.";
+                    btn.disabled = false;
+                } else {
+                    // सही पासवर्ड भएमा लगइन हटाएर ग्यालेरी देखाउने
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('main-portal').style.display = 'block';
+                    
+                    initGallery();
+                }
+            } catch (err) {
+                errorDiv.style.color = "red";
+                errorDiv.innerText = "Connection error. Try again.";
+                btn.disabled = false;
             }
         }
 
         function initGallery() {
-            // एउटा मात्र फोल्डर इन्स्टन्स सुरु गर्ने
             const galleryInstance = new NeelambGallery({
                 containerId: "single-drive-gallery",
                 folderId: MY_FOLDER_ID,
-                title: "My Drive Gallery",
-                allowUpload: true // यदि फाइल अपलोड पनि गर्न दिने हो भने true राख्नुहोस्
+                title: "Secure Drive Gallery",
+                allowUpload: true
             });
 
-            // सर्चइन्पुटको लागि इभेन्ट लistener
             const searchInput = document.getElementById('globalSearchInput');
             searchInput.addEventListener('keyup', (e) => {
                 if (typeof galleryInstance.applyGlobalSearch === 'function') {
