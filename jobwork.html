@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Drive Gallery Portal</title>
+    <title>Secure Drive Gallery Portal - List View</title>
     <style>
         body { background: #f0f2f5; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         
@@ -29,17 +29,37 @@
         .login-box button:hover { background: #cc0000; }
         #error-msg { color: red; margin-top: 10px; font-size: 14px; font-weight: bold; }
 
-        /* Main Gallery Portal Styles */
+        /* Main Portal Styles */
         #main-portal { display: none; }
         .nav { background: #1a1a1a; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .nav .brand { color: #fff; font-size: 24px; font-weight: bold; }
         .nav .brand span { color: #e60000; }
-        .search-container input { padding: 12px 25px; border-radius: 30px; border: none; width: 350px; outline: none; font-size: 16px; }
-        .container { padding: 20px; }
+        .search-container input { padding: 10px 20px; border-radius: 30px; border: none; width: 300px; outline: none; font-size: 15px; }
+        .container { padding: 25px; max-width: 1200px; margin: auto; }
 
+        /* List View Table Styles */
+        .nb-wrapper { background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .nb-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #e60000; margin-bottom: 20px; padding-bottom: 10px; }
+        .nb-header span { font-size: 20px; font-weight: bold; color: #333; }
+        
+        .nb-table { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: left; }
+        .nb-table th { background: #f8f9fa; color: #333; padding: 12px 15px; font-weight: 600; border-bottom: 2px solid #ddd; }
+        .nb-table td { padding: 12px 15px; border-bottom: 1px solid #eee; color: #444; font-size: 14px; }
+        .nb-table tr:hover { background: #fdfdfd; }
+        .nb-table a { color: #007bff; text-decoration: none; font-weight: 500; }
+        .nb-table a:hover { text-decoration: underline; }
+        
+        .nb-ext-badge { background: #e9ecef; color: #495057; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        
+        .nb-up-btn { background: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .nb-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; }
+        .nb-modal-content { background: #fff; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; color: #333; }
+        .nb-modal-content input { padding: 12px; margin: 10px 0; width: 100%; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        
         @media (max-width: 768px) {
             .nav { flex-direction: column; gap: 15px; }
             .search-container input { width: 100%; }
+            .nb-table th, .nb-table td { padding: 8px 10px; font-size: 13px; }
         }
     </style>
 </head>
@@ -49,33 +69,52 @@
     <div id="login-overlay">
         <div class="login-box">
             <h2>Gallery Access</h2>
-            <p style="color: #666; font-size: 14px;">Please enter the password to view the gallery.</p>
+            <p style="color: #666; font-size: 14px;">Enter password to view files.</p>
             <input type="password" id="access-password" placeholder="Enter Password">
             <button onclick="verifyPassword()">Login</button>
             <div id="error-msg"></div>
         </div>
     </div>
 
-    <!-- मुख्य ग्यालेरी पोर्टल -->
+    <!-- मुख्य पोर्टल (लिष्ट भ्युसहित) -->
     <div id="main-portal">
         <nav class="nav">
             <div class="brand">Secure<span>Gallery</span></div>
             <div class="search-container">
-                <input type="text" placeholder="Search files..." id="globalSearchInput">
+                <input type="text" placeholder="Search files..." id="globalSearchInput" onkeyup="filterFiles(this.value)">
             </div>
         </nav>
 
         <div class="container">
-            <div id="single-drive-gallery"></div>
+            <div class="nb-wrapper">
+                <div class="nb-header">
+                    <span>Drive Files (List View)</span>
+                    <button class="nb-up-btn" onclick="openUploadModal()">+ Upload</button>
+                </div>
+                <div id="nb-status" style="text-align:center; padding:30px; color:#666;">Loading files...</div>
+                <div id="table-responsive"></div>
+            </div>
         </div>
     </div>
 
-    <!-- ग्यालेरी इन्जिन स्क्रीप्ट -->
-    <script src="listview-gdrive.js"></script>
+    <!-- अपलोड मोडल -->
+    <div id="upload-modal" class="nb-modal">
+        <div class="nb-modal-content">
+            <h3>Upload File</h3>
+            <input type="file" id="upload-file-input">
+            <input type="password" id="upload-password" placeholder="Enter Security Password">
+            <button class="nb-up-btn" style="width:100%; background: #28a745;" onclick="uploadFile()">Start Upload</button>
+            <button style="border:none; background:none; color:red; margin-top:15px; cursor:pointer; font-weight:bold;" onclick="closeUploadModal()">Cancel</button>
+            <div id="upload-status" style="margin-top:10px; font-weight:bold;"></div>
+        </div>
+    </div>
 
     <script>
         const MY_FOLDER_ID = "1tqSIba79D_6BV2mDnxC1BFjgE54AgJ_c";
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDCWB3g5OYNtji0BhyzuCcx_c50AMTcQg9VWLvOqkTEoGLGzd_myeiLyACNb3eq8MFRQ/exec";
+        
+        let allFiles = [];
+        let storedPassword = "";
 
         async function verifyPassword() {
             const password = document.getElementById('access-password').value;
@@ -89,46 +128,143 @@
 
             btn.disabled = true;
             errorDiv.style.color = "#333";
-            errorDiv.innerText = "Verifying password...";
+            errorDiv.innerText = "Verifying...";
 
             try {
-                // ग्लोबल पासवर्ड सेट गर्ने ताकि gdrive-gallery.js ले प्रयोग गर्न सकोस्
-                window.galleryPassword = password;
-
                 const res = await fetch(`${SCRIPT_URL}?id=${MY_FOLDER_ID}&pass=${encodeURIComponent(password)}`);
                 const data = await res.json();
 
                 if (data.error) {
                     errorDiv.style.color = "red";
-                    errorDiv.innerText = "Incorrect password! Please try again.";
+                    errorDiv.innerText = "Incorrect password!";
                     btn.disabled = false;
                 } else {
+                    storedPassword = password;
                     document.getElementById('login-overlay').style.display = 'none';
                     document.getElementById('main-portal').style.display = 'block';
-                    initGallery();
+                    renderTable(data);
                 }
             } catch (err) {
                 errorDiv.style.color = "red";
-                errorDiv.innerText = "Connection error. Try again.";
+                errorDiv.innerText = "Connection error.";
                 btn.disabled = false;
             }
         }
 
-        function initGallery() {
-            const galleryInstance = new NeelambGallery({
-                containerId: "single-drive-gallery",
-                folderId: MY_FOLDER_ID,
-                title: "Secure Drive Gallery",
-                allowUpload: true,
-                scriptUrl: SCRIPT_URL
+        async function fetchFiles() {
+            try {
+                const res = await fetch(`${SCRIPT_URL}?id=${MY_FOLDER_ID}&pass=${encodeURIComponent(storedPassword)}`);
+                const data = await res.json();
+                if (!data.error) renderTable(data);
+            } catch(e) { console.error(e); }
+        }
+
+        function renderTable(files) {
+            allFiles = files;
+            const statusDiv = document.getElementById('nb-status');
+            const container = document.getElementById('table-responsive');
+            
+            if (files.length === 0) {
+                statusDiv.style.display = 'block';
+                statusDiv.innerText = "No files found in this folder.";
+                container.innerHTML = '';
+                return;
+            }
+
+            statusDiv.style.display = 'none';
+            let html = `
+                <table class="nb-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Extension</th>
+                            <th>Size</th>
+                            <th>Date</th>
+                            <th style="text-align:right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            files.forEach(f => {
+                const parts = f.name.split('.');
+                const ext = parts.length > 1 ? parts.pop().toUpperCase() : 'FILE';
+                const size = f.size ? formatBytes(f.size) : 'N/A';
+                const date = new Date(f.date).toLocaleDateString();
+
+                html += `
+                    <tr>
+                        <td><a href="${f.url}" target="_blank">${f.name}</a></td>
+                        <td><span class="nb-ext-badge">${ext}</span></td>
+                        <td>${size}</td>
+                        <td>${date}</td>
+                        <td style="text-align:right;">
+                            <a href="https://drive.google.com/uc?export=download&id=${f.id}" style="background:#e60000; color:#fff; padding:5px 12px; border-radius:4px; font-size:12px; text-decoration:none;">Download</a>
+                        </td>
+                    </tr>
+                `;
             });
 
-            const searchInput = document.getElementById('globalSearchInput');
-            searchInput.addEventListener('keyup', (e) => {
-                if (typeof galleryInstance.applyGlobalSearch === 'function') {
-                    galleryInstance.applyGlobalSearch(e.target.value);
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function filterFiles(query) {
+            const filtered = allFiles.filter(f => f.name.toLowerCase().includes(query.toLowerCase()));
+            renderTable(filtered);
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function openUploadModal() { document.getElementById('upload-modal').style.display = 'flex'; }
+        function closeUploadModal() { document.getElementById('upload-modal').style.display = 'none'; }
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('upload-file-input');
+            const passInput = document.getElementById('upload-password');
+            const statusDiv = document.getElementById('upload-status');
+
+            if (!fileInput.files[0]) return alert("Select a file first!");
+            if (!passInput.value) return alert("Enter password!");
+
+            statusDiv.style.color = "black";
+            statusDiv.innerText = "Uploading...";
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64 = e.target.result.split(',')[1];
+                try {
+                    const res = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            fileName: file.name,
+                            mimeType: file.type,
+                            base64: base64,
+                            folderId: MY_FOLDER_ID,
+                            password: passInput.value
+                        })
+                    });
+                    const out = await res.json();
+                    if (out.result === "success") {
+                        statusDiv.style.color = "green";
+                        statusDiv.innerText = "Success! Refreshing...";
+                        setTimeout(() => { closeUploadModal(); fetchFiles(); }, 1500);
+                    } else {
+                        statusDiv.style.color = "red";
+                        statusDiv.innerText = "Incorrect password!";
+                    }
+                } catch(err) {
+                    statusDiv.style.color = "red";
+                    statusDiv.innerText = "Upload failed!";
                 }
-            });
+            };
+            reader.readAsDataURL(file);
         }
     </script>
 </body>
