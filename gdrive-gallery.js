@@ -9,7 +9,7 @@ class NeelambGallery {
         this.title = config.title || "Gallery";
         this.allowUpload = config.allowUpload || false;
         // Password is not stored here; it is verified on the server side
-        this.scriptUrl = "https://script.google.com/macros/s/AKfycbxo0-FMXFgkRmItxN9ofTi1QT1lnA_d2CJhwB7s_4uF2EaCFSEVJcRv4wz-8klQHLsq/exec";
+        this.scriptUrl = "https://script.google.com/macros/s/AKfycbwer4ionFxmsABMKfkrSEwXssXrRkyflkP1Q_D7TmQeALOxv95TO2qiZ5JQbMWKv_pckQ/exec";
         
         this.allFiles = [];
         this.filteredFiles = [];
