@@ -74,7 +74,6 @@
     <script src="gdrive-gallery.js"></script>
 
     <script>
-        // यहाँ आफ्नो गुगल ड्राइभ फोल्डर आईडी र एप स्क्रिप्टको वेब एप यूआरएल राख्नुहोस्
         const MY_FOLDER_ID = "1tqSIba79D_6BV2mDnxC1BFjgE54AgJ_c";
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDCWB3g5OYNtji0BhyzuCcx_c50AMTcQg9VWLvOqkTEoGLGzd_myeiLyACNb3eq8MFRQ/exec";
 
@@ -93,7 +92,9 @@
             errorDiv.innerText = "Verifying password...";
 
             try {
-                // सर्भर-साइडमा पासवर्ड प्रमाणीकरण गर्ने (URL मार्फत)
+                // ग्लोबल पासवर्ड सेट गर्ने ताकि gdrive-gallery.js ले प्रयोग गर्न सकोस्
+                window.galleryPassword = password;
+
                 const res = await fetch(`${SCRIPT_URL}?id=${MY_FOLDER_ID}&pass=${encodeURIComponent(password)}`);
                 const data = await res.json();
 
@@ -102,10 +103,8 @@
                     errorDiv.innerText = "Incorrect password! Please try again.";
                     btn.disabled = false;
                 } else {
-                    // सही पासवर्ड भएमा लगइन हटाएर ग्यालेरी देखाउने
                     document.getElementById('login-overlay').style.display = 'none';
                     document.getElementById('main-portal').style.display = 'block';
-                    
                     initGallery();
                 }
             } catch (err) {
@@ -120,7 +119,8 @@
                 containerId: "single-drive-gallery",
                 folderId: MY_FOLDER_ID,
                 title: "Secure Drive Gallery",
-                allowUpload: true
+                allowUpload: true,
+                scriptUrl: SCRIPT_URL
             });
 
             const searchInput = document.getElementById('globalSearchInput');
