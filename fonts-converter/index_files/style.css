@@ -1,0 +1,115 @@
+body {
+  background: #FFFFF5 url('/assets/images/lokta-gurunge.jpg');
+  background: #F7FDEC;
+}
+.stickey-note {
+    /* position: absolute; */
+    float:right;
+    top: 10px;
+    color: #fff;
+    white-space: nowrap;
+    padding: 5px;
+    background: rgba(0,0,0,.8);
+    line-height: 13px;
+    font-size: 11px;
+    /* z-index: 1; */
+}
+.navbar a:hover {
+  background: #FCFDF7;
+}
+hr.dotted {
+  border-top: 5px dotted #F7F;
+}
+.bg-navigation {
+  background-image: linear-gradient(15deg, #D8F9A1 0%, #80D0C7 100%);
+}
+
+.bg-twilight-blue {
+  background: #FCFDF7;
+}
+.frontpage-content img {
+  height: 100px;
+  width: auto;
+}
+
+.bg-ivory {
+  background: #FCFDF7;
+  background: #EDFAD5;
+}
+
+.bg-bermuda {
+  background: #80D0C7;
+}
+
+.navbar-brand {
+  font-family: 'Yatra One', cursive;
+  font-size: 28px;
+  opacity: 0.7;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Yatra One', cursive;
+  font-size: 28px;
+}
+
+li {
+  font-family: 'Laila', serif;
+}
+
+p {
+  line-height: 200%;
+  font-size: 18px;
+  font-family: 'Laila', serif;
+}
+
+.jumbotron {
+  background-color: #FFF0F5;
+}
+
+.bg-saltpan {
+  background-color: rgba(239, 253, 217, 0.7);
+}
+
+.bg-apricotwhite {
+  background: rgba(255, 254, 234, 0.5);
+}
+
+.bg-ghostwhite {
+  background-color: #F8F8FF;
+}
+
+.social-links a {
+  font-size: 42px;
+  margin: 5px;
+  display: inline-block;
+}
+
+.social-links-demo .fa-facebook {
+  color: #3b5998
+}
+
+.social-links-demo .fa-twitter-square {
+  color: #55acee
+}
+
+.social-links-demo .fa-google-plus-square {
+  color: #dc4e41
+}
+
+.social-links-demo .fa-pinterest-square {
+  color: #bd081c
+}
+
+.social-links-demo .fa-envelope-square {
+  color: #666
+}
+
+.pagination>li>a {
+  background-color: #EAEAEA;
+  color: purple;
+}
