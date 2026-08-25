@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Rakhi Greeting Card - HD Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -19,34 +19,41 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            padding: 15px;
+            padding: 10px;
             overflow-x: hidden;
+            touch-action: manipulation;
         }
 
-        @keyframes spinSlow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-            animation: spinSlow 30s linear infinite;
-        }
-
-        /* मुख्य फ्लेयर कन्टेनर - कम्प्याक्ट र सुरक्षित स्पेसिङ गरिएको */
-        #flyerContainer {
+        #gh-outer-wrapper {
             width: 100%;
-            max-width: 420px;
-            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Master Container for Scale Setup */
+        #gh-master-container {
+            transform-origin: top center;
+            margin: 15px 0 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* मुख्य फ्लेयर कन्टेनर (1200x1200 Fixed Size) */
+        .flyer-container {
+            width: 1200px;
+            height: 1200px;
             background-color: #FDF6ED;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
             overflow: hidden;
-            border: 6px solid #f6ad55;
+            border: 18px solid #f6ad55;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 16px 20px; /* प्याडिङ घटाइएको छ ताकि तल ठाउँ पुगोस् */
+            padding: 70px;
             text-align: center;
             position: relative;
         }
@@ -69,20 +76,20 @@
             width: 100%;
         }
         .header-sub {
-            font-size: 13px;
+            font-size: 38px;
             font-weight: 800;
             color: #dc2626;
             outline: none;
-            border-bottom: 2px solid transparent;
+            border-bottom: 3px solid transparent;
             line-height: 1.2;
         }
         .header-main {
-            font-size: 18px;
+            font-size: 55px;
             font-weight: 800;
             color: #b91c1c;
-            margin-top: 2px;
+            margin-top: 10px;
             outline: none;
-            border-bottom: 2px solid transparent;
+            border-bottom: 3px solid transparent;
             line-height: 1.2;
         }
 
@@ -96,10 +103,10 @@
             justify-content: center;
         }
         .art-section img {
-            max-height: 135px; /* तस्बिरको उचाइ मिलाइएको छ */
+            max-height: 480px;
             width: auto;
             object-fit: contain;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
         }
 
         /* फुटरो भाग (फोटो र नाम) */
@@ -110,32 +117,32 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-top: 10px;
-            border-top: 3px solid #fef3c7;
+            padding-top: 35px;
+            border-top: 8px solid #fef3c7;
         }
 
         /* फोटो अपलोड बक्स */
         .photo-preview {
-            width: 58px;
-            height: 58px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
-            border: 3px dashed #ef4444;
+            border: 8px dashed #ef4444;
             background-color: #fef2f2;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             cursor: pointer;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.08);
             flex-shrink: 0;
         }
         .photo-preview span {
-            font-size: 8px;
+            font-size: 24px;
             color: #dc2626;
             font-weight: bold;
-            padding: 2px;
+            padding: 10px;
             text-align: center;
-            line-height: 1.1;
+            line-height: 1.2;
         }
         .photo-preview img {
             width: 100%;
@@ -147,11 +154,11 @@
         .user-info {
             text-align: right;
             flex: 1;
-            margin-left: 10px;
+            margin-left: 30px;
             overflow: hidden;
         }
         .user-name {
-            font-size: 15px;
+            font-size: 52px;
             font-weight: 800;
             color: #dc2626;
             outline: none;
@@ -160,10 +167,10 @@
             text-overflow: ellipsis;
         }
         .user-location {
-            font-size: 11px;
+            font-size: 36px;
             font-weight: bold;
             color: #374151;
-            margin-top: 1px;
+            margin-top: 5px;
             outline: none;
         }
 
@@ -171,23 +178,23 @@
         .action-box, .instruction-box {
             width: 100%;
             max-width: 420px;
-            margin-top: 16px;
+            margin-top: 15px;
         }
         .download-btn {
             width: 100%;
             background-color: #16a34a;
             color: white;
             font-weight: bold;
-            font-size: 16px;
-            padding: 14px;
+            font-size: 18px;
+            padding: 16px;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            gap: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
             transition: background 0.2s;
         }
         .download-btn:hover {
@@ -200,7 +207,8 @@
             border-radius: 16px;
             padding: 16px;
             color: #cbd5e1;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
         }
         .instruction-box h3 {
             color: #fbbf24;
@@ -233,45 +241,49 @@
 </head>
 <body>
 
-    <!-- Main Flyer Container -->
-    <div id="flyerContainer">
-        
-        <!-- Mandala Background Spinner -->
-        <div class="mandala-bg">
-            <svg style="width: 340px; height: 340px; color: #dc2626;" viewBox="0 0 300 300" fill="currentColor">
-                <circle cx="150" cy="150" r="130" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="12 12"/>
-                <circle cx="150" cy="150" r="110" fill="none" stroke="#d97706" stroke-width="4"/>
-                <path d="M150 10 L150 290 M10 150 L290 150 M50 50 L250 250 M50 250 L250 50" stroke="currentColor" stroke-width="3"/>
-                <circle cx="150" cy="150" r="40" fill="#f59e0b" stroke="#b45309" stroke-width="4"/>
-            </svg>
-        </div>
+<div id="gh-outer-wrapper">
 
-        <!-- Header Text (Editable) -->
-        <div class="header-section">
-            <div contenteditable="true" class="header-sub">भाइ बहिनीको आत्मीय प्रेम र स्नेहलाई समर्पित</div>
-            <div contenteditable="true" class="header-main">रक्षा बन्धन (राखी) को हार्दिक शुभकामना !</div>
-        </div>
-
-        <!-- Comic Style Illustration -->
-        <div class="art-section">
-            <img src="https://ad.neelamb.com/rakhi.png" crossorigin="anonymous" alt="Raksha Bandhan Art">
-        </div>
-
-        <!-- Footer Section: Photo & Name -->
-        <div class="footer-section">
-            <label for="photoUpload" style="cursor: pointer;">
-                <div id="photoPreview" class="photo-preview">
-                    <span>फोटो राख्नुहोस्</span>
-                </div>
-            </label>
-            <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="previewImage(event)">
-
-            <div class="user-info">
-                <div id="displayName" contenteditable="true" class="user-name">मुकेश कुमार</div>
-                <div id="displayLocation" contenteditable="true" class="user-location">वीरगंज</div>
+    <!-- Master Container with Scaling Script -->
+    <div id="gh-master-container">
+        <div class="flyer-container" id="flyerContainer">
+            
+            <!-- Mandala Background Spinner -->
+            <div class="mandala-bg">
+                <svg style="width: 950px; height: 950px; color: #dc2626;" viewBox="0 0 300 300" fill="currentColor">
+                    <circle cx="150" cy="150" r="130" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="12 12"/>
+                    <circle cx="150" cy="150" r="110" fill="none" stroke="#d97706" stroke-width="4"/>
+                    <path d="M150 10 L150 290 M10 150 L290 150 M50 50 L250 250 M50 250 L250 50" stroke="currentColor" stroke-width="3"/>
+                    <circle cx="150" cy="150" r="40" fill="#f59e0b" stroke="#b45309" stroke-width="4"/>
+                </svg>
             </div>
-        </div>
 
+            <!-- Header Text (Editable) -->
+            <div class="header-section">
+                <div contenteditable="true" class="header-sub">भाइ बहिनीको आत्मीय प्रेम र स्नेहलाई समर्पित</div>
+                <div contenteditable="true" class="header-main">रक्षा बन्धन (राखी) को हार्दिक शुभकामना !</div>
+            </div>
+
+            <!-- Comic Style Illustration -->
+            <div class="art-section">
+                <img src="https://ad.neelamb.com/rakhi.png" crossorigin="anonymous" alt="Raksha Bandhan Art">
+            </div>
+
+            <!-- Footer Section: Photo & Name -->
+            <div class="footer-section">
+                <label for="photoUpload" style="cursor: pointer;">
+                    <div id="photoPreview" class="photo-preview">
+                        <span>फोटो राख्नुहोस्</span>
+                    </div>
+                </label>
+                <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="previewImage(event)">
+
+                <div class="user-info">
+                    <div id="displayName" contenteditable="true" class="user-name">मुकेश कुमार</div>
+                    <div id="displayLocation" contenteditable="true" class="user-location">वीरगंज</div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <!-- Download Button Panel -->
@@ -294,31 +306,55 @@
         </div>
     </div>
 
-    <!-- Script Section -->
-    <script>
-        function previewImage(event) {
-            const reader = new FileReader();
-            reader.onload = function(){
-                const preview = document.getElementById('photoPreview');
-                preview.innerHTML = `<img src="${reader.result}">`;
-            }
-            reader.readAsDataURL(event.target.files[0]);
+</div>
+
+<!-- Script Section -->
+<script>
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function(){
+            const preview = document.getElementById('photoPreview');
+            preview.innerHTML = `<img src="${reader.result}">`;
         }
+        reader.readAsDataURL(event.target.files[0]);
+    }
 
-        function downloadFlyer() {
-            const flyer = document.getElementById('flyerContainer');
-            
-            const editableElements = flyer.querySelectorAll('[contenteditable]');
-            editableElements.forEach(el => el.blur());
+    // Auto Adjust Scale for Mobile Screens
+    function adjustScale() {
+        const container = document.getElementById('gh-master-container');
+        const wrap = document.getElementById('flyerContainer');
+        if(!wrap) return;
+        const scale = Math.min(1, (window.innerWidth - 20) / 1200);
+        container.style.transform = `scale(${scale})`;
+        container.style.marginBottom = `-${1200 * (1 - scale)}px`;
+    }
 
-            const currentWidth = flyer.offsetWidth;
-            const scaleFactor = 1200 / currentWidth;
+    window.addEventListener('resize', adjustScale);
+    window.addEventListener('DOMContentLoaded', adjustScale);
+    adjustScale();
 
+    function downloadFlyer() {
+        const flyer = document.getElementById('flyerContainer');
+        const container = document.getElementById('gh-master-container');
+        
+        const editableElements = flyer.querySelectorAll('[contenteditable]');
+        editableElements.forEach(el => el.blur());
+
+        const originalTransform = container.style.transform;
+        const originalMargin = container.style.marginBottom;
+
+        window.scrollTo(0,0);
+        container.style.transform = "scale(1)";
+        container.style.marginBottom = "0px";
+
+        setTimeout(() => {
             html2canvas(flyer, {
-                scale: scaleFactor,
+                scale: 1,
                 useCORS: true,
                 backgroundColor: '#FDF6ED',
-                logging: false
+                logging: false,
+                width: 1200,
+                height: 1200
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `raksha-bandhan-1200px-${Date.now()}.png`;
@@ -327,8 +363,12 @@
             }).catch(err => {
                 alert("तस्वीर डाउनलोड गर्दा समस्या आयो। कृपया फेरि प्रयास गर्नुहोस्।");
                 console.error(err);
+            }).finally(() => {
+                container.style.transform = originalTransform;
+                container.style.marginBottom = originalMargin;
             });
-        }
-    </script>
+        }, 300);
+    }
+</script>
 </body>
 </html>
