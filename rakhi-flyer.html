@@ -33,7 +33,7 @@
             animation: spinSlow 30s linear infinite;
         }
 
-        /* मुख्य फ्लेयर कन्टेनर - परफेक्ट सेन्टर र ब्यालेन्स गरिएको */
+        /* मुख्य फ्लेयर कन्टेनर - कम्प्याक्ट र सुरक्षित स्पेसिङ गरिएको */
         #flyerContainer {
             width: 100%;
             max-width: 420px;
@@ -46,7 +46,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 24px;
+            padding: 16px 20px; /* प्याडिङ घटाइएको छ ताकि तल ठाउँ पुगोस् */
             text-align: center;
             position: relative;
         }
@@ -67,10 +67,9 @@
             position: relative;
             z-index: 10;
             width: 100%;
-            margin-bottom: auto;
         }
         .header-sub {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 800;
             color: #dc2626;
             outline: none;
@@ -78,7 +77,7 @@
             line-height: 1.2;
         }
         .header-main {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 800;
             color: #b91c1c;
             margin-top: 2px;
@@ -97,7 +96,7 @@
             justify-content: center;
         }
         .art-section img {
-            max-height: 155px;
+            max-height: 135px; /* तस्बिरको उचाइ मिलाइएको छ */
             width: auto;
             object-fit: contain;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
@@ -111,15 +110,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-top: 12px;
+            padding-top: 10px;
             border-top: 3px solid #fef3c7;
-            margin-top: auto;
         }
 
         /* फोटो अपलोड बक्स */
         .photo-preview {
-            width: 65px;
-            height: 65px;
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
             border: 3px dashed #ef4444;
             background-color: #fef2f2;
@@ -132,7 +130,7 @@
             flex-shrink: 0;
         }
         .photo-preview span {
-            font-size: 9px;
+            font-size: 8px;
             color: #dc2626;
             font-weight: bold;
             padding: 2px;
@@ -153,7 +151,7 @@
             overflow: hidden;
         }
         .user-name {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
             color: #dc2626;
             outline: none;
@@ -162,7 +160,7 @@
             text-overflow: ellipsis;
         }
         .user-location {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             color: #374151;
             margin-top: 1px;
