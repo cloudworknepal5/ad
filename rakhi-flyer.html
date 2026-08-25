@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rakhi Greeting Card - HD Generator</title>
+    <title>Rakhi Greetin Card- HD Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -27,33 +27,14 @@
             align-items: center;
             justify-content: center;
         }
-
-        /* प्रिन्ट गर्दा केवल कार्ड मात्र प्रिन्ट हुने व्यवस्था (अनावश्यक पेजहरू लुकाउने) */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #flyerContainer, #flyerContainer * {
-                visibility: visible;
-            }
-            #flyerContainer {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100% !important;
-                height: 100% !important;
-                border: none !important;
-                box-shadow: none !important;
-            }
-        }
     </style>
 </head>
 <body class="bg-slate-900 flex flex-col items-center justify-center min-h-screen p-4">
 
     <!-- Wrapper for Scale Adjustment -->
     <div id="flyerOuterWrapper">
-        <!-- Main Flyer Container -->
-        <div id="flyerContainer" class="relative w-full h-full bg-[#FDF6ED] rounded-3xl shadow-2xl overflow-hidden border-8 border-amber-300 p-6 text-center box-border flex flex-col">
+        <!-- Main Flyer Container (Fixed Padding & Spacing to Prevent Cutting) -->
+        <div id="flyerContainer" class="relative w-full h-full bg-[#FDF6ED] rounded-3xl shadow-2xl overflow-hidden border-8 border-amber-300 flex flex-col justify-between p-5 text-center box-border">
             
             <!-- Rakhi Art / Mandala Background Spinner -->
             <div class="absolute inset-0 flex items-center justify-center opacity-15 pointer-events-none">
@@ -70,25 +51,25 @@
                 <h2 contenteditable="true" class="text-base md:text-xl font-extrabold text-red-600 leading-tight outline-none border-b-2 border-transparent focus:border-red-400">
                     भाइ बहिनीको आत्मीय प्रेम र स्नेहलाई समर्पित
                 </h2>
-                <h1 contenteditable="true" class="text-2xl md:text-3xl font-extrabold text-red-700 mt-1 tracking-wide outline-none border-b-2 border-transparent focus:border-red-400">
+                <h1 contenteditable="true" class="text-2xl md:text-4xl font-extrabold text-red-700 mt-1 tracking-wide outline-none border-b-2 border-transparent focus:border-red-400">
                     रक्षा बन्धन (राखी) को हार्दिक शुभकामना !
                 </h1>
             </div>
 
-            <!-- Comic Style Illustration -->
-            <div class="relative z-10 flex-1 w-full flex items-center justify-center my-2">
-                <img src="https://ad.neelamb.com/rakhi.png" crossorigin="anonymous" alt="Raksha Bandhan Comic Art" class="max-h-[280px] md:max-h-[340px] w-auto object-contain drop-shadow-md">
+            <!-- Comic Style Illustration (Adjusted height to keep footer fully visible) -->
+            <div class="relative z-10 my-auto w-full flex items-center justify-center py-1">
+                <img src="https://ad.neelamb.com/rakhi.png" crossorigin="anonymous" alt="Raksha Bandhan Comic Art" class="max-h-[300px] md:max-h-[380px] w-auto object-contain drop-shadow-md">
             </div>
 
-            <!-- Footer Section: User Photo Upload & Name/Location -->
-            <div class="relative z-10 w-full flex items-center justify-between pt-3 border-t-4 border-amber-200 mt-auto bg-[#FDF6ED]">
+            <!-- Footer Section: User Photo Upload & Name/Location (Fully Visible & Adjusted) -->
+            <div class="relative z-10 w-full flex items-center justify-between pt-2 pb-1 border-t-4 border-amber-200 mt-auto">
                 
                 <!-- Dynamic Photo Upload Box -->
                 <div class="flex flex-col items-center">
                     <label for="photoUpload" class="cursor-pointer group relative">
                         <div id="photoPreview" class="w-24 h-24 md:w-30 md:h-30 rounded-full border-4 border-dashed border-red-500 bg-red-50 flex items-center justify-center overflow-hidden shadow-inner group-hover:bg-red-100 transition">
-                            <span class="text-xs md:text-sm text-red-600 font-bold text-center p-1">फोटो राख्नुहोस्</span>
-                        </div>
+    <span class="text-xs md:text-sm text-red-600 font-bold text-center p-1">फोटो राख्नुहोस्</span>
+</div>
                     </label>
                     <input type="file" id="photoUpload" accept="image/*" class="hidden" onchange="previewImage(event)">
                 </div>
@@ -113,6 +94,7 @@
         <button onclick="downloadFlyer()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base">
             <i class="fas fa-download"></i> HD डाउनलोड (1200px)
         </button>
+        
     </div>
 
     <!-- Instructions Footer Outside Flyer -->
@@ -158,41 +140,27 @@
             reader.readAsDataURL(event.target.files[0]);
         }
 
-       function downloadFlyer() {
+        function downloadFlyer() {
             const flyer = document.getElementById('flyerContainer');
             
             const editableElements = flyer.querySelectorAll('[contenteditable]');
             editableElements.forEach(el => el.blur());
 
-            const originalWidth = flyer.style.width;
-            const originalHeight = flyer.style.height;
-            const originalMaxWidth = flyer.style.maxWidth;
-            
-            // डाउनलोड गर्दा ठ्याक्कै 1200x1200 पिक्सल स्क्वायर फोर्स गर्ने
-            flyer.style.width = "1200px";
-            flyer.style.height = "1200px";
-            flyer.style.maxWidth = "none";
+            const targetWidth = flyer.offsetWidth;
+            const targetHeight = flyer.offsetHeight;
 
             html2canvas(flyer, {
-                scale: 1,
+                scale: 3, 
                 useCORS: true,
-                backgroundColor: "#FDF6ED",
-                width: 1200,
-                height: 1200
+                backgroundColor: null,
+                width: targetWidth,
+                height: targetHeight
             }).then(canvas => {
-                // क्याप्चर भएपछि पुरानै स्टाइल फिर्ता गर्ने
-                flyer.style.width = originalWidth;
-                flyer.style.height = originalHeight;
-                flyer.style.maxWidth = originalMaxWidth;
-
                 const link = document.createElement('a');
                 link.download = `raksha-bandhan-1200px-${Date.now()}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             }).catch(err => {
-                flyer.style.width = originalWidth;
-                flyer.style.height = originalHeight;
-                flyer.style.maxWidth = originalMaxWidth;
                 alert("तस्वीर डाउनलोड गर्दा समस्या आयो। कृपया फेरि प्रयास गर्नुहोस्।");
                 console.error(err);
             });
@@ -201,7 +169,7 @@
         function shareOnFacebook() {
             const pageUrl = encodeURIComponent(window.location.href);
             const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
-            window.open(fbShareUrl, '_blank', 'width=500,height=400');
+            window.open(fbShareUrl, '_blank', 'width500,height=400');
         }
     </script>
 </body>
