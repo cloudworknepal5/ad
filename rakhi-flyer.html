@@ -45,18 +45,37 @@
             width: 1200px;
             height: 1200px;
             background-color: #FDF6ED;
-            border-radius: 30px;
             overflow: hidden;
-            border: 18px solid #f6ad55;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 70px;
+            align-items: center;
+            padding: 110px 100px;
             text-align: center;
             position: relative;
         }
 
-        /* मण्डाला ब्याकग्राउन्ड */
+        /* PNG फ्रेम ओभरले */
+        .flyer-frame {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+            object-fit: fill;
+        }
+
+        /* मण्डाला ब्याकग्राउन्ड घुम्ने एनिमेशन (Rotating Animation) */
+        @keyframes rotateMandala {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .mandala-bg {
             position: absolute;
             inset: 0;
@@ -65,29 +84,41 @@
             justify-content: center;
             opacity: 0.15;
             pointer-events: none;
+            animation: rotateMandala 25s linear infinite; /* यहाँ २५ सेकेन्डमा एकपटक पूर्ण राउन्ड घुम्नेछ */
         }
 
-        /* हेडर टेक्स्ट */
+        /* हेडर टेक्स्ट (तीन लाइनमा व्यवस्थित र बीचमा) */
         .header-section {
             position: relative;
             z-index: 10;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
         }
-        .header-sub {
-            font-size: 38px;
-            font-weight: 800;
+        .header-line-1 {
+            font-size: 34px;
+            font-weight: 700;
             color: #dc2626;
             outline: none;
-            border-bottom: 3px solid transparent;
+            border-bottom: 2px solid transparent;
             line-height: 1.2;
         }
-        .header-main {
-            font-size: 55px;
+        .header-line-2 {
+            font-size: 42px;
             font-weight: 800;
             color: #b91c1c;
-            margin-top: 10px;
             outline: none;
-            border-bottom: 3px solid transparent;
+            border-bottom: 2px solid transparent;
+            line-height: 1.2;
+        }
+        .header-line-3 {
+            font-size: 48px;
+            font-weight: 800;
+            color: #991b1b;
+            outline: none;
+            border-bottom: 2px solid transparent;
             line-height: 1.2;
         }
 
@@ -95,47 +126,48 @@
         .art-section {
             position: relative;
             z-index: 10;
-            margin: auto 0;
+            margin: 5px 0;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .art-section img {
-            max-height: 480px;
+            max-height: 380px;
             width: auto;
             object-fit: contain;
             filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
         }
 
-        /* फुटरो भाग (फोटो र नाम) */
+        /* फुटरो भाग (फोटो र नाम पूर्ण रूपमा सेन्टर गरिएको) */
         .footer-section {
             position: relative;
             z-index: 10;
             width: 100%;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding-top: 35px;
-            border-top: 8px solid #fef3c7;
+            justify-content: center;
+            padding: 10px 20px;
+            gap: 8px;
         }
 
         /* फोटो अपलोड बक्स */
         .photo-preview {
-            width: 180px;
-            height: 180px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
-            border: 8px dashed #ef4444;
+            border: 5px solid #ef4444;
             background-color: #fef2f2;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             cursor: pointer;
-            box-shadow: inset 0 4px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             flex-shrink: 0;
         }
         .photo-preview span {
-            font-size: 24px;
+            font-size: 16px;
             color: #dc2626;
             font-weight: bold;
             padding: 10px;
@@ -150,26 +182,23 @@
 
         /* नाम र ठेगाना */
         .user-info {
-            text-align: right;
-            flex: 1;
-            margin-left: 30px;
-            overflow: hidden;
+            text-align: center;
+            width: 100%;
         }
         .user-name {
-            font-size: 52px;
+            font-size: 42px;
             font-weight: 800;
             color: #dc2626;
             outline: none;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.1;
         }
         .user-location {
-            font-size: 36px;
+            font-size: 30px;
             font-weight: bold;
             color: #374151;
-            margin-top: 5px;
+            margin-top: 2px;
             outline: none;
+            line-height: 1.1;
         }
 
         /* डाउनलोड बटन र निर्देशन बक्स */
@@ -245,9 +274,12 @@
     <div id="gh-master-container">
         <div class="flyer-container" id="flyerContainer">
             
-            <!-- Mandala Background Spinner -->
+            <!-- PNG Border Frame Overlay -->
+            <img src="https://ad.neelamb.com/rakhi-border.png" crossorigin="anonymous" class="flyer-frame" alt="Frame Border">
+
+            <!-- Mandala Background Spinner (Rotating) -->
             <div class="mandala-bg">
-                <svg style="width: 950px; height: 950px; color: #dc2626;" viewBox="0 0 300 300" fill="currentColor">
+                <svg style="width: 900px; height: 900px; color: #dc2626;" viewBox="0 0 300 300" fill="currentColor">
                     <circle cx="150" cy="150" r="130" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="12 12"/>
                     <circle cx="150" cy="150" r="110" fill="none" stroke="#d97706" stroke-width="4"/>
                     <path d="M150 10 L150 290 M10 150 L290 150 M50 50 L250 250 M50 250 L250 50" stroke="currentColor" stroke-width="3"/>
@@ -255,10 +287,11 @@
                 </svg>
             </div>
 
-            <!-- Header Text (Editable) -->
+            <!-- Header Text (Three Lines, Centered) -->
             <div class="header-section">
-                <div contenteditable="true" class="header-sub">भाइ बहिनीको आत्मीय प्रेम र स्नेहलाई समर्पित</div>
-                <div contenteditable="true" class="header-main">रक्षा बन्धन (राखी) को हार्दिक शुभकामना !</div>
+                <div contenteditable="true" class="header-line-1">भाइ बहिनीको आत्मीय प्रेम र स्नेहलाई समर्पित</div>
+                <div contenteditable="true" class="header-line-2">रक्षा बन्धन (राखी) पर्वको</div>
+                <div contenteditable="true" class="header-line-3">हार्दिक शुभकामना !</div>
             </div>
 
             <!-- Comic Style Illustration -->
@@ -266,7 +299,7 @@
                 <img src="https://ad.neelamb.com/rakhi.png" crossorigin="anonymous" alt="Raksha Bandhan Art">
             </div>
 
-            <!-- Footer Section: Photo & Name -->
+            <!-- Footer Section: Photo & Name (Strictly Centered Stack) -->
             <div class="footer-section">
                 <label for="photoUpload" style="cursor: pointer;">
                     <div id="photoPreview" class="photo-preview">
@@ -345,12 +378,6 @@
         container.style.transform = "scale(1)";
         container.style.marginBottom = "0px";
 
-        // कालो छाया पूर्ण रूपमा हटाउन अस्थायी रूपमा border-radius र border हटाउने
-        const originalRadius = flyer.style.borderRadius;
-        const originalBorder = flyer.style.border;
-        flyer.style.borderRadius = "0px";
-        flyer.style.border = "none";
-
         setTimeout(() => {
             html2canvas(flyer, {
                 scale: 1,
@@ -368,9 +395,6 @@
                 alert("तस्वीर डाउनलोड गर्दा समस्या आयो। कृपया फेरि प्रयास गर्नुहोस्।");
                 console.error(err);
             }).finally(() => {
-                // डाउनलोड भएपछि पुनः डिजाइन पुरानै अवस्थामा फर्काउने
-                flyer.style.borderRadius = originalRadius;
-                flyer.style.border = originalBorder;
                 container.style.transform = originalTransform;
                 container.style.marginBottom = originalMargin;
             });
