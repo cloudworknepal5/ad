@@ -53,13 +53,13 @@
             position: relative;
         }
 
-        /* फोटो कन्टेनर */
+        /* फोटो कन्टेनर (फ्रेमभन्दा थोरै तल सारिएको) */
         .photo-wrapper {
             position: absolute;
-            top: 130px;      
+            top: 155px;      
             left: 340px;     
-            width: 520px;     
-            height: 520px;    
+            width: 520px;    
+            height: 520px;   
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -147,7 +147,7 @@
         /* हेडर शीर्षक */
         .header-section {
             position: absolute;
-            top: 70px;
+            top: 60px;
             width: 100%;
             z-index: 30;
             display: flex;
@@ -155,7 +155,7 @@
             align-items: center;
         }
         .header-title {
-            font-size: 50px;
+            font-size: 90px;
             font-weight: 800;
             color: #111827;
             outline: none;
@@ -166,16 +166,16 @@
         /* सन्देश बक्स */
         .message-section {
             position: absolute;
-            top: 660px;
+            top: 680px;
             width: 900px;
             left: 150px;
             z-index: 30;
         }
         .message-text {
-            font-size: 34px;
+            font-size: 42px;
             font-weight: 600;
             color: #111827;
-            line-height: 1.6;
+            line-height: 1.5;
             outline: none;
             text-align: center;
         }
@@ -183,7 +183,7 @@
         /* फुटर: नाम र ठेगाना */
         .footer-section {
             position: absolute;
-            bottom: 60px;
+            bottom: 50px;
             width: 100%;
             z-index: 30;
             display: flex;
@@ -192,14 +192,14 @@
             justify-content: center;
         }
         .user-name {
-            font-size: 40px;
+            font-size: 60px;
             font-weight: 800;
             color: #111827;
             outline: none;
             line-height: 1.2;
         }
         .user-location {
-            font-size: 28px;
+            font-size: 42px;
             font-weight: 700;
             color: #4b5563;
             margin-top: 2px;
@@ -388,22 +388,22 @@
             <button class="ctrl-btn" onclick="resetImageTransform()"><i class="fas fa-redo"></i> रिसेट</button>
         </div>
 
-        <!-- शीर्षक (हार्दिक श्रद्धाञ्जलि) साइज कन्ट्रोल -->
+        <!-- शीर्षक (हार्दिक श्रद्धाञ्जलि) साइज कन्ट्रोल (डिफल्ट 90px, रेन्ज 50px-130px) -->
         <div class="control-group">
-            <label><span><i class="fas fa-heading"></i> शीर्षक टेक्स्ट साइज</span> <span id="titleSizeVal">50px</span></label>
-            <input type="range" min="30" max="90" value="50" oninput="changeTitleSize(this.value)">
+            <label><span><i class="fas fa-heading"></i> शीर्षक टेक्स्ट साइज</span> <span id="titleSizeVal">90px</span></label>
+            <input type="range" min="50" max="130" value="90" oninput="changeTitleSize(this.value)">
         </div>
 
-        <!-- सन्देश टेक्स्ट साइज कन्ट्रोल -->
+        <!-- सन्देश टेक्स्ट साइज कन्ट्रोल (डिफल्ट 42px, रेन्ज 25px-70px) -->
         <div class="control-group">
-            <label><span><i class="fas text-file"></i> सन्देश टेक्स्ट साइज</span> <span id="msgSizeVal">34px</span></label>
-            <input type="range" min="20" max="60" value="34" oninput="changeMessageSize(this.value)">
+            <label><span><i class="fas text-file"></i> सन्देश टेक्स्ट साइज</span> <span id="msgSizeVal">42px</span></label>
+            <input type="range" min="25" max="70" value="42" oninput="changeMessageSize(this.value)">
         </div>
 
-        <!-- नाम साइज कन्ट्रोल -->
+        <!-- नाम साइज कन्ट्रोल (डिफल्ट 60px, रेन्ज 30px-90px) -->
         <div class="control-group">
-            <label><span><i class="fas fa-user"></i> नाम र ठेगाना साइज</span> <span id="nameSizeVal">40px</span></label>
-            <input type="range" min="25" max="70" value="40" oninput="changeNameSize(this.value)">
+            <label><span><i class="fas fa-user"></i> नाम र ठेगाना साइज</span> <span id="nameSizeVal">60px</span></label>
+            <input type="range" min="30" max="90" value="60" oninput="changeNameSize(this.value)">
         </div>
 
     </div>
