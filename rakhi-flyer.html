@@ -40,7 +40,7 @@
             justify-content: center;
         }
 
-        /* मुख्य फ्लेयर कन्टेनर (1200x1200 Fixed Size) - Box Shadow हटाइएको छ ताकि डाउनलोड गर्दा कालो छाया नआओस् */
+        /* मुख्य फ्लेयर कन्टेनर (1200x1200 Fixed Size) */
         .flyer-container {
             width: 1200px;
             height: 1200px;
@@ -341,9 +341,15 @@
         const originalTransform = container.style.transform;
         const originalMargin = container.style.marginBottom;
 
-        window.scrollTo(0,0);
+        window.scrollTo(0, 0);
         container.style.transform = "scale(1)";
         container.style.marginBottom = "0px";
+
+        // कालो छाया पूर्ण रूपमा हटाउन अस्थायी रूपमा border-radius र border हटाउने
+        const originalRadius = flyer.style.borderRadius;
+        const originalBorder = flyer.style.border;
+        flyer.style.borderRadius = "0px";
+        flyer.style.border = "none";
 
         setTimeout(() => {
             html2canvas(flyer, {
@@ -362,6 +368,9 @@
                 alert("तस्वीर डाउनलोड गर्दा समस्या आयो। कृपया फेरि प्रयास गर्नुहोस्।");
                 console.error(err);
             }).finally(() => {
+                // डाउनलोड भएपछि पुनः डिजाइन पुरानै अवस्थामा फर्काउने
+                flyer.style.borderRadius = originalRadius;
+                flyer.style.border = originalBorder;
                 container.style.transform = originalTransform;
                 container.style.marginBottom = originalMargin;
             });
