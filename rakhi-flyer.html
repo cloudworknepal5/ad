@@ -146,21 +146,31 @@
             const editableElements = flyer.querySelectorAll('[contenteditable]');
             editableElements.forEach(el => el.blur());
 
-            const targetWidth = flyer.offsetWidth;
-            const targetHeight = flyer.offsetHeight;
+            // मोबाइल वा डेस्कटप जस्तोसुकै स्क्रिन भए पनि सधैं 1200px को आधारमा HD क्याप्चर गर्ने
+            const originalWidth = flyer.style.width;
+            const originalHeight = flyer.style.height;
+            
+            flyer.style.width = "1200px";
+            flyer.style.height = "1200px";
 
             html2canvas(flyer, {
-                scale: 3, 
+                scale: 2, // 1200px मा scale: 2 गर्दा ठ्याक्कै 2400x2400 (Ultra HD) क्वालिटी आउँछ
                 useCORS: true,
                 backgroundColor: null,
-                width: targetWidth,
-                height: targetHeight
+                width: 1200,
+                height: 1200
             }).then(canvas => {
+                // क्याप्चर गरेपछि कन्टेनरको साविकको स्टाइल फिर्ता गर्ने
+                flyer.style.width = originalWidth;
+                flyer.style.height = originalHeight;
+
                 const link = document.createElement('a');
                 link.download = `raksha-bandhan-1200px-${Date.now()}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             }).catch(err => {
+                flyer.style.width = originalWidth;
+                flyer.style.height = originalHeight;
                 alert("तस्वीर डाउनलोड गर्दा समस्या आयो। कृपया फेरि प्रयास गर्नुहोस्।");
                 console.error(err);
             });
