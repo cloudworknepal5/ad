@@ -158,7 +158,7 @@
             reader.readAsDataURL(event.target.files[0]);
         }
 
-        function downloadFlyer() {
+       function downloadFlyer() {
             const flyer = document.getElementById('flyerContainer');
             
             const editableElements = flyer.querySelectorAll('[contenteditable]');
@@ -166,20 +166,24 @@
 
             const originalWidth = flyer.style.width;
             const originalHeight = flyer.style.height;
+            const originalMaxWidth = flyer.style.maxWidth;
             
-            // ठ्याक्कै सही १२००x१२०० पिक्सल साइज सेट गर्ने
+            // डाउनलोड गर्दा ठ्याक्कै 1200x1200 पिक्सल स्क्वायर फोर्स गर्ने
             flyer.style.width = "1200px";
             flyer.style.height = "1200px";
+            flyer.style.maxWidth = "none";
 
             html2canvas(flyer, {
-                scale: 1, // scale लाई 1 राख्दा साइज ठ्याक्कै 1200x1200px मात्र आउँछ
+                scale: 1,
                 useCORS: true,
-                backgroundColor: null,
+                backgroundColor: "#FDF6ED",
                 width: 1200,
                 height: 1200
             }).then(canvas => {
+                // क्याप्चर भएपछि पुरानै स्टाइल फिर्ता गर्ने
                 flyer.style.width = originalWidth;
                 flyer.style.height = originalHeight;
+                flyer.style.maxWidth = originalMaxWidth;
 
                 const link = document.createElement('a');
                 link.download = `raksha-bandhan-1200px-${Date.now()}.png`;
@@ -188,6 +192,7 @@
             }).catch(err => {
                 flyer.style.width = originalWidth;
                 flyer.style.height = originalHeight;
+                flyer.style.maxWidth = originalMaxWidth;
                 alert("तस्वीर डाउनलोड गर्दा समस्या आयो। कृपया फेरि प्रयास गर्नुहोस्।");
                 console.error(err);
             });
