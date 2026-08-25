@@ -3,15 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rakhi Greetin Card- HD Generator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Rakhi Greeting Card - HD Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: 'Mukta', sans-serif;
+            background-color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
         }
+
         @keyframes spinSlow {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -19,113 +31,258 @@
         .animate-spin-slow {
             animation: spinSlow 30s linear infinite;
         }
-        #flyerOuterWrapper {
+
+        /* मुख्य फ्लेयर कन्टेनर (सधैं फिक्सड स्क्वायर साइज) */
+        #flyerContainer {
+            width: 500px;
+            height: 500px;
+            background-color: #FDF6ED;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            border: 8px solid #f6ad55;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* मण्डाला ब्याकग्राउन्ड */
+        .mandala-bg {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* हेडर टेक्स्ट */
+        .header-section {
+            position: relative;
+            z-index: 10;
             width: 100%;
-            max-width: 620px;
-            aspect-ratio: 1 / 1;
+        }
+        .header-sub {
+            font-size: 18px;
+            font-weight: 800;
+            color: #dc2626;
+            outline: none;
+            border-bottom: 2px solid transparent;
+            line-height: 1.2;
+        }
+        .header-main {
+            font-size: 28px;
+            font-weight: 800;
+            color: #b91c1c;
+            margin-top: 4px;
+            outline: none;
+            border-bottom: 2px solid transparent;
+            line-height: 1.2;
+        }
+
+        /* इलस्ट्रेटर इमेज */
+        .art-section {
+            position: relative;
+            z-index: 10;
+            margin: auto 0;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+        .art-section img {
+            max-height: 240px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        /* फुटरो भाग (फोटो र नाम) */
+        .footer-section {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 12px;
+            border-top: 4px solid #fef3c7;
+            margin-top: auto;
+        }
+
+        /* फोटो अपलोड बक्स */
+        .photo-preview {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 4px dashed #ef4444;
+            background-color: #fef2f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+        .photo-preview span {
+            font-size: 13px;
+            color: #dc2626;
+            font-weight: bold;
+            padding: 4px;
+        }
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* नाम र ठेगाना */
+        .user-info {
+            text-align: right;
+            flex: 1;
+            margin-left: 15px;
+        }
+        .user-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #dc2626;
+            outline: none;
+        }
+        .user-location {
+            font-size: 15px;
+            font-weight: bold;
+            color: #374151;
+            margin-top: 2px;
+            outline: none;
+        }
+
+        /* डाउनलोड बटन र निर्देशन बक्स */
+        .action-box, .instruction-box {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
+        }
+        .download-btn {
+            width: 100%;
+            background-color: #16a34a;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            transition: background 0.2s;
+        }
+        .download-btn:hover {
+            background-color: #15803d;
+        }
+
+        .instruction-box {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 20px;
+            color: #cbd5e1;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+        }
+        .instruction-box h3 {
+            color: #fbbf24;
+            font-size: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .instruction-box ul {
+            list-style: none;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .instruction-footer {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #334155;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .instruction-footer span {
+            color: #fbbf24;
+            font-weight: 600;
+        }
     </style>
 </head>
-<body class="bg-slate-900 flex flex-col items-center justify-center min-h-screen p-4">
+<body>
 
-    <!-- Wrapper for Scale Adjustment -->
-    <div id="flyerOuterWrapper">
-        <!-- Main Flyer Container (Fixed Padding & Spacing to Prevent Cutting) -->
-        <div id="flyerContainer" class="relative w-full h-full bg-[#FDF6ED] rounded-3xl shadow-2xl overflow-hidden border-8 border-amber-300 flex flex-col justify-between p-5 text-center box-border">
-            
-            <!-- Rakhi Art / Mandala Background Spinner -->
-            <div class="absolute inset-0 flex items-center justify-center opacity-15 pointer-events-none">
-                <svg class="w-[140%] h-[140%] text-red-600 animate-spin-slow" viewBox="0 0 300 300" fill="currentColor">
-                    <circle cx="150" cy="150" r="130" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="12 12"/>
-                    <circle cx="150" cy="150" r="110" fill="none" stroke="#d97706" stroke-width="4"/>
-                    <path d="M150 10 L150 290 M10 150 L290 150 M50 50 L250 250 M50 250 L250 50" stroke="currentColor" stroke-width="3"/>
-                    <circle cx="150" cy="150" r="40" fill="#f59e0b" stroke="#b45309" stroke-width="4"/>
-                </svg>
-            </div>
-
-            <!-- Header Text (Editable) -->
-            <div class="relative z-10 w-full pt-1">
-                <h2 contenteditable="true" class="text-base md:text-xl font-extrabold text-red-600 leading-tight outline-none border-b-2 border-transparent focus:border-red-400">
-                    भाइ बहिनीको आत्मीय प्रेम र स्नेहलाई समर्पित
-                </h2>
-                <h1 contenteditable="true" class="text-2xl md:text-4xl font-extrabold text-red-700 mt-1 tracking-wide outline-none border-b-2 border-transparent focus:border-red-400">
-                    रक्षा बन्धन (राखी) को हार्दिक शुभकामना !
-                </h1>
-            </div>
-
-            <!-- Comic Style Illustration (Adjusted height to keep footer fully visible) -->
-            <div class="relative z-10 my-auto w-full flex items-center justify-center py-1">
-                <img src="https://ad.neelamb.com/rakhi.png" crossorigin="anonymous" alt="Raksha Bandhan Comic Art" class="max-h-[300px] md:max-h-[380px] w-auto object-contain drop-shadow-md">
-            </div>
-
-            <!-- Footer Section: User Photo Upload & Name/Location (Fully Visible & Adjusted) -->
-            <div class="relative z-10 w-full flex items-center justify-between pt-2 pb-1 border-t-4 border-amber-200 mt-auto">
-                
-                <!-- Dynamic Photo Upload Box -->
-                <div class="flex flex-col items-center">
-                    <label for="photoUpload" class="cursor-pointer group relative">
-                        <div id="photoPreview" class="w-24 h-24 md:w-30 md:h-30 rounded-full border-4 border-dashed border-red-500 bg-red-50 flex items-center justify-center overflow-hidden shadow-inner group-hover:bg-red-100 transition">
-    <span class="text-xs md:text-sm text-red-600 font-bold text-center p-1">फोटो राख्नुहोस्</span>
-</div>
-                    </label>
-                    <input type="file" id="photoUpload" accept="image/*" class="hidden" onchange="previewImage(event)">
-                </div>
-
-                <!-- Editable Name & Location -->
-                <div class="text-right flex-1 ml-4">
-                    <h3 id="displayName" contenteditable="true" class="text-lg md:text-2xl font-extrabold text-red-600 outline-none border-b-2 border-transparent focus:border-red-400">
-                        मुकेश कुमार
-                    </h3>
-                    <p id="displayLocation" contenteditable="true" class="text-sm md:text-lg font-bold text-gray-700 outline-none border-b-2 border-transparent focus:border-gray-400 mt-0.5">
-                        वीरगंज
-                    </p>
-                </div>
-
-            </div>
-
+    <!-- Main Flyer Container -->
+    <div id="flyerContainer">
+        
+        <!-- Mandala Background Spinner -->
+        <div class="mandala-bg">
+            <svg style="width: 420px; height: 420px; color: #dc2626;" viewBox="0 0 300 300" fill="currentColor">
+                <circle cx="150" cy="150" r="130" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="12 12"/>
+                <circle cx="150" cy="150" r="110" fill="none" stroke="#d97706" stroke-width="4"/>
+                <path d="M150 10 L150 290 M10 150 L290 150 M50 50 L250 250 M50 250 L250 50" stroke="currentColor" stroke-width="3"/>
+                <circle cx="150" cy="150" r="40" fill="#f59e0b" stroke="#b45309" stroke-width="4"/>
+            </svg>
         </div>
+
+        <!-- Header Text (Editable) -->
+        <div class="header-section">
+            <div contenteditable="true" class="header-sub">भाइ बहिनीको आत्मीय प्रेम र स्नेहलाई समर्पित</div>
+            <div contenteditable="true" class="header-main">रक्षा बन्धन (राखी) को हार्दिक शुभकामना !</div>
+        </div>
+
+        <!-- Comic Style Illustration -->
+        <div class="art-section">
+            <img src="https://ad.neelamb.com/rakhi.png" crossorigin="anonymous" alt="Raksha Bandhan Art">
+        </div>
+
+        <!-- Footer Section: Photo & Name -->
+        <div class="footer-section">
+            <label for="photoUpload" style="cursor: pointer;">
+                <div id="photoPreview" class="photo-preview">
+                    <span>फोटो राख्नुहोस्</span>
+                </div>
+            </label>
+            <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="previewImage(event)">
+
+            <div class="user-info">
+                <div id="displayName" contenteditable="true" class="user-name">मुकेश कुमार</div>
+                <div id="displayLocation" contenteditable="true" class="user-location">वीरगंज</div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Multi-Function Action Buttons Panel (Download & Share) -->
-    <div class="w-full max-w-[620px] flex flex-wrap gap-3 mt-5">
-        <button onclick="downloadFlyer()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-base">
+    <!-- Download Button Panel -->
+    <div class="action-box">
+        <button onclick="downloadFlyer()" class="download-btn">
             <i class="fas fa-download"></i> HD डाउनलोड (1200px)
         </button>
-        
     </div>
 
-    <!-- Instructions Footer Outside Flyer -->
-    <div class="w-full max-w-[620px] mt-6 bg-slate-800 border border-slate-700 rounded-2xl p-5 text-slate-300 shadow-xl">
-        <h3 class="text-amber-400 font-bold text-lg mb-3 flex items-center gap-2">
-            <i class="fas fa-info-circle"></i> यो फ्लेयर प्रयोग गर्ने तरिका:
-        </h3>
-        <ul class="space-y-2 text-sm md:text-base">
-            <li class="flex items-start gap-2">
-                <span class="text-amber-400 font-bold">१.</span>
-                <span><strong>टेक्स्ट सम्पादन (Edit Text):</strong> माथि रहेको शुभकामना सन्देशहरूमा क्लिक गरेर आफू अनुसारको शब्द परिवर्तन गर्न सकिन्छ।</span>
-            </li>
-            <li class="flex items-start gap-2">
-                <span class="text-amber-400 font-bold">२.</span>
-                <span><strong>फोटो राख्ने (Upload Photo):</strong> बायाँपट्टि गोल घेरामा रहेको <span class="text-red-400 font-semibold">'फोटो राख्नुहोस्'</span> मा क्लिक गरी आफ्नो वा आफन्तको फोटो छान्नुहोस्।</span>
-            </li>
-            <li class="flex items-start gap-2">
-                <span class="text-amber-400 font-bold">३.</span>
-                <span><strong>नाम र ठेगाना परिवर्तन (Edit Name):</strong> दायाँतर्फ रहेको <span class="text-red-400 font-semibold">मुकेश कुमार</span> र <span class="text-red-400 font-semibold">वीरगंज</span> मा क्लिक गरी आफ्नो नाम र ठेगाना टाइप गर्नुहोस्।</span>
-            </li>
-            <li class="flex items-start gap-2">
-                <span class="text-amber-400 font-bold">४.</span>
-                <span><strong>डाउनलोड र सेयर:</strong> <span class="text-green-400 font-semibold">HD डाउनलोड</span> बटन थिचेर उच्च गुणस्तरको तस्विर सेभ गर्नुहोस्।</span>
-            </li>
+    <!-- Instructions Footer -->
+    <div class="instruction-box">
+        <h3><i class="fas fa-info-circle"></i> यो फ्लेयर प्रयोग गर्ने तरिका:</h3>
+        <ul>
+            <li><strong>१. टेक्स्ट सम्पादन:</strong> माथि क्लिक गरेर शुभकामना सन्देश, नाम र ठेगाना परिवर्तन गर्नुहोस्।</li>
+            <li><strong>२. फोटो राख्ने:</strong> गोल घेरामा क्लिक गरी आफ्नो वा आफन्तको फोटो छान्नुहोस्।</li>
+            <li><strong>३. डाउनलोड:</strong> HD डाउनलोड बटन थिचेर उच्च गुणस्तरको तस्विर seभ गर्नुहोस्।</li>
         </ul>
-
-        <!-- Design By Credit Added Below Guidelines -->
-        <div class="mt-4 pt-3 border-t border-slate-700 text-center">
-            <p class="text-xs text-slate-400 tracking-wider">
-                Developed & Designed By <span class="text-amber-400 font-semibold">Neelamb ART & DESIGN</span>
-            </p>
+        <div class="instruction-footer">
+            Developed & Designed By <span>Neelamb ART & DESIGN</span>
         </div>
     </div>
 
@@ -135,7 +292,7 @@
             const reader = new FileReader();
             reader.onload = function(){
                 const preview = document.getElementById('photoPreview');
-                preview.innerHTML = `<img src="${reader.result}" class="w-full h-full object-cover">`;
+                preview.innerHTML = `<img src="${reader.result}">`;
             }
             reader.readAsDataURL(event.target.files[0]);
         }
@@ -143,18 +300,18 @@
         function downloadFlyer() {
             const flyer = document.getElementById('flyerContainer');
             
+            // सबै सम्पादन क्षेत्रबाट फोकस हटाउने
             const editableElements = flyer.querySelectorAll('[contenteditable]');
             editableElements.forEach(el => el.blur());
 
-            const targetWidth = flyer.offsetWidth;
-            const targetHeight = flyer.offsetHeight;
+            // ५००px कन्टेनरलाई ठ्याक्कै 1200px बनाउन Scale निकालेर क्याप्चर गर्ने (1200 / 500 = 2.4)
+            const scaleFactor = 1200 / flyer.offsetWidth;
 
             html2canvas(flyer, {
-                scale: 3, 
+                scale: scaleFactor,
                 useCORS: true,
-                backgroundColor: null,
-                width: targetWidth,
-                height: targetHeight
+                backgroundColor: '#FDF6ED',
+                logging: false
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `raksha-bandhan-1200px-${Date.now()}.png`;
@@ -164,12 +321,6 @@
                 alert("तस्वीर डाउनलोड गर्दा समस्या आयो। कृपया फेरि प्रयास गर्नुहोस्।");
                 console.error(err);
             });
-        }
-
-        function shareOnFacebook() {
-            const pageUrl = encodeURIComponent(window.location.href);
-            const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
-            window.open(fbShareUrl, '_blank', 'width500,height=400');
         }
     </script>
 </body>
