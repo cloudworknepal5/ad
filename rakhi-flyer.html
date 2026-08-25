@@ -21,7 +21,8 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
+            overflow-x: hidden;
         }
 
         @keyframes spinSlow {
@@ -32,19 +33,20 @@
             animation: spinSlow 30s linear infinite;
         }
 
-        /* मुख्य फ्लेयर कन्टेनर (सधैं फिक्सड स्क्वायर साइज) */
+        /* मुख्य फ्लेयर कन्टेनर - प्याडिङ अझै बढाइएको (30px) */
         #flyerContainer {
-            width: 500px;
-            height: 500px;
+            width: 100%;
+            max-width: 420px;
+            aspect-ratio: 1 / 1;
             background-color: #FDF6ED;
-            border-radius: 24px;
+            border-radius: 20px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             overflow: hidden;
-            border: 8px solid #f6ad55;
+            border: 6px solid #f6ad55;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 24px;
+            padding: 30px; /* यहाँ प्याडिङ बढाइएको छ */
             text-align: center;
             position: relative;
         }
@@ -67,7 +69,7 @@
             width: 100%;
         }
         .header-sub {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 800;
             color: #dc2626;
             outline: none;
@@ -75,10 +77,10 @@
             line-height: 1.2;
         }
         .header-main {
-            font-size: 28px;
+            font-size: 21px;
             font-weight: 800;
             color: #b91c1c;
-            margin-top: 4px;
+            margin-top: 2px;
             outline: none;
             border-bottom: 2px solid transparent;
             line-height: 1.2;
@@ -94,7 +96,7 @@
             justify-content: center;
         }
         .art-section img {
-            max-height: 240px;
+            max-height: 175px;
             width: auto;
             object-fit: contain;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
@@ -108,17 +110,17 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-top: 12px;
-            border-top: 4px solid #fef3c7;
+            padding-top: 10px;
+            border-top: 3px solid #fef3c7;
             margin-top: auto;
         }
 
-        /* फोटो अपलोड बक्स */
+        /* फोटो अपलोड बक्स - साइज अलि मिलाइएको */
         .photo-preview {
-            width: 90px;
-            height: 90px;
+            width: 68px;
+            height: 68px;
             border-radius: 50%;
-            border: 4px dashed #ef4444;
+            border: 3px dashed #ef4444;
             background-color: #fef2f2;
             display: flex;
             align-items: center;
@@ -128,10 +130,11 @@
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
         }
         .photo-preview span {
-            font-size: 13px;
+            font-size: 9px;
             color: #dc2626;
             font-weight: bold;
-            padding: 4px;
+            padding: 2px;
+            text-align: center;
         }
         .photo-preview img {
             width: 100%;
@@ -143,16 +146,16 @@
         .user-info {
             text-align: right;
             flex: 1;
-            margin-left: 15px;
+            margin-left: 10px;
         }
         .user-name {
-            font-size: 22px;
+            font-size: 17px;
             font-weight: 800;
             color: #dc2626;
             outline: none;
         }
         .user-location {
-            font-size: 15px;
+            font-size: 12px;
             font-weight: bold;
             color: #374151;
             margin-top: 2px;
@@ -162,8 +165,8 @@
         /* डाउनलोड बटन र निर्देशन बक्स */
         .action-box, .instruction-box {
             width: 100%;
-            max-width: 500px;
-            margin-top: 20px;
+            max-width: 420px;
+            margin-top: 16px;
         }
         .download-btn {
             width: 100%;
@@ -190,31 +193,31 @@
             background-color: #1e293b;
             border: 1px solid #334155;
             border-radius: 16px;
-            padding: 20px;
+            padding: 16px;
             color: #cbd5e1;
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
         }
         .instruction-box h3 {
             color: #fbbf24;
-            font-size: 18px;
-            margin-bottom: 12px;
+            font-size: 16px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .instruction-box ul {
             list-style: none;
-            font-size: 14px;
+            font-size: 13px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         .instruction-footer {
-            margin-top: 15px;
-            padding-top: 10px;
+            margin-top: 12px;
+            padding-top: 8px;
             border-top: 1px solid #334155;
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
         }
         .instruction-footer span {
@@ -230,7 +233,7 @@
         
         <!-- Mandala Background Spinner -->
         <div class="mandala-bg">
-            <svg style="width: 420px; height: 420px; color: #dc2626;" viewBox="0 0 300 300" fill="currentColor">
+            <svg style="width: 340px; height: 340px; color: #dc2626;" viewBox="0 0 300 300" fill="currentColor">
                 <circle cx="150" cy="150" r="130" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="12 12"/>
                 <circle cx="150" cy="150" r="110" fill="none" stroke="#d97706" stroke-width="4"/>
                 <path d="M150 10 L150 290 M10 150 L290 150 M50 50 L250 250 M50 250 L250 50" stroke="currentColor" stroke-width="3"/>
@@ -279,7 +282,7 @@
         <ul>
             <li><strong>१. टेक्स्ट सम्पादन:</strong> माथि क्लिक गरेर शुभकामना सन्देश, नाम र ठेगाना परिवर्तन गर्नुहोस्।</li>
             <li><strong>२. फोटो राख्ने:</strong> गोल घेरामा क्लिक गरी आफ्नो वा आफन्तको फोटो छान्नुहोस्।</li>
-            <li><strong>३. डाउनलोड:</strong> HD डाउनलोड बटन थिचेर उच्च गुणस्तरको तस्विर seभ गर्नुहोस्।</li>
+            <li><strong>३. डाउनलोड:</strong> HD डाउनलोड बटन थिचेर उच्च गुणस्तरको तस्विर सेभ गर्नुहोस्।</li>
         </ul>
         <div class="instruction-footer">
             Developed & Designed By <span>Neelamb ART & DESIGN</span>
@@ -300,12 +303,11 @@
         function downloadFlyer() {
             const flyer = document.getElementById('flyerContainer');
             
-            // सबै सम्पादन क्षेत्रबाट फोकस हटाउने
             const editableElements = flyer.querySelectorAll('[contenteditable]');
             editableElements.forEach(el => el.blur());
 
-            // ५००px कन्टेनरलाई ठ्याक्कै 1200px बनाउन Scale निकालेर क्याप्चर गर्ने (1200 / 500 = 2.4)
-            const scaleFactor = 1200 / flyer.offsetWidth;
+            const currentWidth = flyer.offsetWidth;
+            const scaleFactor = 1200 / currentWidth;
 
             html2canvas(flyer, {
                 scale: scaleFactor,
