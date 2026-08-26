@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neelamb - WordPress HD News Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <style>
+        :root { --fb-red: #ed1c24; --fb-blue: #002e5b; --fb-yellow: #ffcc00; }
+        body { background: #f0f2f5; margin: 0; padding: 0; font-family: 'Mukta', sans-serif; touch-action: manipulation; }
+        
+        #gh-outer-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
+
+        .gh-controls-panel { 
+            background: #fff; padding: 15px; border-bottom: 2px solid #ddd; 
+            width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;
+        }
+        .control-block { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; background: #f1f3f4; padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; font-size: 13px; color: #333; }
+        .control-block label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        #gh-master-container { transform-origin: top center; margin: 25px 0; transition: transform 0.1s ease; }
+
+        .gh-master-wrap { 
+            width: 1600px; height: 1600px; 
+            background: #000; border: 25px solid var(--fb-red); 
+            box-sizing: border-box; position: relative;
+            overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .gh-inner-border { position: absolute; inset: 15px; border: 3px solid rgba(255, 255, 255, 0.4); pointer-events: none; z-index: 25; }
+        
+        .gh-domain-ribbon { 
+            position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
+            background: var(--fb-red); color: #fff; padding: 10px 80px;
+            font-size: 28px; font-weight: 800; z-index: 35; border-radius: 0 0 20px 20px;
+        }
+
+        .draggable-item { position: absolute; z-index: 100; cursor: move; touch-action: none; }
+        .gh-logo-watermark { width: 350px; height: auto; object-fit: contain; pointer-events: none; }
+        .gh-img-frame { position: absolute; inset: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; }
+        .main-photo { position: absolute; will-change: transform; cursor: move; touch-action: none; }
+
+        .gh-social-icons { display: flex; flex-direction: column; gap: 20px; padding: 20px; }
+        .gh-social-icons img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #fff; }
+
+        .gh-headline { 
+            width: 95%; text-align: center; font-weight: 800; line-height: 1.2;
+            background: transparent; padding: 20px;
+            text-shadow: 4px 4px 15px rgba(0,0,0,1);
+            word-break: keep-all; user-select: none;
+        }
+        .word-white { color: #ffffff; }
+        .word-yellow { color: var(--fb-yellow); }
+
+        .comment-ribbon {
+            background: var(--fb-red);
+            color: white;
+            padding: 10px 40px;
+            font-size: 35px;
+            font-weight: 700;
+            border-radius: 50px;
+            margin-top: 15px;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .gh-nav-row { display: flex; justify-content: center; gap: 15px; margin: 20px 0; width: 100%; }
+        .gh-nav-btn { background: var(--fb-red); color: #fff; padding: 12px 35px; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; font-size: 18px; }
+        .gh-nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .gh-footer { margin-top: 30px; padding: 20px; width: 100%; text-align: center; background: #fff; border-top: 1px solid #ddd; font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+
+<div id="gh-outer-wrapper">
+    <div class="gh-controls-panel">
+        <div class="control-block">
+            <label>Format Size</label>
+            <select id="formatSelector" onchange="changeFormat()" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-family: 'Mukta';">
+                <option value="fb-landscape" data-w="1200" data-h="630">Facebook Landscape (1200x630)</option>
+                <option value="fb-square" data-w="1200" data-h="1200">Facebook Square (1200x1200)</option>
+                <option value="fb-hd-square" data-w="1600" data-h="1600" selected>Facebook HD Square (1600x1600)</option>
+                <option value="ig-portrait" data-w="1080" data-h="1350">Instagram Portrait (1080x1350)</option>
+                <option value="ig-square" data-w="1080" data-h="1080">Instagram Square (1080x1080)</option>
+                <option value="yt-thumb" data-w="1280" data-h="720">YouTube Thumbnail (1280x720)</option>
+                <option value="story-reel" data-w="1080" data-h="1920">Stories / Reels (1080x1920)</option>
+            </select>
+        </div>
+
+        <div class="control-block">
+            <label>Image Resize</label>
+            <input type="range" id="imgZoom" min="0.1" max="5" step="0.1" value="1.0" oninput="applyTransform()">
+        </div>
+        
+        <div class="control-block">
+            <label>Headline Resize</label>
+            <input type="range" id="headlineSize" min="40" max="180" step="1" value="100" oninput="adjustHeadline()">
+        </div>
+
+        <div class="control-block">
+            <label>WordPress Site Domain</label>
+            <input type="text" id="inputDomain" value="ghantaghartv.com" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-family: 'Mukta'; width: 180px;">
+        </div>
+
+        <div class="control-block">
+            <label>Logo Image Link Add</label>
+            <input type="text" id="inputLogo" value="https://ghantaghartv.com/wp-content/uploads/2022/10/Ghantaghar-TV-banner-png-300.png" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-family: 'Mukta'; width: 220px;">
+        </div>
+
+        <div style="display: flex; align-items: flex-end; gap: 10px;">
+            <button onclick="updateSettings()" style="background: var(--fb-blue); color: white; padding: 9px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                <i class="fas fa-sync-alt"></i> Update
+            </button>
+            <button onclick="capturePNG()" style="background: #28a745; color: white; padding: 9px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                <i class="fas fa-download"></i> HD Save
+            </button>
+        </div>
+    </div>
+
+    <div id="gh-master-container"></div>
+
+    <div style="background: #fff; padding: 15px 25px; margin: 15px auto; width: 90%; max-width: 850px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-family: 'Mukta', sans-serif; color: #333; text-align: left;">
+        <h3 style="margin-top: 0; color: #002e5b; font-size: 18px;"><i class="fas fa-info-circle"></i> Generator Features Guide:</h3>
+        <ul style="margin: 0; padding-left: 20px; line-height: 1.6; font-size: 14px;">
+            <li><b>Auto Integration:</b> Automatically fetches and displays news posts directly from your WordPress website database.</li>
+            <li><b>Format Size Selector:</b> Instantly switch canvas dimensions for Facebook, Instagram, YouTube, and Stories/Reels.</li>
+            <li><b>HD Layout Customization:</b> Generates high-resolution social media cards optimized for sharing.</li>
+            <li><b>Drag & Drop Elements:</b> You can freely drag and position the main photo, headline, logo watermark, and social media icons using your mouse or touch.</li>
+            <li><b>Image Resize (Zoom):</b> Use the slider to easily zoom in or out on the featured news image to fit the frame perfectly.</li>
+            <li><b>Headline Resize:</b> Adjust the font size of your news headline dynamically using the slider.</li>
+            <li><b>Two-Color Headline:</b> Automatically splits the headline text into white and yellow colors for a modern, eye-catching news banner look.</li>
+            <li><b>Website & Logo Customizer:</b> Easily input your custom WordPress domain name and logo image URL to update the card branding instantly.</li>
+            <li><b>HD PNG Download:</b> Instantly export and save the final designed news card in high definition with a single click.</li>
+        </ul>
+    </div>
+
+    <div class="gh-footer">
+        Copyright &copy; 2026 | Designed by <a href="https://neelamb.com" target="_blank" style="color: var(--fb-red); text-decoration: none;"><b>Neelamb.com</b></a>
+    </div>
+</div>
+
+<script>
+let wp_posts_data = [];
+let wp_current_idx = 0;
+let imgState = { x: 0, y: 0, scale: 1 };
+let SITE_DOMAIN = "ghantaghartv.com";
+let SITE_LOGO_URL = "https://ghantaghartv.com/wp-content/uploads/2022/10/Ghantaghar-TV-banner-png-300.png";
+
+function initInteract() {
+    interact('.draggable-item').draggable({
+        inertia: true,
+        listeners: {
+            move(event) {
+                const target = event.target;
+                const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                target.style.transform = `translate(${x}px, ${y}px)`;
+                target.setAttribute('data-x', x);
+                target.setAttribute('data-y', y);
+            }
+        }
+    });
+    interact('.main-photo').draggable({
+        listeners: { move(event) { imgState.x += event.dx; imgState.y += event.dy; applyTransform(); } }
+    });
+}
+
+function applyTransform() {
+    const img = document.getElementById('mainImg');
+    if(!img) return;
+    imgState.scale = document.getElementById('imgZoom').value;
+    img.style.transform = `translate(${imgState.x}px, ${imgState.y}px) scale(${imgState.scale})`;
+}
+
+function adjustHeadline() {
+    const headline = document.getElementById('ghHeadline');
+    if (headline) headline.style.fontSize = document.getElementById('headlineSize').value + "px";
+}
+
+function formatHeadline(text) {
+    if (!text) return '';
+    const words = text.split(' ');
+    const totalWords = words.length;
+    if (totalWords <= 1) return `<span class="word-white">${text}</span>`;
+    
+    const halfIndex = Math.floor(totalWords / 2);
+    const firstHalf = words.slice(0, halfIndex).join(' ');
+    const secondHalf = words.slice(halfIndex).join(' ');
+    
+    return `<span class="word-white">${firstHalf}</span> <span class="word-yellow">${secondHalf}</span>`;
+}
+
+function changeFormat() {
+    const sel = document.getElementById('formatSelector');
+    const opt = sel.options[sel.selectedIndex];
+    const wrap = document.querySelector('.gh-master-wrap');
+    if(wrap) {
+        wrap.style.width = opt.getAttribute('data-w') + 'px';
+        wrap.style.height = opt.getAttribute('data-h') + 'px';
+    }
+    adjustScale();
+}
+
+function updateDisplay() {
+    const container = document.getElementById('gh-master-container');
+    const p = wp_posts_data[wp_current_idx];
+    if(!p) return;
+
+    const title = p.title.rendered;
+    
+    // Extract featured image from WordPress WP-API embedded data
+    let thumb = '';
+    if (p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0] && p._embedded['wp:featuredmedia'][0].source_url) {
+        thumb = p._embedded['wp:featuredmedia'][0].source_url;
+    }
+    
+    imgState = { x: 0, y: 0, scale: 1 };
+
+    container.innerHTML = `
+        <div class="gh-master-wrap" id="captureArea">
+            <div class="gh-domain-ribbon">${SITE_DOMAIN.replace(/^https?:\/\//, '').replace(/\/$/, '')}</div>
+            <div class="gh-inner-border"></div>
+
+            <div class="gh-img-frame">
+                <img src="https://images.weserv.nl/?url=${encodeURIComponent(thumb.replace('https://',''))}" class="main-photo" id="mainImg">
+            </div>
+
+            <div class="draggable-item" style="top: 40px; right: 30px;">
+                <img src="https://images.weserv.nl/?url=${encodeURIComponent(SITE_LOGO_URL.replace('https://',''))}" class="gh-logo-watermark">
+            </div>
+
+            <div class="draggable-item gh-social-icons" style="top: 100px; left: 20px;">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png">
+                <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png">
+                <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+            </div>
+
+            <div class="draggable-item" id="headlineGroup" style="bottom: 60px; left: 50%; transform: translateX(-50%); width: 95%; text-align: center;">
+                <div class="gh-headline" id="ghHeadline">
+                    ${formatHeadline(title)}
+                </div>
+                <div class="comment-ribbon">
+                    विस्तृत समाचार कमेन्टमा <i class="fas fa-comment"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="gh-nav-row">
+            <button class="gh-nav-btn" onclick="move(-1)" ${wp_current_idx === 0 ? 'disabled' : ''}>&larr; Previous</button>
+            <button class="gh-nav-btn" onclick="move(1)" ${wp_current_idx === wp_posts_data.length - 1 ? 'disabled' : ''}>Next &rarr;</button>
+        </div>
+    `;
+
+    const imgEl = document.getElementById('mainImg');
+    imgEl.onload = () => { 
+        initInteract(); 
+        changeFormat(); 
+        adjustHeadline(); 
+        applyTransform();
+    };
+}
+
+function adjustScale() {
+    const container = document.getElementById('gh-master-container');
+    const wrap = document.querySelector('.gh-master-wrap');
+    if(!wrap) return;
+    const targetWidth = parseInt(wrap.style.width) || 1600;
+    const targetHeight = parseInt(wrap.style.height) || 1600;
+    
+    const scale = Math.min(1, (window.innerWidth - 40) / targetWidth);
+    container.style.transform = `scale(${scale})`;
+    container.style.marginBottom = `-${targetHeight * (1 - scale)}px`;
+}
+
+async function capturePNG() {
+    const container = document.getElementById('gh-master-container');
+    const target = document.getElementById('captureArea');
+    const originalTransform = container.style.transform;
+    window.scrollTo(0,0);
+    container.style.transform = "scale(1)";
+    setTimeout(async () => {
+        try {
+            const canvas = await html2canvas(target, { useCORS: true, scale: 1 });
+            const link = document.createElement('a');
+            link.download = `wordpress-news-${Date.now()}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        } catch (e) { alert("Error saving image."); }
+        finally { container.style.transform = originalTransform; }
+    }, 500);
+}
+
+function updateSettings() {
+    const d = document.getElementById('inputDomain').value.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const l = document.getElementById('inputLogo').value.trim();
+    
+    if(d) SITE_DOMAIN = d;
+    if(l) SITE_LOGO_URL = l;
+
+    const apiUrl = `https://${SITE_DOMAIN}/wp-json/wp/v2/posts?_embed&per_page=50`;
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (Array.isArray(data) && data.length > 0) {
+                wp_posts_data = data;
+                wp_current_idx = 0;
+                updateDisplay();
+            } else {
+                alert("No WordPress posts found!");
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching WP posts:', error);
+            alert("Failed to fetch posts. Please check your domain name.");
+        });
+}
+
+window.move = (n) => { wp_current_idx += n; updateDisplay(); };
+window.addEventListener('resize', adjustScale);
+
+updateSettings();
+</script>
+</body>
+</html>
