@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neelamb - HD News Generator (1600x1600)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <style>
+        :root { --fb-red: #ed1c24; --fb-blue: #002e5b; --fb-yellow: #ffcc00; }
+        body { background: #f0f2f5; margin: 0; padding: 0; font-family: 'Mukta', sans-serif; touch-action: manipulation; }
+        
+        #gh-outer-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+        /* Instructions */
+        .gh-instructions-box { 
+            background: #fff; border-left: 6px solid var(--fb-red); padding: 20px; 
+            margin: 20px auto; width: 90%; max-width: 850px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #333;
+        }
+
+        /* Controls */
+        .gh-controls-panel { 
+            background: #fff; padding: 15px; border-bottom: 2px solid #ddd; 
+            width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;
+        }
+        .control-group { display: flex; align-items: center; gap: 10px; background: #f1f3f4; padding: 8px 15px; border-radius: 30px; border: 1px solid #ddd; font-weight: bold; font-size: 14px; }
+        
+        /* Master Container for 1600x1600 */
+        #gh-master-container { transform-origin: top center; margin: 25px 0; }
+
+        .gh-master-wrap { 
+            width: 1600px; height: 1600px; 
+            background: #000; border: 25px solid var(--fb-red); 
+            box-sizing: border-box; position: relative;
+            overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .gh-inner-border { position: absolute; inset: 15px; border: 3px solid rgba(255, 255, 255, 0.4); pointer-events: none; z-index: 25; }
+        
+        .gh-domain-ribbon { 
+            position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
+            background: var(--fb-red); color: #fff; padding: 10px 80px;
+            font-size: 28px; font-weight: 800; z-index: 35; border-radius: 0 0 20px 20px;
+        }
+
+        /* Elements */
+        .draggable-item { position: absolute; z-index: 100; cursor: move; touch-action: none; }
+        .gh-logo-watermark { width: 350px; height: auto; object-fit: contain; pointer-events: none; }
+        .gh-img-frame { position: absolute; inset: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; }
+        .main-photo { position: absolute; will-change: transform; cursor: move; touch-action: none; }
+
+        .gh-social-icons { display: flex; flex-direction: column; gap: 20px; padding: 20px; }
+        .gh-social-icons img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #fff; }
+
+        /* Two-color Headline */
+        .gh-headline { 
+            width: 95%; text-align: center; font-weight: 800; line-height: 1.2;
+            background: transparent; padding: 20px;
+            text-shadow: 4px 4px 15px rgba(0,0,0,1);
+            word-break: keep-all; user-select: none;
+        }
+        .word-white { color: #ffffff; }
+        .word-yellow { color: var(--fb-yellow); }
+
+        /* Comment Ribbon */
+        .comment-ribbon {
+            background: var(--fb-red);
+            color: white;
+            padding: 10px 40px;
+            font-size: 35px;
+            font-weight: 700;
+            border-radius: 50px;
+            margin-top: 15px;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .gh-nav-row { display: flex; justify-content: center; gap: 15px; margin: 20px 0; width: 100%; }
+        .gh-nav-btn { background: var(--fb-red); color: #fff; padding: 12px 35px; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; font-size: 18px; }
+        .gh-footer { margin-top: 30px; padding: 20px; width: 100%; text-align: center; background: #fff; border-top: 1px solid #ddd; font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+
+<div id="gh-outer-wrapper">
+    <div class="gh-instructions-box">
+        <h3><i class="fas fa-tools"></i> नयाँ अपडेट (1600x1600):</h3>
+        <ul>
+            <li><b>साइज:</b> अब यो कार्ड सधैं १६००x१६०० साइजमा आउनेछ।</li>
+            <li><b>हेडलाइन कलर:</b> हेडलाइनको पहिलो २ शब्द सेतो र बाँकी पहेलो हुनेछ।</li>
+            <li><b>कमेन्ट रिबन:</b> हेडलाइन मुनि "विस्तृत समाचार कमेन्टमा" भन्ने रिबन थपिएको छ।</li>
+        </ul>
+    </div>
+
+    <div class="gh-controls-panel">
+        <div class="control-group">
+            <i class="fas fa-image"></i>
+            <input type="range" id="imgZoom" min="0.1" max="5" step="0.1" value="3.0" oninput="applyTransform()">
+        </div>
+        <div class="control-group">
+            <i class="fas fa-font"></i>
+            <input type="range" id="headlineSize" min="40" max="180" step="1" value="100" oninput="adjustHeadline()">
+        </div>
+        <button onclick="capturePNG()" style="background: #28a745; color: white; padding: 10px 25px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer;">
+            <i class="fas fa-download"></i> HD सेभ (1600x1600)
+        </button>
+        <div class="gh-dynamic-inputs">
+            <input type="text" id="inputDomain" placeholder="Domain" value="ghantaghartv.com">
+            <button onclick="updateSettings()" style="background: var(--fb-blue); color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">Update</button>
+        </div>
+    </div>
+
+    <div id="gh-master-container"></div>
+
+    <div class="gh-footer">
+        Copyright &copy; 2026 | Designed by <a href="https://neelamb.com" target="_blank" style="color: var(--fb-red); text-decoration: none;"><b>Neelamb.com</b></a>
+    </div>
+</div>
+
+<script>
+let gh_posts_data = [];
+let gh_current_idx = 0;
+let imgState = { x: 0, y: 0, scale: 1.2 };
+let SITE_DOMAIN = "ghantaghartv.com";
+let SITE_LOGO_URL = "https://ghantaghartv.com/wp-content/uploads/2022/10/Ghantaghar-TV-banner-png-300.png";
+
+function initInteract() {
+    interact('.draggable-item').draggable({
+        inertia: true,
+        listeners: {
+            move(event) {
+                const target = event.target;
+                const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                target.style.transform = `translate(${x}px, ${y}px)`;
+                target.setAttribute('data-x', x);
+                target.setAttribute('data-y', y);
+            }
+        }
+    });
+    interact('.main-photo').draggable({
+        listeners: { move(event) { imgState.x += event.dx; imgState.y += event.dy; applyTransform(); } }
+    });
+}
+
+function applyTransform() {
+    const img = document.getElementById('mainImg');
+    if(!img) return;
+    imgState.scale = document.getElementById('imgZoom').value;
+    img.style.transform = `translate(${imgState.x}px, ${imgState.y}px) scale(${imgState.scale})`;
+}
+
+function adjustHeadline() {
+    const headline = document.getElementById('ghHeadline');
+    if (headline) headline.style.fontSize = document.getElementById('headlineSize').value + "px";
+}
+
+// Multi-Function: Split title for two colors
+function formatHeadline(text) {
+    const words = text.split(' ');
+    const totalWords = words.length;
+    
+    // यदि एउटा मात्र शब्द छ भने सेतो देखाउने
+    if (totalWords <= 1) return `<span class="word-white">${text}</span>`;
+    
+    // कुल शब्द संख्यालाई २ ले भाग गरेर आधा भाग निकाल्ने (बिजोड भएमा पहिलो भाग सानो हुन्छ)
+    const halfIndex = Math.floor(totalWords / 2);
+    
+    const firstHalf = words.slice(0, halfIndex).join(' ');
+    const secondHalf = words.slice(halfIndex).join(' ');
+    
+    return `<span class="word-white">${firstHalf}</span> <span class="word-yellow">${secondHalf}</span>`;
+}
+function updateDisplay() {
+    const container = document.getElementById('gh-master-container');
+    const p = gh_posts_data[gh_current_idx];
+    if(!p) return;
+
+    let featuredImg = p._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+    
+    container.innerHTML = `
+        <div class="gh-master-wrap" id="captureArea">
+            <div class="gh-domain-ribbon">${SITE_DOMAIN}</div>
+            <div class="gh-inner-border"></div>
+
+            <div class="gh-img-frame">
+                <img src="https://images.weserv.nl/?url=${encodeURIComponent(featuredImg.replace('https://',''))}" class="main-photo" id="mainImg">
+            </div>
+
+            <div class="draggable-item" style="top: 30px; right: 20px;">
+                <img src="https://images.weserv.nl/?url=${encodeURIComponent(SITE_LOGO_URL.replace('https://',''))}" class="gh-logo-watermark">
+            </div>
+
+            <div class="draggable-item gh-social-icons" style="top: 80px; left: 10px;">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png">
+                <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png">
+                <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+            </div>
+
+            <div class="draggable-item" id="headlineGroup" style="bottom: 50px; left: 50%; transform: translateX(-50%); width: 95%; text-align: center;">
+                <div class="gh-headline" id="ghHeadline">
+                    ${formatHeadline(p.title.rendered)}
+                </div>
+                <div class="comment-ribbon">
+                    विस्तृत समाचार कमेन्टमा <i class="fas fa-comment"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="gh-nav-row">
+            <button class="gh-nav-btn" onclick="move(-1)" ${gh_current_idx === 0 ? 'disabled' : ''}>← नयाँ</button>
+            <button class="gh-nav-btn" onclick="move(1)" ${gh_current_idx === gh_posts_data.length - 1 ? 'disabled' : ''}>पुरानो →</button>
+        </div>
+    `;
+
+    const imgEl = document.getElementById('mainImg');
+    imgEl.onload = () => { 
+        initInteract(); 
+        adjustScale(); 
+        adjustHeadline(); 
+        applyTransform();
+    };
+}
+
+function adjustScale() {
+    const container = document.getElementById('gh-master-container');
+    const wrap = document.querySelector('.gh-master-wrap');
+    if(!wrap) return;
+    const scale = Math.min(1, (window.innerWidth - 40) / 1600);
+    container.style.transform = `scale(${scale})`;
+    container.style.marginBottom = `-${1600 * (1 - scale)}px`;
+}
+
+async function capturePNG() {
+    const container = document.getElementById('gh-master-container');
+    const target = document.getElementById('captureArea');
+    const originalTransform = container.style.transform;
+    window.scrollTo(0,0);
+    container.style.transform = "scale(1)";
+    setTimeout(async () => {
+        try {
+            const canvas = await html2canvas(target, { useCORS: true, scale: 1 });
+            const link = document.createElement('a');
+            link.download = `news-1600x1600-${Date.now()}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        } catch (e) { alert("Error saving image."); }
+        finally { container.style.transform = originalTransform; }
+    }, 500);
+}
+
+function updateSettings() {
+    const d = document.getElementById('inputDomain').value.trim();
+    if(d) SITE_DOMAIN = d;
+    loadData(`https://ghantaghartv.com/wp-json/wp/v2/posts?_embed&per_page=20`);
+}
+
+async function loadData(url) {
+    try {
+        const res = await fetch(url);
+        gh_posts_data = await res.json();
+        if (gh_posts_data.length > 0) { gh_current_idx = 0; updateDisplay(); }
+    } catch (e) { console.log("Fetch error"); }
+}
+
+window.move = (n) => { gh_current_idx += n; updateDisplay(); };
+window.addEventListener('resize', adjustScale);
+updateSettings();
+</script>
+</body>
+</html>
