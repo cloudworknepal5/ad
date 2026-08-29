@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital E-Paper Flipbook with Zoom & Sound</title>
+    <title>Digital E-Paper Flipbook with Zoom Icon & Sound</title>
     <!-- PageFlip Library CDN -->
     <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
     <style>
@@ -23,11 +23,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
         .page {
             background-color: white;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
-            cursor: pointer; /* क्लिक गर्न मिल्छ भनेर देखाउन */
+            position: relative;
         }
         .page img {
             width: 100%;
@@ -35,7 +36,25 @@
             object-fit: contain;
         }
 
-        /* लाइटबक्स (फोटो ठूलो देखाउने मोडल) स्टाइल */
+        /* आइग्लास (जुम) आइकनको स्टाइल */
+        .zoom-icon {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 8px 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 10;
+            transition: background 0.3s;
+        }
+        .zoom-icon:hover {
+            background-color: rgba(0, 0, 0, 0.85);
+        }
+
+        /* लाइटबक्स (जुम गरेर ठूलो देखाउने मोडल) स्टाइल */
         #lightbox-modal {
             display: none;
             position: fixed;
@@ -78,13 +97,31 @@
 
     <div id="book-container">
         <div id="flipbook">
-            <!-- ६ वटा पानाहरू (तपाईंको लाइभ लिङ्कसहित) -->
-            <div class="page"><img src="https://ad.neelamb.com/3d-epaper/image/Page_1.png" alt="Cover Page"></div>
-            <div class="page"><img src="https://ad.neelamb.com/3d-epaper/image/Page_2.png" alt="Page 2"></div>
-            <div class="page"><img src="https://ad.neelamb.com/3d-epaper/image/Page_3.png" alt="Page 3"></div>
-            <div class="page"><img src="https://ad.neelamb.com/3d-epaper/image/Page_4.png" alt="Page 4"></div>
-            <div class="page"><img src="https://ad.neelamb.com/3d-epaper/image/Page_5.png" alt="Page 5"></div>
-            <div class="page"><img src="https://ad.neelamb.com/3d-epaper/image/Page_6.png" alt="Page 6"></div>
+            <!-- प्रत्येक पेजभित्र तस्बिर र जुम (आइग्लास) आइकन राखिएको छ -->
+            <div class="page">
+                <img src="https://ad.neelamb.com/3d-epaper/image/Page_1.png" alt="Cover Page">
+                <div class="zoom-icon" onclick="openZoom(this)" title="Zoom"><i class="fas fa-search-plus"></i>🔍</div>
+            </div>
+            <div class="page">
+                <img src="https://ad.neelamb.com/3d-epaper/image/Page_2.png" alt="Page 2">
+                <div class="zoom-icon" onclick="openZoom(this)" title="Zoom">🔍</div>
+            </div>
+            <div class="page">
+                <img src="https://ad.neelamb.com/3d-epaper/image/Page_3.png" alt="Page 3">
+                <div class="zoom-icon" onclick="openZoom(this)" title="Zoom">🔍</div>
+            </div>
+            <div class="page">
+                <img src="https://ad.neelamb.com/3d-epaper/image/Page_4.png" alt="Page 4">
+                <div class="zoom-icon" onclick="openZoom(this)" title="Zoom">🔍</div>
+            </div>
+            <div class="page">
+                <img src="https://ad.neelamb.com/3d-epaper/image/Page_5.png" alt="Page 5">
+                <div class="zoom-icon" onclick="openZoom(this)" title="Zoom">🔍</div>
+            </div>
+            <div class="page">
+                <img src="https://ad.neelamb.com/3d-epaper/image/Page_6.png" alt="Page 6">
+                <div class="zoom-icon" onclick="openZoom(this)" title="Zoom">🔍</div>
+            </div>
         </div>
     </div>
 
@@ -101,7 +138,6 @@
             let bookHeight = 636;
 
             if (window.innerWidth < 768) {
-                // मोबाइलका लागि स्क्रिन अनुसार मिलाइएको
                 bookWidth = Math.floor((window.innerWidth * 0.92) / 2);
                 bookHeight = Math.floor(bookWidth * 1.414); 
             }
@@ -118,40 +154,42 @@
                 }
             );
 
-            // HTML भित्रका डिभहरू (Pages) बाट फ्लिपबुक लोड गर्ने
+            // पेजहरू लोड गर्ने
             flipBook.loadFromHTML(document.querySelectorAll('.page'));
 
-            // साउन्ड फाइल लोड गर्ने (तपाईंको फोल्डर संरचना अनुसार)
+            // साउन्ड फाइल लोड गर्ने
             const flipSound = new Audio('images/flip-sound.mp3');
 
-            // पाना पल्टाउँदा (Flip हुँदा) प्रत्येक पटक साउन्डको क्लोन बनाएर बजाउने
+            // पाना पल्टाउँदा साउन्ड बजाउने
             flipBook.on('flip', (e) => {
                 const soundInstance = flipSound.cloneNode();
                 soundInstance.play().catch(error => {
                     console.log("Audio play error: ", error);
                 });
             });
+        });
 
-            // पानामा क्लिक गर्दा ठूलो साइजमा जुम भएर देखाउने (Lightbox Functionality)
+        // आइग्लास आइकनमा क्लिक गरेपछि जुम भएर ठूलो देखाउने फंक्सन
+        function openZoom(iconElement) {
+            const pageDiv = iconElement.closest('.page');
+            const imgElement = pageDiv.querySelector('img');
+            
             const modal = document.getElementById('lightbox-modal');
             const modalImg = document.getElementById('lightbox-img');
-            const closeBtn = document.getElementById('lightbox-close');
+            
+            modal.style.display = 'flex';
+            modalImg.src = imgElement.src;
+        }
 
-            document.querySelectorAll('.page img').forEach(img => {
-                img.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    modal.style.display = 'flex';
-                    modalImg.src = this.src;
-                });
-            });
+        // बन्द गर्ने लजिक
+        document.getElementById('lightbox-close').addEventListener('click', function() {
+            document.getElementById('lightbox-modal').style.display = 'none';
+        });
 
-            closeBtn.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
-
-            modal.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
+        document.getElementById('lightbox-modal').addEventListener('click', function(e) {
+            if(e.target === this) {
+                this.style.display = 'none';
+            }
         });
     </script>
 
