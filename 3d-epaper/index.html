@@ -3,27 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital E-Paper Flipbook with Zoom Icon & Sound</title>
+    <title>Digital E-Paper Flipbook with Perfect Zoom & Sound</title>
     <!-- PageFlip Library CDN -->
     <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
     <style>
         body {
             background-color: #f0f2f5;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
             overflow: hidden;
         }
+
+        /* माथिल्लो कन्ट्रोल बटनहरूको स्टाइल */
+        .controls-bar {
+            position: absolute;
+            top: 10px;
+            z-index: 999;
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 6px 15px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .controls-bar button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .controls-bar button:hover {
+            background-color: #0056b3;
+        }
+
+        /* किताब राख्ने मुख्य ठाउँ - तलपटी नकटिने गरी उचाइ मिलाइएको */
         #book-container {
             width: 100%;
             max-width: 1000px;
-            height: 100%;
+            height: 82vh;
+            margin-top: 40px;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
+            transition: transform 0.3s ease;
         }
         .page {
             background-color: white;
@@ -36,25 +67,24 @@
             object-fit: contain;
         }
 
-        /* आइग्लास (जुम) आइकनको स्टाइल */
+        /* पेजभित्रको जुम (आइग्लास) आइकन */
         .zoom-icon {
             position: absolute;
             bottom: 15px;
             right: 15px;
             background-color: rgba(0, 0, 0, 0.6);
             color: #fff;
-            padding: 8px 10px;
+            padding: 6px 10px;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
             z-index: 10;
-            transition: background 0.3s;
         }
         .zoom-icon:hover {
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.9);
         }
 
-        /* लाइटबक्स (जुम गरेर ठूलो देखाउने मोडल) स्टाइल */
+        /* लाइटबक्स (फुल स्क्रिन जुम दृश्य) */
         #lightbox-modal {
             display: none;
             position: fixed;
@@ -71,7 +101,6 @@
             max-width: 90%;
             max-height: 90vh;
             object-fit: contain;
-            box-shadow: 0 0 20px rgba(255,255,255,0.2);
             border-radius: 4px;
         }
         #lightbox-close {
@@ -89,18 +118,33 @@
             #book-container {
                 width: 100vw;
                 height: 75vh;
+                margin-top: 30px;
+            }
+            .controls-bar {
+                top: 5px;
+                padding: 4px 10px;
+            }
+            .controls-bar button {
+                padding: 5px 8px;
+                font-size: 12px;
             }
         }
     </style>
 </head>
 <body>
 
+    <!-- जुम इन/आउट कन्ट्रोल बटनहरू -->
+    <div class="controls-bar">
+        <button onclick="zoomIn()" title="Zoom In">➕ जुम इन</button>
+        <button onclick="zoomOut()" title="Zoom Out">➖ जुम आउट</button>
+        <button onclick="resetZoom()" title="Reset">🔄 रिसेट</button>
+    </div>
+
     <div id="book-container">
         <div id="flipbook">
-            <!-- प्रत्येक पेजभित्र तस्बिर र जुम (आइग्लास) आइकन राखिएको छ -->
             <div class="page">
                 <img src="https://ad.neelamb.com/3d-epaper/image/Page_1.png" alt="Cover Page">
-                <div class="zoom-icon" onclick="openZoom(this)" title="Zoom"><i class="fas fa-search-plus"></i>🔍</div>
+                <div class="zoom-icon" onclick="openZoom(this)" title="Zoom">🔍</div>
             </div>
             <div class="page">
                 <img src="https://ad.neelamb.com/3d-epaper/image/Page_2.png" alt="Page 2">
@@ -125,15 +169,35 @@
         </div>
     </div>
 
-    <!-- फोटो ठूलो देखाउने मोडल (Lightbox) -->
+    <!-- फोटो ठूलो देखाउने लाइटबक्स मोडल -->
     <div id="lightbox-modal">
         <span id="lightbox-close">&times;</span>
         <img id="lightbox-img" src="" alt="Zoomed Page">
     </div>
 
     <script>
+        let currentScale = 1;
+
+        function zoomIn() {
+            if (currentScale < 1.8) {
+                currentScale += 0.15;
+                document.getElementById('book-container').style.transform = `scale(${currentScale})`;
+            }
+        }
+
+        function zoomOut() {
+            if (currentScale > 0.7) {
+                currentScale -= 0.15;
+                document.getElementById('book-container').style.transform = `scale(${currentScale})`;
+            }
+        }
+
+        function resetZoom() {
+            currentScale = 1;
+            document.getElementById('book-container').style.transform = `scale(1)`;
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
-            // स्क्रिनको साइज अनुसार बुकको साइज अटोमेटिक मिलाउने लजिक
             let bookWidth = 450;
             let bookHeight = 636;
 
@@ -154,13 +218,11 @@
                 }
             );
 
-            // पेजहरू लोड गर्ने
             flipBook.loadFromHTML(document.querySelectorAll('.page'));
 
-            // साउन्ड फाइल लोड गर्ने
-            const flipSound = new Audio('images/flip-sound.mp3');
-
-            // पाना पल्टाउँदा साउन्ड बजाउने
+            // साउन्ड फाइलको सहि पाथ वा अनलाइन लिंक यहाँ राख्नुहोला
+            const flipSound = new Audio('https://ad.neelamb.com/3d-epaper/image/flip-sound.mp3');
+            
             flipBook.on('flip', (e) => {
                 const soundInstance = flipSound.cloneNode();
                 soundInstance.play().catch(error => {
@@ -169,7 +231,6 @@
             });
         });
 
-        // आइग्लास आइकनमा क्लिक गरेपछि जुम भएर ठूलो देखाउने फंक्सन
         function openZoom(iconElement) {
             const pageDiv = iconElement.closest('.page');
             const imgElement = pageDiv.querySelector('img');
@@ -181,7 +242,6 @@
             modalImg.src = imgElement.src;
         }
 
-        // बन्द गर्ने लजिक
         document.getElementById('lightbox-close').addEventListener('click', function() {
             document.getElementById('lightbox-modal').style.display = 'none';
         });
