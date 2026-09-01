@@ -10,7 +10,7 @@ const PWA_MANAGER = {
         name: "ekrantikhabar",
         shortName: "ekrantikhabar",
         themeColor: "#2196f3",
-        icon: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiWYufuFo9ALTN3K5dBEVxYlnJe38i8JxLmYJ4G_cgFABRewavM8Lz-s4vxycWffA7i1FDc4chzrK01oGuDb4wKNUSEG2HMn37FU9dk4ecIvVFVPzP1bTsInh6kbf1sFXcZnwVdX5MewxoeZaNZYZqWjpW8Xygt-d_rLg_hI8us2YEKtMXINYziVUSOrbA/s320/ekrantikhabar%20logo%20and%20banner%20512.png"
+        icon: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhaW0S7KawXsJJgs7Vrc0lz2FPPf9DxQyKOFtkpxXtm_MPG5NTqVTxmrAIxKgZmX89uIVjXml8j0mLHKwcoYFiJArEJNUxRGojGyrABX5DwF68x1yz7ev5o4Nvy1ObiXmH0H6XS-xQt-IfVBbA8mtOzZJqYwysStfzgaZeb1h3PGme-0Iw-qI7AN5i4F0o/s1600/e1.png"
     },
 
     init: function() {
