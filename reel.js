@@ -1,13 +1,12 @@
 <div class="dnn-reel-wrapper" style="width: 100%; box-sizing: border-box; overflow: hidden; margin: 20px 0;">
-  <div class="dnn-reel-section" style="font-family: 'Mukta', sans-serif; max-width: 1200px; margin: 0 auto; padding: 15px; position: relative; overflow: hidden; border-radius: 15px; box-sizing: border-box;">
+  <div class="dnn-reel-section" style="font-family: 'Mukta', sans-serif; max-width: 100%; margin: 0 auto; padding: 15px; position: relative; overflow: hidden; border-radius: 15px; box-sizing: border-box;">
       
       <!-- ब्याकग्राउन्ड युट्युब भिडियो र रातो ओभरले -->
       <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; overflow: hidden; pointer-events: none;">
-          <iframe src="https://www.youtube.com/embed/elu-0ykTXqo?autoplay=1&mute=1&loop=1&playlist=elu-0ykTXqo&controls=0&showinfo=0&autohide=1&modestbranding=1" 
+          <iframe src="url?id=15" 
             style="position: absolute; top: 50%; left: 50%; width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; transform: translate(-50%, -50%); border: none;" 
             allow="autoplay; encrypted-media">
           </iframe>
-          <!-- रातो रङ्गको ओभरले -->
           <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(185, 28, 28, 0.85); z-index: 2;"></div>
       </div>
 
@@ -24,7 +23,7 @@
           </div>
 
           <!-- रिलहरूको ग्रिड लेआउट -->
-          <div class="fb-reels-grid-custom" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; box-sizing: border-box;">
+          <div class="fb-reels-grid-custom" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; box-sizing: border-box;">
               
               <div class="reel-card-item">
                   <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F2488492351627228%2F&show_text=false&width=267&t=0" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
@@ -60,7 +59,7 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     position: relative;
     width: 100%;
-    padding-bottom: 177.77%; /* 9:16 रेसियो */
+    padding-bottom: 177.77%; /* 9:16 ठाडो रिल साइज रेसियो */
     box-sizing: border-box;
   }
   .reel-card-item iframe {
@@ -73,15 +72,24 @@
     overflow: hidden;
   }
   
-  /* मोबाइल र ट्याब्लेट रेस्पोन्सिभ व्यवस्था */
-  @media (max-width: 900px) {
+  /* डेस्कटपमा ५ वटै स्पष्ट देखिने व्यवस्था */
+  @media (min-width: 901px) {
     .fb-reels-grid-custom {
-      grid-template-columns: repeat(2, 1fr) !important; /* ट्याब्लेटमा २ वटा */
+      grid-template-columns: repeat(5, 1fr) !important;
     }
   }
+
+  /* ट्याब्लेट भ्यु */
+  @media (max-width: 900px) and (min-width: 551px) {
+    .fb-reels-grid-custom {
+      grid-template-columns: repeat(3, 1fr) !important;
+    }
+  }
+
+  /* मोबाइल भ्युमा ठीक एउटा मात्र देखिने व्यवस्था */
   @media (max-width: 550px) {
     .fb-reels-grid-custom {
-      grid-template-columns: 1fr !important; /* मोबाइलमा ठ्याक्कै १ वटा मात्र */
+      grid-template-columns: 1fr !important;
     }
   }
 </style>
