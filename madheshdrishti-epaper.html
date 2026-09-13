@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epaper Gallery</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f9f9f9; 
+            font-family: sans-serif;
+        }
+
+        /* १. टाइटल बार स्टाइल (Top Gap घटाइएको) */
+        .custom-title-bar {
+            display: flex; 
+            align-items: center; 
+            text-align: center;
+            margin: 15px auto 10px auto; /* माथि १५px र तल १०px मार्जिन */
+            max-width: 1400px; 
+            padding: 0 15px;
+        }
+        .custom-title-bar::before, .custom-title-bar::after {
+            content: ''; 
+            flex: 1; 
+            border-bottom: 2px solid #000;
+        }
+        .custom-title-bar span {
+            padding: 0 20px; 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: #000; 
+            white-space: nowrap; 
+        }
+
+        /* २. ग्यालरी कन्टेनर */
+        .drive-page-container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+
+        /* ३. ग्रिड ग्रुप */
+        .grid-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            grid-auto-rows: minmax(250px, auto);
+            grid-gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* पहिलो कार्ड ठूलो बनाउन */
+        .grid-group .drive-card:first-child {
+            grid-row: span 2;
+        }
+
+        .drive-card {
+            background: #fff; 
+            border: 1px solid #333; 
+            display: flex;
+            flex-direction: column; 
+            position: relative; 
+            overflow: hidden;
+            text-decoration: none; 
+            color: inherit; 
+            transition: transform 0.2s;
+        }
+        
+        .drive-card:hover { 
+            transform: scale(1.01); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+
+        .thumb-wrapper { 
+            width: 100%; 
+            height: 100%; 
+            position: relative; 
+            min-height: 200px; 
+        }
+        .thumb-wrapper img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+
+        /* फाइल नेम ओभरले */
+        .file-name-overlay {
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0;
+            background: rgba(0, 0, 0, 0.7); 
+            color: white; 
+            padding: 10px;
+            font-size: 14px; 
+            text-align: center;
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
+        }
+
+        /* ४. लोड मोर बटन र म्यासेज */
+        .btn-container { 
+            text-align: center; 
+            margin: 30px 0; 
+        }
+        #load-more-btn {
+            padding: 12px 30px; 
+            cursor: pointer; 
+            background: #28a745; 
+            color: #fff;
+            border: none; 
+            border-radius: 5px; 
+            font-size: 16px; 
+            display: none;
+        }
+        #status-msg { 
+            text-align: center; 
+            padding: 20px; 
+            font-weight: bold; 
+        }
+
+        /* ५. रेस्पोन्सिभ (मोबाइलको लागि) */
+        @media (max-width: 1000px) {
+            .grid-group { 
+                grid-template-columns: 1fr 1fr; 
+            }
+            .grid-group .drive-card:first-child { 
+                grid-column: span 2; 
+            }
+            .custom-title-bar span { 
+                font-size: 18px; 
+                padding: 0 10px; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="drive-page-container">
+    <div class="custom-title-bar">
+        <span>Epaper पढ्नुहोस्</span>
+    </div>
+
+    <div id="main-gallery-container"></div>
+    
+    <div class="btn-container">
+        <button id="load-more-btn" onclick="handleLoadMore()">थप फाइलहरू हेर्नुहोस्</button>
+    </div>
+    <div id="status-msg">कृपया पर्खनुहोस्, लोड हुँदैछ...</div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbws6ETredBh962H75HTlkpm7eISFyIGQENm_lLq55bFwTGA5QNkOvL0MKnmlQvbeU0/exec";
+let allFiles = []; 
+let displayedCount = 0; 
+const BATCH_SIZE = 9; 
+
+function escapeHTML(str) {
+    return (str || '').replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+    );
+}
+
+async function fetchAndInit() {
+    try {
+        const response = await fetch(SCRIPT_URL);
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+            throw new Error("Invalid response format");
+        }
+        
+        allFiles = data.sort((a, b) => {
+            const timeA = new Date(a.createdTime || a.date || 0).getTime();
+            const timeB = new Date(b.createdTime || b.date || 0).getTime();
+            return timeB - timeA;
+        });
+
+        const statusMsg = document.getElementById('status-msg');
+        if (statusMsg) statusMsg.style.display = 'none';
+        renderBatch(); 
+    } catch (err) {
+        const statusMsg = document.getElementById('status-msg');
+        if (statusMsg) statusMsg.innerHTML = "डाटा लोड गर्न सकिएन। कृपया रिफ्रेस गर्नुहोस्।";
+    }
+}
+
+function createCardHTML(file) {
+    const safeName = escapeHTML(file.name);
+    return `
+        <a href="${file.url}" target="_blank" rel="noopener noreferrer" class="drive-card">
+            <div class="thumb-wrapper">
+                <img src="https://drive.google.com/thumbnail?id=${file.id}&sz=w1000" 
+                     alt="${safeName}" 
+                     loading="lazy" 
+                     onerror="this.onerror=null; this.src='https://placehold.co/400x300?text=No+Preview';">
+                <div class="file-name-overlay">${safeName}</div>
+            </div>
+        </a>
+    `;
+}
+
+function renderBatch() {
+    const mainContainer = document.getElementById('main-gallery-container');
+    if (!mainContainer) return;
+
+    const nextBatch = allFiles.slice(displayedCount, displayedCount + BATCH_SIZE);
+    
+    if (nextBatch.length > 0) {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'grid-group';
+        groupDiv.innerHTML = nextBatch.map(createCardHTML).join('');
+        mainContainer.appendChild(groupDiv);
+    }
+
+    displayedCount += nextBatch.length;
+    updateButtonVisibility();
+}
+
+function updateButtonVisibility() {
+    const btn = document.getElementById('load-more-btn');
+    if (btn) {
+        btn.style.display = (displayedCount < allFiles.length) ? 'inline-block' : 'none';
+    }
+}
+
+function handleLoadMore() {
+    renderBatch();
+}
+
+// ग्यालरी सुरु गर्ने
+fetchAndInit();
+</script>
+
+</body>
+</html>
