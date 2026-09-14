@@ -1,7 +1,7 @@
 /**
- * rastriyasaharadaily - Universal PWA Manager (v2.2 with Multi-Function Footer Support)
+ * rastriyasaharadaily - Universal PWA Manager (v2.3 with Smart iOS/Android Footer Trigger)
  * Works on Blogger, WordPress, and Custom Sites.
- * Functions: Dynamic Manifest, Advanced Service Worker, Offline Support, Auto-Install Prompt, Footer Image Trigger, and Multi-Function Utility.
+ * Functions: Dynamic Manifest, Advanced Service Worker, Offline Support, Auto-Install Prompt, Smart Footer Trigger, and Multi-Function Utility.
  */
 
 const PWA_MANAGER = {
@@ -17,7 +17,7 @@ const PWA_MANAGER = {
         this.injectManifest();
         this.registerAdvancedSW();
         this.initInstallUI();
-        this.initFooterTrigger(); // फुटर बटनको लागि थपिएको फंक्सन
+        this.initFooterTrigger();
     },
 
     // Function 1: Multi-platform Manifest Injection
@@ -116,12 +116,21 @@ const PWA_MANAGER = {
         });
     },
 
-    // Function 4: Footer Image & Button Trigger Utility (Multi-function integrated)
+    // Function 4: Smart Footer Image & Button Trigger Utility (iOS & Android Support)
     initFooterTrigger: function() {
         document.addEventListener('click', async (e) => {
             const trigger = e.target.closest('#footer-pwa-trigger, .footer-pwa-btn');
             if (trigger) {
                 e.preventDefault();
+                
+                // Check if device is iOS (iPhone/iPad)
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIOS) {
+                    alert('आईफोनमा एप राख्नको लागि कृपया तलको "Share" (शेयर) बटनमा थिच्नुहोस् र "Add to Home Screen" विकल्प छान्नुहोस्।');
+                    return;
+                }
+
+                // Android or Desktop PWA prompt
                 if (this.deferredPrompt) {
                     this.deferredPrompt.prompt();
                     const { outcome } = await this.deferredPrompt.userChoice;
@@ -130,7 +139,7 @@ const PWA_MANAGER = {
                     }
                     this.deferredPrompt = null;
                 } else {
-                    alert('इन्स्टल प्रम्प्ट अहिले तयार छैन वा तपाईंको ब्राउजरले यसलाई समर्थन गर्दैन। (यदि एप पहिले नै इन्स्टल भइसकेको छ भने यो देखा पर्दैन)');
+                    alert('एप इन्स्टल गर्न कृपया आफ्नो मोबाइल ब्राउजरको माथिल्लो दायाँतिर रहेको तीनवटा थोप्ला (Menu) मा क्लिक गरी "Install app" वा "Add to Home Screen" छान्नुहोस्।');
                 }
             }
         });
