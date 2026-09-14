@@ -1,7 +1,7 @@
 /**
- * rastriyasaharadaily - Universal PWA Manager (v2.1)
+ * rastriyasaharadaily - Universal PWA Manager (v2.2 with Multi-Function Footer Support)
  * Works on Blogger, WordPress, and Custom Sites.
- * Functions: Dynamic Manifest, Advanced Service Worker, Offline Support, Auto-Install Prompt, and Multi-Function Utility.
+ * Functions: Dynamic Manifest, Advanced Service Worker, Offline Support, Auto-Install Prompt, Footer Image Trigger, and Multi-Function Utility.
  */
 
 const PWA_MANAGER = {
@@ -17,6 +17,7 @@ const PWA_MANAGER = {
         this.injectManifest();
         this.registerAdvancedSW();
         this.initInstallUI();
+        this.initFooterTrigger(); // फुटर बटनको लागि थपिएको फंक्सन
     },
 
     // Function 1: Multi-platform Manifest Injection
@@ -112,6 +113,26 @@ const PWA_MANAGER = {
         document.getElementById('pwa-close-btn').addEventListener('click', () => {
             banner.style.display = 'none';
             localStorage.setItem('pwa_dismissed', 'true');
+        });
+    },
+
+    // Function 4: Footer Image & Button Trigger Utility (Multi-function integrated)
+    initFooterTrigger: function() {
+        document.addEventListener('click', async (e) => {
+            const trigger = e.target.closest('#footer-pwa-trigger, .footer-pwa-btn');
+            if (trigger) {
+                e.preventDefault();
+                if (this.deferredPrompt) {
+                    this.deferredPrompt.prompt();
+                    const { outcome } = await this.deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        console.log('App installed successfully via footer trigger.');
+                    }
+                    this.deferredPrompt = null;
+                } else {
+                    alert('इन्स्टल प्रम्प्ट अहिले तयार छैन वा तपाईंको ब्राउजरले यसलाई समर्थन गर्दैन। (यदि एप पहिले नै इन्स्टल भइसकेको छ भने यो देखा पर्दैन)');
+                }
+            }
         });
     },
 
