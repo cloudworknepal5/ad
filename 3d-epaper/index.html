@@ -7,28 +7,36 @@
     
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
         body { background-color: #f0f2f5; font-family: sans-serif; margin: 0; padding: 0; }
         
+        /* कन्ट्रोल बारलाई माथि आकर्षक रूपमा मिलाइएको */
+        .top-action-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            background: #1e293b;
+            padding: 12px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
         .controls-bar {
-            position: absolute;
-            top: 10px;
-            z-index: 999;
             display: flex;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 6px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
             border-radius: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
         .controls-bar button {
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 6px 14px;
             font-size: 14px;
+            font-weight: bold;
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.2s;
@@ -37,45 +45,54 @@
 
         #book-container {
             width: 100%;
-            max-width: 1000px;
-            height: 75vh;
+            max-width: 1100px;
+            height: 80vh;
             margin: 20px auto;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
             transition: transform 0.3s ease;
+            transform-origin: center center;
         }
         .page {
             background-color: white;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.15);
             position: relative;
+            overflow: hidden;
         }
-        .page img { width: 100%; height: 100%; object-fit: contain; }
+        .page canvas {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain;
+        }
         
+        /* जुम आइकनलाई पानाको कुनामा राखिएको */
         .zoom-icon {
             position: absolute;
             bottom: 15px;
             right: 15px;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.7);
             color: #fff;
-            padding: 6px 10px;
+            padding: 8px 12px;
             border-radius: 50%;
             cursor: pointer;
             font-size: 16px;
-            z-index: 10;
+            z-index: 20;
+            transition: background 0.2s;
         }
         .zoom-icon:hover { background-color: rgba(0, 0, 0, 0.9); }
 
+        /* Lightbox Modal */
         #lightbox-modal {
             display: none;
             position: fixed;
             z-index: 99999;
             left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.9);
             justify-content: center; align-items: center;
         }
-        #lightbox-modal img { max-width: 90%; max-height: 90vh; object-fit: contain; border-radius: 4px; }
+        #lightbox-modal img { max-width: 95%; max-height: 95vh; object-fit: contain; border-radius: 4px; }
         #lightbox-close { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; }
 
         .custom-title-bar {
@@ -120,11 +137,9 @@
 </head>
 <body>
 
-    <div class="text-center py-4 bg-slate-900 text-white shadow-md">
-        <h1 class="text-xl md:text-2xl font-bold" id="main-epaper-title">ताजा ई-पेपर लोड हुँदैछ...</h1>
-    </div>
-
-    <div style="position: relative; display: flex; justify-content: center;">
+    <!-- शीर्ष भाग: शीर्षक र जुम कन्ट्रोलहरू एकै ठाउँमा व्यवस्थित गरिएको -->
+    <div class="top-action-bar">
+        <h1 class="text-lg md:text-xl font-bold text-white mr-auto pl-4" id="main-epaper-title">ताजा ई-पेपर लोड हुँदैछ...</h1>
         <div class="controls-bar">
             <button onclick="zoomIn()" title="Zoom In">➕ जुम इन</button>
             <button onclick="zoomOut()" title="Zoom Out">➖ जुम आउट</button>
@@ -132,9 +147,10 @@
         </div>
     </div>
 
+    <!-- फ्लिपबुक कन्टेनर -->
     <div id="book-container">
         <div id="flipbook">
-            <!-- Dynamic Flipbook Pages -->
+            <!-- सबै पानाहरू यहाँ डाइनामिक रूपमा लोड हुनेछन् -->
         </div>
     </div>
 
@@ -152,7 +168,7 @@
     <!-- Lightbox Modal -->
     <div id="lightbox-modal">
         <span id="lightbox-close">&times;</span>
-        <img id="lightbox-img" src="" alt="Zoomed Page">
+        <img id="lightbox-img" alt="Zoomed Page">
     </div>
 
     <script>
@@ -163,8 +179,11 @@
         let currentScale = 1;
         let pageFlipInstance = null;
 
-        function zoomIn() { if (currentScale < 1.8) { currentScale += 0.15; document.getElementById('book-container').style.transform = `scale(${currentScale})`; } }
-        function zoomOut() { if (currentScale > 0.7) { currentScale -= 0.15; document.getElementById('book-container').style.transform = `scale(${currentScale})`; } }
+        // PDF.js Worker सेटअप
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        function zoomIn() { if (currentScale < 2.2) { currentScale += 0.2; document.getElementById('book-container').style.transform = `scale(${currentScale})`; } }
+        function zoomOut() { if (currentScale > 0.8) { currentScale -= 0.2; document.getElementById('book-container').style.transform = `scale(${currentScale})`; } }
         function resetZoom() { currentScale = 1; document.getElementById('book-container').style.transform = `scale(1)`; }
 
         function escapeHTML(str) {
@@ -180,7 +199,6 @@
                     throw new Error("Invalid or empty data");
                 }
 
-                // नयाँदेखि पुरानोको आधारमा सर्ट गर्ने
                 allFiles = data.sort((a, b) => {
                     const timeA = new Date(a.createdTime || a.date || 0).getTime();
                     const timeB = new Date(b.createdTime || b.date || 0).getTime();
@@ -189,64 +207,85 @@
 
                 document.getElementById('status-msg').style.display = 'none';
 
-                // सबैभन्दा पछिल्लो (Latest) फाइललाई माथिल्लो फ्लिपबुकमा देखाउने
                 const latestFile = allFiles[0];
                 document.getElementById('main-epaper-title').innerText = `आजको ई-पेपर: ${latestFile.name}`;
                 
-                await createFlipbookFromDrive(latestFile.id);
+                // CORS प्रक्सीमार्फत पीडीएफ फाइलका सबै पानाहरू हाइ-रिजोलुसनमा रेन्डर गर्ने
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(latestFile.url)}`;
+                await renderAllPagesFromPDF(proxyUrl);
 
-                // बाँकी पुराना फाइलहरूलाई ग्यालरीमा राख्ने
                 allFiles.shift(); 
                 renderBatch();
 
             } catch (err) {
                 console.error(err);
                 document.getElementById('status-msg').innerHTML = "डाटा लोड गर्न सकिएन।";
-                document.getElementById('main-epaper-title').innerText = "डेटा फेच गर्दा त्रुटी देखियो।";
+                document.getElementById('main-epaper-title').innerText = "ताजा ई-पेपर लोड गर्न समस्या भयो।";
             }
         }
 
-        async function createFlipbookFromDrive(fileId) {
-            const flipbookElem = document.getElementById('flipbook');
-            flipbookElem.innerHTML = '';
+        // PDF का सबै पानाहरूलाई हाइ-रिजोलुसनमा कन्भर्ट गरेर फ्लिपबुकमा राख्ने फंक्सन
+        async function renderAllPagesFromPDF(pdfUrl) {
+            try {
+                const loadingTask = pdfjsLib.getDocument(pdfUrl);
+                const pdf = await loadingTask.promise;
+                const flipbookElem = document.getElementById('flipbook');
+                flipbookElem.innerHTML = '';
 
-            let bookWidth = 450;
-            let bookHeight = 636;
-            if (window.innerWidth < 768) {
-                bookWidth = Math.floor((window.innerWidth * 0.92) / 2);
-                bookHeight = Math.floor(bookWidth * 1.414);
+                let bookWidth = 480;
+                let bookHeight = 680;
+                if (window.innerWidth < 768) {
+                    bookWidth = Math.floor((window.innerWidth * 0.92) / 2);
+                    bookHeight = Math.floor(bookWidth * 1.414);
+                }
+
+                // सबै पानाहरू लूप चलाएर हाइ-रिजोलुसन क्याभासमा रेन्डर गर्ने (अक्षर नफुट्ने गरी scale: 2.5 राखिएको छ)
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale: 2.5 }); 
+                    
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+                    const pageDiv = document.createElement('div');
+                    pageDiv.className = 'page';
+                    pageDiv.appendChild(canvas);
+
+                    // प्रत्येक पानामा जुम आइकन राख्ने
+                    const zoomBtn = document.createElement('div');
+                    zoomBtn.className = 'zoom-icon';
+                    zoomBtn.innerHTML = '🔍';
+                    zoomBtn.title = 'ठूलो गरेर हेर्नुहोस्';
+                    zoomBtn.onclick = () => openZoomModal(canvas.toDataURL('image/jpeg', 0.95));
+                    pageDiv.appendChild(zoomBtn);
+
+                    flipbookElem.appendChild(pageDiv);
+                }
+
+                pageFlipInstance = new St.PageFlip(flipbookElem, {
+                    width: bookWidth,
+                    height: bookHeight,
+                    showCover: true,
+                    maxShadowOpacity: 0.5,
+                    mobileScrollSupport: true,
+                    usePortrait: false
+                });
+
+                pageFlipInstance.loadFromHTML(document.querySelectorAll('.page'));
+
+                const flipSound = new Audio('https://ad.neelamb.com/3d-epaper/image/flip-sound.mp3');
+                pageFlipInstance.on('flip', () => {
+                    flipSound.cloneNode().play().catch(e => console.log("Audio block error:", e));
+                });
+
+            } catch (error) {
+                console.error("PDF Render Error: ", error);
+                document.getElementById('main-epaper-title').innerText = "ताजा ई-पेपर रेन्डर गर्दा त्रुटी देखियो।";
             }
-
-            // ड्राइभको हाइ-रिजोलुसन इमेज/थम्बनेल लिङ्क प्रयोग गरिएको (CORS प्रतिबन्ध नहुने गरी)
-            const imageUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
-
-            // फ्लिपबुक अनुभवको लागि पानाहरू सिर्जना गर्ने
-            for (let i = 1; i <= 2; i++) {
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'page';
-                pageDiv.innerHTML = `
-                    <img src="${imageUrl}" alt="Page ${i}" onerror="this.src='https://placehold.co/600x800?text=Epaper+Page'">
-                    <div class="zoom-icon" onclick="openZoom(this)" title="Zoom">🔍</div>
-                `;
-                flipbookElem.appendChild(pageDiv);
-            }
-
-            pageFlipInstance = new St.PageFlip(flipbookElem, {
-                width: bookWidth,
-                height: bookHeight,
-                showCover: true,
-                maxShadowOpacity: 0.5,
-                mobileScrollSupport: true,
-                usePortrait: false
-            });
-
-            pageFlipInstance.loadFromHTML(document.querySelectorAll('.page'));
-
-            // साउन्ड इफेक्ट
-            const flipSound = new Audio('https://ad.neelamb.com/3d-epaper/image/flip-sound.mp3');
-            pageFlipInstance.on('flip', () => {
-                flipSound.cloneNode().play().catch(e => console.log("Audio block error:", e));
-            });
         }
 
         function createCardHTML(file) {
@@ -283,17 +322,15 @@
         function handleLoadMore() { renderBatch(); }
 
         // Lightbox Functions
-        function openZoom(iconElement) {
-            const imgElement = iconElement.closest('.page').querySelector('img');
+        function openZoomModal(imgDataUrl) {
             const modal = document.getElementById('lightbox-modal');
+            document.getElementById('lightbox-img').src = imgDataUrl;
             modal.style.display = 'flex';
-            document.getElementById('lightbox-img').src = imgElement.src;
         }
 
         document.getElementById('lightbox-close').addEventListener('click', () => { document.getElementById('lightbox-modal').style.display = 'none'; });
         document.getElementById('lightbox-modal').addEventListener('click', function(e) { if(e.target === this) this.style.display = 'none'; });
 
-        // एप सुरु गर्ने
         initApp();
     </script>
 </body>
