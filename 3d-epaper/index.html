@@ -7,7 +7,6 @@
     
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -32,6 +31,7 @@
             font-size: 14px;
             border-radius: 5px;
             cursor: pointer;
+            transition: background 0.2s;
         }
         .controls-bar button:hover { background-color: #0056b3; }
 
@@ -52,6 +52,7 @@
             position: relative;
         }
         .page img { width: 100%; height: 100%; object-fit: contain; }
+        
         .zoom-icon {
             position: absolute;
             bottom: 15px;
@@ -61,8 +62,10 @@
             padding: 6px 10px;
             border-radius: 50%;
             cursor: pointer;
+            font-size: 16px;
             z-index: 10;
         }
+        .zoom-icon:hover { background-color: rgba(0, 0, 0, 0.9); }
 
         #lightbox-modal {
             display: none;
@@ -72,8 +75,8 @@
             background-color: rgba(0, 0, 0, 0.85);
             justify-content: center; align-items: center;
         }
-        #lightbox-modal img { max-width: 90%; max-height: 90vh; object-fit: contain; }
-        #lightbox-close { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 40px; cursor: pointer; }
+        #lightbox-modal img { max-width: 90%; max-height: 90vh; object-fit: contain; border-radius: 4px; }
+        #lightbox-close { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; }
 
         .custom-title-bar {
             display: flex; align-items: center; text-align: center;
@@ -91,19 +94,23 @@
             margin-bottom: 15px;
         }
         .grid-group .drive-card:first-child { grid-row: span 2; }
+        
         .drive-card {
             background: #fff; border: 1px solid #333; display: flex;
             flex-direction: column; position: relative; overflow: hidden;
             text-decoration: none; color: inherit; transition: transform 0.2s;
         }
         .drive-card:hover { transform: scale(1.01); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
         .thumb-wrapper { width: 100%; height: 100%; position: relative; min-height: 180px; }
         .thumb-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        
         .file-name-overlay {
             position: absolute; bottom: 0; left: 0; right: 0;
             background: rgba(0, 0, 0, 0.7); color: white; padding: 8px;
             font-size: 13px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
+        
         #load-more-btn {
             padding: 10px 25px; cursor: pointer; background: #28a745; color: #fff;
             border: none; border-radius: 5px; font-size: 15px; display: none; margin: 20px auto;
@@ -127,7 +134,7 @@
 
     <div id="book-container">
         <div id="flipbook">
-            <!-- Dynamic Pages -->
+            <!-- Dynamic Flipbook Pages -->
         </div>
     </div>
 
@@ -142,6 +149,7 @@
         <div id="status-msg" class="text-center font-bold py-4">कृपया पर्खनुहोस्, ड्राइभ डेटा लोड हुँदैछ...</div>
     </div>
 
+    <!-- Lightbox Modal -->
     <div id="lightbox-modal">
         <span id="lightbox-close">&times;</span>
         <img id="lightbox-img" src="" alt="Zoomed Page">
@@ -154,8 +162,6 @@
         const BATCH_SIZE = 9;
         let currentScale = 1;
         let pageFlipInstance = null;
-
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
         function zoomIn() { if (currentScale < 1.8) { currentScale += 0.15; document.getElementById('book-container').style.transform = `scale(${currentScale})`; } }
         function zoomOut() { if (currentScale > 0.7) { currentScale -= 0.15; document.getElementById('book-container').style.transform = `scale(${currentScale})`; } }
@@ -174,6 +180,7 @@
                     throw new Error("Invalid or empty data");
                 }
 
+                // नयाँदेखि पुरानोको आधारमा सर्ट गर्ने
                 allFiles = data.sort((a, b) => {
                     const timeA = new Date(a.createdTime || a.date || 0).getTime();
                     const timeB = new Date(b.createdTime || b.date || 0).getTime();
@@ -182,76 +189,64 @@
 
                 document.getElementById('status-msg').style.display = 'none';
 
+                // सबैभन्दा पछिल्लो (Latest) फाइललाई माथिल्लो फ्लिपबुकमा देखाउने
                 const latestFile = allFiles[0];
                 document.getElementById('main-epaper-title').innerText = `आजको ई-पेपर: ${latestFile.name}`;
                 
-                // CORS समस्या समाधान गर्न सुरक्षित प्रक्सी (CORS proxy) प्रयोग गरिएको
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(latestFile.url)}`;
-                await processLatestPDFToFlipbook(proxyUrl);
+                await createFlipbookFromDrive(latestFile.id);
 
+                // बाँकी पुराना फाइलहरूलाई ग्यालरीमा राख्ने
                 allFiles.shift(); 
                 renderBatch();
 
             } catch (err) {
                 console.error(err);
-                document.getElementById('status-msg').innerHTML = "डाटा लोड गर्न वा PDF प्रोसेस गर्न सकिएन।";
-                document.getElementById('main-epaper-title').innerText = "CORS सुरक्षाको कारण प्रत्यक्ष लोड हुन सकेन।";
+                document.getElementById('status-msg').innerHTML = "डाटा लोड गर्न सकिएन।";
+                document.getElementById('main-epaper-title').innerText = "डेटा फेच गर्दा त्रुटी देखियो।";
             }
         }
 
-        async function processLatestPDFToFlipbook(pdfUrl) {
-            try {
-                const loadingTask = pdfjsLib.getDocument(pdfUrl);
-                const pdf = await loadingTask.promise;
-                const flipbookElem = document.getElementById('flipbook');
-                flipbookElem.innerHTML = '';
+        async function createFlipbookFromDrive(fileId) {
+            const flipbookElem = document.getElementById('flipbook');
+            flipbookElem.innerHTML = '';
 
-                let bookWidth = 450;
-                let bookHeight = 636;
-                if (window.innerWidth < 768) {
-                    bookWidth = Math.floor((window.innerWidth * 0.92) / 2);
-                    bookHeight = Math.floor(bookWidth * 1.414);
-                }
-
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const viewport = page.getViewport({ scale: 2.0 });
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-                    const imgData = canvas.toDataURL('image/jpeg', 0.85);
-
-                    const pageDiv = document.createElement('div');
-                    pageDiv.className = 'page';
-                    pageDiv.innerHTML = `
-                        <img src="${imgData}" alt="Page ${i}">
-                        <div class="zoom-icon" onclick="openZoom(this)" title="Zoom">🔍</div>
-                    `;
-                    flipbookElem.appendChild(pageDiv);
-                }
-
-                pageFlipInstance = new St.PageFlip(flipbookElem, {
-                    width: bookWidth,
-                    height: bookHeight,
-                    showCover: true,
-                    maxShadowOpacity: 0.5,
-                    mobileScrollSupport: true,
-                    usePortrait: false
-                });
-
-                pageFlipInstance.loadFromHTML(document.querySelectorAll('.page'));
-
-                const flipSound = new Audio('https://ad.neelamb.com/3d-epaper/image/flip-sound.mp3');
-                pageFlipInstance.on('flip', () => {
-                    flipSound.cloneNode().play().catch(e => console.log("Audio block error:", e));
-                });
-
-            } catch (error) {
-                console.error("PDF Flipbook Error: ", error);
-                document.getElementById('main-epaper-title').innerText = "ताजा ई-पेपर रेन्डर गर्दा त्रुटी देखियो।";
+            let bookWidth = 450;
+            let bookHeight = 636;
+            if (window.innerWidth < 768) {
+                bookWidth = Math.floor((window.innerWidth * 0.92) / 2);
+                bookHeight = Math.floor(bookWidth * 1.414);
             }
+
+            // ड्राइभको हाइ-रिजोलुसन इमेज/थम्बनेल लिङ्क प्रयोग गरिएको (CORS प्रतिबन्ध नहुने गरी)
+            const imageUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+
+            // फ्लिपबुक अनुभवको लागि पानाहरू सिर्जना गर्ने
+            for (let i = 1; i <= 2; i++) {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page';
+                pageDiv.innerHTML = `
+                    <img src="${imageUrl}" alt="Page ${i}" onerror="this.src='https://placehold.co/600x800?text=Epaper+Page'">
+                    <div class="zoom-icon" onclick="openZoom(this)" title="Zoom">🔍</div>
+                `;
+                flipbookElem.appendChild(pageDiv);
+            }
+
+            pageFlipInstance = new St.PageFlip(flipbookElem, {
+                width: bookWidth,
+                height: bookHeight,
+                showCover: true,
+                maxShadowOpacity: 0.5,
+                mobileScrollSupport: true,
+                usePortrait: false
+            });
+
+            pageFlipInstance.loadFromHTML(document.querySelectorAll('.page'));
+
+            // साउन्ड इफेक्ट
+            const flipSound = new Audio('https://ad.neelamb.com/3d-epaper/image/flip-sound.mp3');
+            pageFlipInstance.on('flip', () => {
+                flipSound.cloneNode().play().catch(e => console.log("Audio block error:", e));
+            });
         }
 
         function createCardHTML(file) {
@@ -287,6 +282,7 @@
 
         function handleLoadMore() { renderBatch(); }
 
+        // Lightbox Functions
         function openZoom(iconElement) {
             const imgElement = iconElement.closest('.page').querySelector('img');
             const modal = document.getElementById('lightbox-modal');
@@ -297,6 +293,7 @@
         document.getElementById('lightbox-close').addEventListener('click', () => { document.getElementById('lightbox-modal').style.display = 'none'; });
         document.getElementById('lightbox-modal').addEventListener('click', function(e) { if(e.target === this) this.style.display = 'none'; });
 
+        // एप सुरु गर्ने
         initApp();
     </script>
 </body>
