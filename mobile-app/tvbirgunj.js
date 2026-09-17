@@ -10,7 +10,7 @@ const PWA_MANAGER = {
         name: "Tv Birgunj",
         shortName: "Tv Birgunj",
         themeColor: "#2196f3",
-        icon: "https://tvbirgunj.com/wp-content/uploads/2026/09/logo-512.png"
+        icon: "https://tvbirgunj.com/wp-content/uploads/2026/09/logo-512-b.png"
     },
 
     init: function() {
