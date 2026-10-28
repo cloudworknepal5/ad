@@ -69,7 +69,7 @@
 
         const s = document.createElement('script');
         // माग बमोजिम max-results=999 राखिएको छ
-        s.src = `https://adnp.neelamb.com/feeds/posts/default?alt=json-in-script&max-results=999&callback=${cb}`;
+        s.src = `https://www.newskhojtalash.com/feeds/posts/default?alt=json-in-script&max-results=999&callback=${cb}`;
         s.async = true;
         s.onerror = function() {
             console.error("Failed to load ad feed.");
