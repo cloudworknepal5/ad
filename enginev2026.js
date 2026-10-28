@@ -32,13 +32,16 @@
         const container = document.getElementById(cfg.containerId);
         if (!container) return;
 
-        // मल्टिपल कल गर्दा कन्फ्लिक्ट नहोस् भनेर युनिक क्याब्याक नेम बनाइएको
+        // मल्टिपल कल गर्दा कन्फ्लिक्ट नहोस् भनेर युनिक कलब्याक नेम बनाइएको
         const safeId = cfg.containerId.replace(/[^a-zA-Z0-9_]/g, '_');
         const cb = 'cb_' + safeId + '_' + Math.random().toString(36).substring(2, 7);
 
         window[cb] = function(json) {
             try {
-                if (!json.feed || !json.feed.entry) return;
+                if (!json.feed || !json.feed.entry) {
+                    console.warn("Ad feed or entries not found.");
+                    return;
+                }
 
                 const entries = Array.isArray(json.feed.entry) ? json.feed.entry : [json.feed.entry];
                 const targetPageId = cfg.pageId.toLowerCase();
@@ -49,18 +52,24 @@
                     return e.link.some(l => l.rel === 'alternate' && l.href.toLowerCase().includes(targetPageId));
                 });
 
-                if (!entry || !entry.content || !entry.content.$t) return;
+                // थपिएको चेतावनीयुक्त एरर ह्यान्डलिङ
+                if (!entry || !entry.content || !entry.content.$t) {
+                    console.warn("Ad content not found for pageId:", targetPageId);
+                    return;
+                }
 
                 const doc = new DOMParser().parseFromString(entry.content.$t, 'text/html');
                 const imgs = Array.from(doc.querySelectorAll('img'));
 
                 if (imgs.length > 0) {
                     displayAds(container, imgs, cfg.link);
+                } else {
+                    console.warn("No images found inside the ad entry for pageId:", targetPageId);
                 }
             } catch (err) {
                 console.error("Ad Engine Error:", err);
             } finally {
-                // मेमरी क्लिनअपको लागि स्क्रिप्ट ट्याग र ग्लोबल कलर हटाउने
+                // मेमरी क्लिनअपको लागि स्क्रिप्ट ट्याग र ग्लोबल कलब्याक हटाउने
                 if (window[cb]) {
                     delete window[cb];
                 }
@@ -68,11 +77,10 @@
         };
 
         const s = document.createElement('script');
-        // माग बमोजिम max-results=999 राखिएको छ
-        s.src = `https://www.newskhojtalash.com/feeds/posts/default?alt=json-in-script&max-results=999&callback=${cb}`;
+        s.src = `https://adnp.neelamb.com/feeds/posts/default?alt=json-in-script&max-results=999&callback=${cb}`;
         s.async = true;
         s.onerror = function() {
-            console.error("Failed to load ad feed.");
+            console.error("Failed to load ad feed from server.");
         };
         document.body.appendChild(s);
     };
